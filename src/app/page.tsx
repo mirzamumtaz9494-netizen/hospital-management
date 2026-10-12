@@ -9,6 +9,8 @@ import { PatientRegistryTable } from "@/components/PatientRegistryTable";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
 import { PatientDetailsModal } from "@/components/PatientDetailsModal";
 import { PrintSlipModal } from "@/components/PrintSlipModal";
+import { CreateOpModal } from "@/components/CreateOpModal";
+import { CreateIpModal } from "@/components/CreateIpModal";
 import { MOCK_PATIENTS } from "@/data/mockData";
 import { Patient } from "@/types";
 
@@ -17,6 +19,9 @@ export default function DashboardPage() {
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [printPatient, setPrintPatient] = useState<Patient | null>(null);
+  const [isCreateOpOpen, setIsCreateOpOpen] = useState(false);
+  const [isCreateIpOpen, setIsCreateIpOpen] = useState(false);
+  const [ipInitialPatient, setIpInitialPatient] = useState<Patient | null>(null);
   const [activeNav, setActiveNav] = useState("Dashboard");
   const [notification, setNotification] = useState<string | null>(null);
 
@@ -40,10 +45,11 @@ export default function DashboardPage() {
   const handleQuickAction = (actionId: string) => {
     switch (actionId) {
       case "create_op":
-        showToast("Opening Outpatient (OP) Intake Form...");
+        setIsCreateOpOpen(true);
         break;
       case "create_ip":
-        showToast("Opening Inpatient (IP) Admission Desk...");
+        setIpInitialPatient(null);
+        setIsCreateIpOpen(true);
         break;
       case "lab_billing":
         showToast("Opening Laboratory Diagnostic Billing...");
@@ -52,11 +58,26 @@ export default function DashboardPage() {
         showToast("Opening Pharmacy Point of Sale...");
         break;
       case "emergency_services":
-        showToast("Emergency Triage mode activated!");
+        showToast("Emergency Triage mode activated! Directing to Trauma Room 1");
         break;
       default:
         showToast(`Action triggered: ${actionId}`);
     }
+  };
+
+  const handleOpSuccess = (newPatient: Patient) => {
+    setPatients((prev) => [newPatient, ...prev]);
+    showToast(`OP Consultation registered (${newPatient.opIpId})! Opening print preview...`);
+    // Immediately open print preview for OPD slip!
+    setPrintPatient(newPatient);
+  };
+
+  const handleIpSuccess = (admittedPatient: Patient) => {
+    setPatients((prev) => [
+      admittedPatient,
+      ...prev.filter((p) => p.id !== admittedPatient.id),
+    ]);
+    showToast(`Patient ${admittedPatient.name} admitted to ${admittedPatient.wardName} (${admittedPatient.bedNumber})!`);
   };
 
   return (
@@ -65,10 +86,6 @@ export default function DashboardPage() {
       <Header
         onOpenQuickMenu={() => setQuickMenuOpen(true)}
         activeNav={activeNav}
-        onSelectNav={(nav) => {
-          setActiveNav(nav);
-          showToast(`Navigating to ${nav} module...`);
-        }}
       />
 
       {/* 2. Critical Alert Banner */}
@@ -82,7 +99,14 @@ export default function DashboardPage() {
         {/* 12 Core Category Navigation Tiles */}
         <ModuleGrid
           onSelectModule={(modId) => {
-            showToast(`Loading ${modId.toUpperCase()} workspace...`);
+            if (modId === "opd") {
+              window.location.href = "/opd";
+            } else if (modId === "patients") {
+              const el = document.getElementById("patients");
+              el?.scrollIntoView({ behavior: "smooth" });
+            } else {
+              showToast(`Loading ${modId.toUpperCase()} workspace...`);
+            }
           }}
         />
 
@@ -92,7 +116,8 @@ export default function DashboardPage() {
           onViewPatient={(patient) => setSelectedPatient(patient)}
           onPrintSlip={(patient) => setPrintPatient(patient)}
           onAdmitPatient={(patient) => {
-            showToast(`Admitting patient ${patient.name} (${patient.mrId}) to Inpatient Ward...`);
+            setIpInitialPatient(patient);
+            setIsCreateIpOpen(true);
           }}
         />
       </main>
@@ -110,6 +135,19 @@ export default function DashboardPage() {
         isOpen={quickMenuOpen}
         onClose={() => setQuickMenuOpen(false)}
         onActionSelect={handleQuickAction}
+      />
+
+      <CreateOpModal
+        isOpen={isCreateOpOpen}
+        onClose={() => setIsCreateOpOpen(false)}
+        onSuccess={handleOpSuccess}
+      />
+
+      <CreateIpModal
+        isOpen={isCreateIpOpen}
+        onClose={() => setIsCreateIpOpen(false)}
+        onSuccess={handleIpSuccess}
+        initialPatient={ipInitialPatient}
       />
 
       <PatientDetailsModal

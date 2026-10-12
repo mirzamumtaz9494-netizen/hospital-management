@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Activity,
   ChevronDown,
@@ -30,13 +31,13 @@ export const Header: React.FC<HeaderProps> = ({
   const [selectedBranch, setSelectedBranch] = useState("Metro Multispecialty - Main Branch");
 
   const navItems = [
-    { label: "OPD", href: "#opd" },
-    { label: "IPD", href: "#ipd" },
-    { label: "Laboratory", href: "#laboratory" },
-    { label: "Pharmacy", href: "#pharmacy" },
-    { label: "Reports", href: "#reports" },
-    { label: "Admin", href: "#admin" },
-    { label: "Settings", href: "#settings" },
+    { label: "OPD", href: "/opd" },
+    { label: "IPD", href: "/ipd" },
+    { label: "Laboratory", href: "/laboratory" },
+    { label: "Pharmacy", href: "/pharmacy" },
+    { label: "Reports", href: "/reports" },
+    { label: "Admin", href: "/admin" },
+    { label: "Settings", href: "/settings" },
   ];
 
   return (
@@ -45,8 +46,8 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Left Side: Brand Logo + Branch Selector + Nav Links */}
         <div className="flex items-center gap-6 lg:gap-8">
           {/* Logo */}
-          <div className="flex items-center gap-2.5 cursor-pointer">
-            <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 shadow-inner">
+          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
+            <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 shadow-inner group-hover:scale-105 transition-transform">
               <Activity className="w-5 h-5 text-teal-400 stroke-[2.5]" />
             </div>
             <div className="flex flex-col">
@@ -54,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({
                 CarePulse <span className="text-teal-400 font-semibold">HMS</span>
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* Branch Dropdown Pill */}
           <div className="relative hidden md:block">
@@ -97,13 +98,9 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Nav Links */}
           <nav className="hidden xl:flex items-center gap-1 text-sm font-medium">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.label}
                 href={item.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onSelectNav?.(item.label);
-                }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   activeNav === item.label
                     ? "text-teal-400 bg-slate-800 font-semibold"
@@ -111,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
