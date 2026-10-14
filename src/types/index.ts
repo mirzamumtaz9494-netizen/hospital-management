@@ -196,3 +196,117 @@ export interface OpBillItem {
   paymentStatus: "Paid" | "Unpaid" | "Partial";
   cashier: string;
 }
+
+/* IPD & BED MANAGEMENT TYPES */
+
+export type BedStatus = "Occupied" | "Vacant" | "Cleaning";
+
+export interface IpdBed {
+  id: string;
+  bedNumber: string;
+  ward: "ICU" | "General Ward" | "Private Rooms" | "Maternity Ward" | "Cardiac Care Unit (CCU)";
+  floor: "Ground Floor" | "Floor 1" | "Floor 2" | "Floor 3";
+  status: BedStatus;
+  isCritical?: boolean;
+  patientId?: string;
+  patientName?: string;
+  patientInitials?: string;
+  patientAge?: number;
+  patientGender?: "M" | "F" | "Other";
+  mrId?: string;
+  ipNo?: string;
+  doctor?: string;
+  department?: string;
+  admittedDate?: string;
+  dayCount?: number;
+}
+
+export type AdmissionStatus = "Critical" | "Under Observation" | "Stable" | "Ready for Discharge";
+
+export interface ActiveAdmission {
+  id: string;
+  ipNo: string;
+  mrId: string;
+  name: string;
+  initials: string;
+  age: number;
+  gender: "M" | "F" | "Other";
+  phone: string;
+  wardBed: string;
+  wardName: string;
+  bedNumber: string;
+  diagnosis: string;
+  attendingDoctor: string;
+  admittedOn: string;
+  days: number;
+  status: AdmissionStatus;
+  billSoFar: number;
+  advancePaid: number;
+}
+
+export type DischargeOutcome = "Recovered" | "Referred" | "LAMA" | "Expired";
+
+export interface DischargedPatient {
+  id: string;
+  ipNo: string;
+  mrId: string;
+  name: string;
+  initials: string;
+  age: number;
+  gender: "M" | "F" | "Other";
+  phone: string;
+  diagnosis: string;
+  attendingDoctor: string;
+  admittedDate: string;
+  dischargedDate: string;
+  stayDays: number;
+  outcome: DischargeOutcome;
+  finalBill: number;
+  advancePaid: number;
+  paymentStatus: "Paid" | "Partial" | "Unpaid";
+  settlementMode: string;
+  dischargeNotes?: string;
+}
+
+export interface BedTransferRecord {
+  id: string;
+  transferId: string;
+  ipNo: string;
+  mrId: string;
+  patientName: string;
+  fromWard: string;
+  fromBed: string;
+  toWard: string;
+  toBed: string;
+  transferDate: string;
+  transferTime: string;
+  doctor: string;
+  authorizedBy: string;
+  reason: string;
+}
+
+export interface IpBillDetail {
+  id: string;
+  billNo: string;
+  ipNo: string;
+  mrId: string;
+  patientName: string;
+  initials: string;
+  wardBed: string;
+  doctor: string;
+  admissionDate: string;
+  daysStayed: number;
+  bedCharges: number;
+  nursingCharges: number;
+  doctorRoundsFee: number;
+  surgeryOtCharges: number;
+  labCharges: number;
+  pharmacyCharges: number;
+  totalBill: number;
+  advancePaid: number;
+  discount: number;
+  netPayable: number;
+  balanceDue: number;
+  status: "Settled" | "Partially Paid" | "Pending";
+  settlementMode?: string;
+}
