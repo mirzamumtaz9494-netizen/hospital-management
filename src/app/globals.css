@@ -9,6 +9,13 @@
   }
 }
 
+/* Mobile bottom nav safe padding so content does not get hidden under sticky nav */
+@media (max-width: 1279px) {
+  body {
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 /* Custom subtle scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

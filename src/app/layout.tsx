@@ -1,9 +1,28 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#0c1322",
+};
 
 export const metadata: Metadata = {
   title: "CarePulse HMS | Modern Hospital Management System",
-  description: "Next-generation Hospital Management & Clinical Operations Platform",
+  description:
+    "Next-generation Hospital Management & Clinical Operations Platform",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "CarePulse HMS",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({
