@@ -117,7 +117,6 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       "emergency_services",
       "other_services",
       "advance_payment",
-      "bill_settlement",
       "doctor_roster",
     ],
   },
@@ -155,13 +154,10 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       "wards",
     ],
     allowedQuickActions: [
-      "create_op",
-      "create_ip",
-      "lab_billing",
-      "emergency_services",
-      "other_services",
       "doctor_roster",
+      "emergency_services",
       "mis_reports",
+      "other_services",
     ],
   },
   nurse: {
@@ -181,11 +177,9 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
     allowedRoutes: ["/", "/opd", "/ipd", "/doctors", "/services"],
     allowedModules: ["patients", "opd", "ipd", "wards", "doctors", "services"],
     allowedQuickActions: [
-      "create_op",
-      "create_ip",
       "emergency_services",
-      "other_services",
       "doctor_roster",
+      "other_services",
     ],
   },
   pharmacist: {
