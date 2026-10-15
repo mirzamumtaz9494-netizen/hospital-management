@@ -33,4 +33,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
+# archives & product bundles
+*.zip
+Gumroad-Cover/

@@ -2,6 +2,7 @@
   "name": "carepulse-hms",
   "version": "1.0.0",
   "private": true,
+  "license": "Commercial",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
