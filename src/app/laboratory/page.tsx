@@ -120,22 +120,41 @@ export default function LaboratoryPage() {
     setCollectionModalOpen(true);
   };
 
-  const handleConfirmCollection = (orderId: string, phlebotomist: string) => {
+  const handleConfirmCollection = (
+    orderId: string,
+    phlebotomist: string,
+    nextAction?: "barcode" | "results" | "queue"
+  ) => {
     const timeNow = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    let collectedOrder: LabOrder | null = null;
+
     setOrders((prev) =>
-      prev.map((o) =>
-        o.id === orderId
-          ? {
-              ...o,
-              status: "Sample Collected",
-              sampleCollectedAt: timeNow,
-              phlebotomist,
-              tests: o.tests.map((t) => ({ ...t, status: "Sample Collected" })),
-            }
-          : o
-      )
+      prev.map((o) => {
+        if (o.id === orderId) {
+          const updated: LabOrder = {
+            ...o,
+            status: "Sample Collected",
+            sampleCollectedAt: timeNow,
+            phlebotomist,
+            tests: o.tests.map((t) => ({ ...t, status: "Sample Collected" })),
+          };
+          collectedOrder = updated;
+          return updated;
+        }
+        return o;
+      })
     );
+
+    setCollectionModalOpen(false);
+    setCollectionOrder(null);
     showToast("Specimen sample marked collected and queued for analyzer processing!");
+
+    if (nextAction === "barcode" && collectedOrder) {
+      setSelectedBarcodeOrder(collectedOrder);
+      setBarcodeModalOpen(true);
+    } else if (nextAction === "results") {
+      setActiveTab("Results Entry");
+    }
   };
 
   // 3. Save Draft Parameter Results
@@ -403,8 +422,12 @@ export default function LaboratoryPage() {
 
       {/* Sample Collection Modal */}
       <SampleCollectionModal
+        isOpen={collectionModalOpen}
         order={collectionOrder}
-        onClose={() => setCollectionModalOpen(false)}
+        onClose={() => {
+          setCollectionModalOpen(false);
+          setCollectionOrder(null);
+        }}
         onConfirmCollection={handleConfirmCollection}
         onPrintBarcode={handlePrintBarcode}
       />
