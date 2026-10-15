@@ -24,6 +24,7 @@ import {
   FileText,
 } from "lucide-react";
 import { OpQueueItem, AllOpRecord, Patient } from "@/types";
+import { useRole } from "@/context/RoleContext";
 
 interface OpdQueueTabProps {
   queue: OpQueueItem[];
@@ -56,6 +57,7 @@ export const OpdQueueTab: React.FC<OpdQueueTabProps> = ({
   onPrintSlip,
   onViewRecord,
 }) => {
+  const { currentRole } = useRole();
   const [subView, setSubView] = useState<"daily" | "all">("daily");
   const [statusFilter, setStatusFilter] = useState<"All" | "Waiting" | "In Consultation" | "Completed">("All");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<"All" | "Paid" | "Unpaid" | "Partial">("All");
@@ -335,6 +337,8 @@ export const OpdQueueTab: React.FC<OpdQueueTabProps> = ({
                                 ? "Call In"
                                 : item.status === "In Consultation"
                                 ? "Open"
+                                : currentRole === "doctor" || currentRole === "nurse"
+                                ? "View"
                                 : "Bill"}
                             </button>
                             <button
@@ -654,16 +658,20 @@ export const OpdQueueTab: React.FC<OpdQueueTabProps> = ({
                                 <Printer className="w-3.5 h-3.5 text-slate-400" />
                                 Print Consultation Slip
                               </button>
-                              <button
-                                onClick={() => {
-                                  alert(`Printing Official OPD Bill for ${rec.opNo}...`);
-                                  setOpenDropdownId(null);
-                                }}
-                                className="w-full px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-slate-700"
-                              >
-                                <FileText className="w-3.5 h-3.5 text-slate-400" />
-                                Print Bill Receipt
-                              </button>
+                              {(currentRole === "cmo" ||
+                                currentRole === "receptionist" ||
+                                currentRole === "cashier") && (
+                                <button
+                                  onClick={() => {
+                                    alert(`Printing Official OPD Bill for ${rec.opNo}...`);
+                                    setOpenDropdownId(null);
+                                  }}
+                                  className="w-full px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                                >
+                                  <FileText className="w-3.5 h-3.5 text-slate-400" />
+                                  Print Bill Receipt
+                                </button>
+                              )}
                             </div>
                           )}
                         </div>

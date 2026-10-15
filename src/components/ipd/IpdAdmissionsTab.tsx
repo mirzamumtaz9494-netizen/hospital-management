@@ -18,6 +18,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { ActiveAdmission, DischargedPatient, AdmissionStatus, DischargeOutcome } from "@/types";
+import { useRole } from "@/context/RoleContext";
 
 interface IpdAdmissionsTabProps {
   activeAdmissions: ActiveAdmission[];
@@ -53,6 +54,7 @@ export const IpdAdmissionsTab: React.FC<IpdAdmissionsTabProps> = ({
   onDischargePatient,
   onOpenCertificates,
 }) => {
+  const { currentRole } = useRole();
   const [subView, setSubView] = useState<"active" | "discharged">("active");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWard, setSelectedWard] = useState("All");
@@ -399,16 +401,20 @@ export const IpdAdmissionsTab: React.FC<IpdAdmissionsTabProps> = ({
                                 <FileText className="w-3.5 h-3.5 text-slate-400" />
                                 Discharge Summary
                               </button>
-                              <button
-                                onClick={() => {
-                                  onOpenCertificates(adm, "Final Consolidated Bill");
-                                  setOpenDropdownId(null);
-                                }}
-                                className="w-full px-3.5 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-slate-700"
-                              >
-                                <FileCheck className="w-3.5 h-3.5 text-slate-400" />
-                                Final Consolidated Bill
-                              </button>
+                              {(currentRole === "cmo" ||
+                                currentRole === "receptionist" ||
+                                currentRole === "cashier") && (
+                                <button
+                                  onClick={() => {
+                                    onOpenCertificates(adm, "Final Consolidated Bill");
+                                    setOpenDropdownId(null);
+                                  }}
+                                  className="w-full px-3.5 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                                >
+                                  <FileCheck className="w-3.5 h-3.5 text-slate-400" />
+                                  Final Consolidated Bill
+                                </button>
+                              )}
                             </div>
                           )}
                         </div>

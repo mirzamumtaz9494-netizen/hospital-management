@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { AppointmentItem } from "@/types";
+import { useRole } from "@/context/RoleContext";
 
 interface OpdAppointmentsTabProps {
   appointments: AppointmentItem[];
@@ -41,6 +42,7 @@ export const OpdAppointmentsTab: React.FC<OpdAppointmentsTabProps> = ({
   onCheckInToQueue,
   onBookSuccess,
 }) => {
+  const { canAccessAction } = useRole();
   const [statusFilter, setStatusFilter] = useState<"All" | "Confirmed" | "Pending" | "Completed">("All");
   const [selectedDoctor, setSelectedDoctor] = useState("All");
   const [selectedDept, setSelectedDept] = useState("All");
@@ -213,14 +215,17 @@ export const OpdAppointmentsTab: React.FC<OpdAppointmentsTabProps> = ({
               ))}
             </div>
 
-            {/* Book Appointment CTA */}
-            <button
-              onClick={() => setIsBookModalOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-1.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl shadow-xs transition"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Book Appointment</span>
-            </button>
+            {/* Book Appointment CTA (Gated for Receptionist & CMO only) */}
+            {canAccessAction("create_op") && (
+              <button
+                onClick={() => setIsBookModalOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl shadow-xs transition active:scale-95"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Book Appointment</span>
+                <span className="sm:hidden">Book Apt</span>
+              </button>
+            )}
           </div>
         </div>
 
