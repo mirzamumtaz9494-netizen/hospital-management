@@ -145,16 +145,16 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Quick Role Switcher pills */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] font-semibold text-slate-400 mr-1 hidden sm:inline">
+          {/* Quick Role Switcher pills - smooth touch-scrollable strip on mobile */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full sm:flex-wrap sm:pb-0">
+            <span className="text-[11px] font-semibold text-slate-400 mr-1 hidden lg:inline shrink-0">
               Simulate Role:
             </span>
             {allRoles.map((r) => (
               <button
                 key={r.key}
                 onClick={() => setRole(r.key)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition active:scale-95 cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                   r.key === currentRole
                     ? "bg-teal-500 text-slate-950 shadow-xs"
                     : "bg-slate-100 hover:bg-slate-200 text-slate-600"

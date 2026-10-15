@@ -208,8 +208,8 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </Link>
 
-            {/* Interactive Role Switcher Pill */}
-            <div className="relative">
+            {/* Interactive Role Switcher Pill (Tablet & Desktop) */}
+            <div className="relative hidden md:block">
               <button
                 onClick={() => {
                   setRoleSwitcherOpen(!roleSwitcherOpen);
@@ -364,11 +364,11 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Right Side: Quick Menu + Notifications + Dynamic User Profile */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Quick Menu (ShortMenus) Button */}
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            {/* Quick Menu Button (Hidden on small mobile phones where bottom nav FAB handles it) */}
             <button
               onClick={onOpenQuickMenu}
-              className="flex items-center gap-1.5 sm:gap-2 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-teal-500/50 rounded-xl px-2.5 sm:px-3 py-1.5 text-xs font-medium text-slate-200 transition shadow-sm group active:scale-95"
+              className="hidden sm:flex items-center gap-1.5 sm:gap-2 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-teal-500/50 rounded-xl px-2.5 sm:px-3 py-1.5 text-xs font-medium text-slate-200 transition shadow-sm group active:scale-95"
             >
               <span className="group-hover:text-teal-300 text-[11px] sm:text-xs">
                 Quick Menu
