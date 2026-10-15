@@ -738,3 +738,104 @@ export interface PendingAccessRequest {
   status: "Pending" | "Approved" | "Rejected";
 }
 
+/* ========================================================================= */
+/* HOSPITAL SETTINGS & SYSTEM CONFIGURATION TYPES */
+/* ========================================================================= */
+
+export interface HospitalProfileSettings {
+  hospitalName: string;
+  registrationNo: string;
+  nabhTier: string;
+  gstin: string;
+  pan: string;
+  contactPhone: string;
+  emergencyHotline: string;
+  officialEmail: string;
+  website: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  currentBranch: string;
+  availableBranches: string[];
+  currency: string;
+  fiscalYear: string;
+}
+
+export interface ClinicalPreferencesSettings {
+  mrnPrefix: string;
+  mrnDigits: number;
+  currentMrnCounter: number;
+  opTokenPrefix: string;
+  opTokenResetDaily: boolean;
+  autoPrintToken: boolean;
+  ipAdmissionPrefix: string;
+  currentIpCounter: number;
+  drugInteractionWarning: "High Severity Only" | "Moderate & High" | "All Interactions";
+  antibioticStewardshipPrompt: boolean;
+  defaultBpUnit: string;
+  defaultTempUnit: string;
+  defaultWeightUnit: string;
+}
+
+export interface BillingTaxSettings {
+  invoicePrefix: string;
+  currentInvoiceCounter: number;
+  roomRentGstExemptionThreshold: number;
+  medicineGstSlab: number;
+  diagnosticGstExempt: boolean;
+  upiMerchantId: string;
+  cardTerminalProvider: string;
+  autoSubmitTpaPreauth: boolean;
+  cmoDiscountApprovalLimit: number;
+  receiptFooterLegal: string;
+}
+
+export interface NotificationSettings {
+  smsGatewayEnabled: boolean;
+  smsProvider: string;
+  dltRegistrationId: string;
+  whatsappApiEnabled: boolean;
+  emailSmtpConfigured: boolean;
+  notifyOpTokenSms: boolean;
+  notifyLabReadyWhatsApp: boolean;
+  notifyIpAdmitSms: boolean;
+  notifyCriticalLabDoctor: boolean;
+  notifyDischargeBillPdf: boolean;
+}
+
+export interface BackupSecuritySettings {
+  autoBackupEnabled: boolean;
+  backupFrequency: "Daily at 02:00 AM" | "Every 12 Hours" | "Weekly";
+  backupCloudTarget: string;
+  lastBackupTime: string;
+  retentionDays: number;
+  idleTimeoutMinutes: number;
+  maxConcurrentSessions: number;
+  enforceMfaPolicy: boolean;
+  ipSubnetRestriction: string;
+}
+
+export interface DatabaseBackupSnapshot {
+  id: string;
+  timestamp: string;
+  fileName: string;
+  size: string;
+  type: "Automated Daily" | "Manual Snapshot";
+  storageTarget: string;
+  encryption: string;
+  status: "Verified & Stored" | "In Progress" | "Failed";
+  checksumSha256: string;
+}
+
+export interface ExternalIntegrationItem {
+  id: string;
+  integrationName: string;
+  category: "LIS Analyzer HL7" | "PACS DICOM" | "ABDM / ABHA" | "Insurance TPA Gateway" | "SMS/WhatsApp";
+  status: "Connected" | "Configured" | "Disabled";
+  lastSync: string;
+  latencyMs: number;
+  endpointUrl: string;
+  details: string;
+}
+
