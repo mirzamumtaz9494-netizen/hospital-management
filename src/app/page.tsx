@@ -101,6 +101,10 @@ export default function DashboardPage() {
           onSelectModule={(modId) => {
             if (modId === "opd") {
               window.location.href = "/opd";
+            } else if (modId === "ipd" || modId === "wards") {
+              window.location.href = "/ipd";
+            } else if (modId === "lab") {
+              window.location.href = "/laboratory";
             } else if (modId === "patients") {
               const el = document.getElementById("patients");
               el?.scrollIntoView({ behavior: "smooth" });
