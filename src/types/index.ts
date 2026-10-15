@@ -428,3 +428,128 @@ export interface LabBillItem {
   time: string;
   status: "Paid" | "Partial" | "Unpaid";
 }
+
+/* ========================================================================= */
+/* PHARMACY & DRUG INVENTORY SPECIFIC TYPES */
+/* ========================================================================= */
+
+export type MedicineCategory =
+  | "Antibiotics"
+  | "Cardiovascular"
+  | "Analgesics & Pain"
+  | "Gastrointestinal"
+  | "Antidiabetic"
+  | "Respiratory"
+  | "IV Fluids & Infusions"
+  | "Surgical & Consumables";
+
+export type MedicineDosageForm =
+  | "Tablet"
+  | "Capsule"
+  | "Injection"
+  | "Syrup"
+  | "IV Infusion"
+  | "Ointment"
+  | "Inhaler";
+
+export type MedicineSchedule = "OTC" | "Schedule H" | "Schedule H1" | "Narcotic";
+
+export interface MedicineItem {
+  id: string;
+  code: string;
+  name: string;
+  genericName: string;
+  category: MedicineCategory;
+  dosageForm: MedicineDosageForm;
+  strength: string;
+  manufacturer: string;
+  batchNo: string;
+  expiryDate: string;
+  stockQuantity: number;
+  minReorderLevel: number;
+  unitCost: number;
+  mrp: number;
+  schedule: MedicineSchedule;
+  rackLocation: string;
+  status: "In Stock" | "Low Stock" | "Out of Stock" | "Near Expiry";
+}
+
+export interface PharmacyRxItem {
+  id: string;
+  medicineId: string;
+  medicineName: string;
+  genericName: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  quantity: number;
+  batchNo: string;
+  expiryDate: string;
+  unitPrice: number;
+  totalPrice: number;
+  instructions?: string;
+}
+
+export type PharmacyDispenseStatus =
+  | "Pending Dispense"
+  | "Ready for Pickup"
+  | "Dispensed"
+  | "Cancelled";
+
+export interface PharmacyOrder {
+  id: string;
+  rxNumber: string;
+  billNumber?: string;
+  patientName: string;
+  initials: string;
+  mrId: string;
+  opIpNumber: string;
+  age: number;
+  gender: "M" | "F" | "Other";
+  phone: string;
+  prescribingDoctor: string;
+  source: "OPD" | "IPD" | "Emergency" | "Retail Walk-in";
+  wardBed?: string;
+  orderDate: string;
+  orderTime: string;
+  items: PharmacyRxItem[];
+  subtotal: number;
+  discount: number;
+  tax: number;
+  netTotal: number;
+  paymentStatus: "Paid" | "Unpaid" | "Partial" | "Billed to IPD";
+  paymentMode: string;
+  dispenseStatus: PharmacyDispenseStatus;
+  dispensedBy?: string;
+  dispensedAt?: string;
+  notes?: string;
+}
+
+export interface WardIndent {
+  id: string;
+  indentNo: string;
+  wardName: string;
+  requestedByNurse: string;
+  requestedAt: string;
+  priority: "Routine" | "STAT Emergency";
+  items: {
+    medicineName: string;
+    batchNo: string;
+    requestedQty: number;
+    issuedQty: number;
+    unitPrice: number;
+  }[];
+  totalCost: number;
+  status: "Pending Review" | "Issued & Dispatched" | "Delivered";
+}
+
+export interface PharmacyPurchaseOrder {
+  id: string;
+  poNumber: string;
+  supplierName: string;
+  orderDate: string;
+  expectedDate: string;
+  itemsCount: number;
+  totalAmount: number;
+  status: "Order Placed" | "Goods Received (GRN)" | "Payment Settled";
+}
