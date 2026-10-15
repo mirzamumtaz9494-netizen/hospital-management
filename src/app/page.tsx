@@ -52,13 +52,34 @@ export default function DashboardPage() {
         setIsCreateIpOpen(true);
         break;
       case "lab_billing":
-        showToast("Opening Laboratory Diagnostic Billing...");
+        window.location.href = "/laboratory";
         break;
       case "pharmacy_billing":
-        showToast("Opening Pharmacy Point of Sale...");
+        window.location.href = "/pharmacy";
+        break;
+      case "other_services":
+        window.location.href = "/services";
+        break;
+      case "add_expenses":
+        window.location.href = "/accounts";
         break;
       case "emergency_services":
-        showToast("Emergency Triage mode activated! Directing to Trauma Room 1");
+        window.location.href = "/ipd";
+        break;
+      case "advance_payment":
+        window.location.href = "/accounts";
+        break;
+      case "bill_settlement":
+        window.location.href = "/accounts";
+        break;
+      case "doctor_roster":
+        window.location.href = "/doctors";
+        break;
+      case "mis_reports":
+        window.location.href = "/reports";
+        break;
+      case "hospital_settings":
+        window.location.href = "/settings";
         break;
       default:
         showToast(`Action triggered: ${actionId}`);

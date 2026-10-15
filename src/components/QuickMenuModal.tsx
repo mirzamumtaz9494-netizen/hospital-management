@@ -13,6 +13,9 @@ import {
   CreditCard,
   CheckCircle,
   Search,
+  UserCheck,
+  FileText,
+  Settings,
 } from "lucide-react";
 
 interface QuickMenuModalProps {
@@ -50,6 +53,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
       description: "Register new outpatient consultation",
       icon: UserPlus,
       color: "text-teal-600 bg-teal-50 border-teal-200",
+      href: null, // triggers modal
     },
     {
       id: "create_ip",
@@ -57,6 +61,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
       description: "Admit patient to ward / bed",
       icon: BedDouble,
       color: "text-blue-600 bg-blue-50 border-blue-200",
+      href: null, // triggers modal
     },
     {
       id: "lab_billing",
@@ -64,6 +69,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
       description: "Diagnostic test invoice & order",
       icon: FlaskConical,
       color: "text-amber-600 bg-amber-50 border-amber-200",
+      href: "/laboratory",
     },
     {
       id: "pharmacy_billing",
@@ -71,6 +77,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
       description: "Medicine POS & prescription sales",
       icon: Pill,
       color: "text-purple-600 bg-purple-50 border-purple-200",
+      href: "/pharmacy",
     },
     {
       id: "other_services",
@@ -78,6 +85,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
       description: "Nursing, ambulance, physiotherapy",
       icon: Layers,
       color: "text-emerald-600 bg-emerald-50 border-emerald-200",
+      href: "/services",
     },
     {
       id: "add_expenses",
@@ -85,6 +93,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
       description: "Daily hospital vouchers & maintenance",
       icon: Receipt,
       color: "text-rose-600 bg-rose-50 border-rose-200",
+      href: "/accounts",
     },
     {
       id: "emergency_services",
@@ -92,6 +101,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
       description: "Immediate triage & trauma admission",
       icon: AlertOctagon,
       color: "text-red-600 bg-red-50 border-red-200",
+      href: "/ipd",
     },
     {
       id: "advance_payment",
@@ -99,6 +109,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
       description: "Deposit ledger for admitted patients",
       icon: CreditCard,
       color: "text-cyan-600 bg-cyan-50 border-cyan-200",
+      href: "/accounts",
     },
     {
       id: "bill_settlement",
@@ -106,17 +117,51 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
       description: "Final IP discharge billing & receipts",
       icon: CheckCircle,
       color: "text-indigo-600 bg-indigo-50 border-indigo-200",
+      href: "/accounts",
+    },
+    {
+      id: "doctor_roster",
+      title: "Doctors Directory",
+      description: "Duty schedules & consultation suites",
+      icon: UserCheck,
+      color: "text-teal-700 bg-teal-50 border-teal-200",
+      href: "/doctors",
+    },
+    {
+      id: "mis_reports",
+      title: "Hospital Reports",
+      description: "Financial analytics & clinical census",
+      icon: FileText,
+      color: "text-blue-700 bg-blue-50 border-blue-200",
+      href: "/reports",
+    },
+    {
+      id: "hospital_settings",
+      title: "Hospital Settings",
+      description: "System parameters, backups & DLT",
+      icon: Settings,
+      color: "text-slate-700 bg-slate-100 border-slate-300",
+      href: "/settings",
     },
   ];
 
-  const filteredActions = actions.filter((act) =>
-    act.title.toLowerCase().includes(filter.toLowerCase()) ||
-    act.description.toLowerCase().includes(filter.toLowerCase())
+  const filteredActions = actions.filter(
+    (act) =>
+      act.title.toLowerCase().includes(filter.toLowerCase()) ||
+      act.description.toLowerCase().includes(filter.toLowerCase())
   );
 
+  const handleActionClick = (action: typeof actions[0]) => {
+    onActionSelect(action.id);
+    onClose();
+    if (action.href) {
+      window.location.href = action.href;
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-3xl overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
@@ -124,7 +169,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
               Quick Menu • Clinical Action Tray
             </h3>
             <p className="text-xs text-slate-500">
-              Direct access shortcuts for front desk, clinical & billing workflows
+              Direct access shortcuts for front desk, clinical &amp; billing workflows
             </p>
           </div>
           <button
@@ -143,25 +188,22 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
               type="text"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              placeholder="Filter quick actions (e.g. OP, IP, Lab, Bill)..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition"
+              placeholder="Filter quick actions (e.g. OP, IP, Lab, Bill, Services, Doctor)..."
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition"
               autoFocus
             />
           </div>
         </div>
 
-        {/* 9 Tiles Grid */}
+        {/* 12 Tiles Grid */}
         <div className="p-5 grid grid-cols-1 sm:grid-cols-3 gap-3 max-h-[60vh] overflow-y-auto">
           {filteredActions.map((action) => {
             const Icon = action.icon;
             return (
               <button
                 key={action.id}
-                onClick={() => {
-                  onActionSelect(action.id);
-                  onClose();
-                }}
-                className="group p-3.5 rounded-2xl border border-slate-200/90 hover:border-teal-500/60 bg-white hover:bg-teal-50/30 text-left transition-all duration-150 hover:shadow-md flex flex-col justify-between"
+                onClick={() => handleActionClick(action)}
+                className="group p-3.5 rounded-2xl border border-slate-200/90 hover:border-teal-500/60 bg-white hover:bg-teal-50/30 text-left transition-all duration-150 hover:shadow-md flex flex-col justify-between cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div
@@ -169,8 +211,8 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
                   >
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400 group-hover:text-teal-600 transition">
-                    ACTION
+                  <span className="text-[10px] font-mono text-slate-400 group-hover:text-teal-600 transition font-bold">
+                    {action.href ? "NAVIGATE" : "MODAL"}
                   </span>
                 </div>
                 <div>
@@ -188,8 +230,12 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
 
         {/* Footer */}
         <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-          <span>Press <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-mono text-[10px]">ESC</kbd> to exit</span>
-          <span className="text-teal-600 font-semibold">9 Shortcuts Available</span>
+          <span>
+            Press <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-mono text-[10px]">ESC</kbd> to exit
+          </span>
+          <span className="text-teal-600 font-semibold">
+            {actions.length} Clinical &amp; Administrative Shortcuts Available
+          </span>
         </div>
       </div>
     </div>
