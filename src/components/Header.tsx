@@ -30,10 +30,13 @@ import {
   Sparkles,
   ChevronRight,
   Smartphone,
+  UserCheck,
+  Check,
 } from "lucide-react";
 import { MOCK_NOTIFICATIONS } from "@/data/notificationsMockData";
 import { HospitalNotificationItem } from "@/types";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { useRole, RoleKey } from "@/context/RoleContext";
 
 interface HeaderProps {
   onOpenQuickMenu: () => void;
@@ -46,8 +49,12 @@ export const Header: React.FC<HeaderProps> = ({
   activeNav = "Dashboard",
   onSelectNav,
 }) => {
+  const { currentRole, setRole, roleConfig, canAccessRoute, allRoles } =
+    useRole();
+
   const [branchOpen, setBranchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [notifications, setNotifications] =
@@ -155,12 +162,21 @@ export const Header: React.FC<HeaderProps> = ({
     },
   ];
 
+  // Dynamically filter navigation links based on active role permissions
+  const visibleDesktopNavItems = desktopNavItems.filter((item) =>
+    canAccessRoute(item.href)
+  );
+
+  const visibleFullNavItems = fullNavItems.filter((item) =>
+    canAccessRoute(item.href)
+  );
+
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-[#0c1322] border-b border-slate-800 text-white shadow-md">
         <div className="max-w-[1680px] mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Left Side: Hamburger (Mobile) + Brand Logo + Branch Selector + Nav Links */}
-          <div className="flex items-center gap-2.5 sm:gap-4 lg:gap-6">
+          {/* Left Side: Hamburger (Mobile) + Brand Logo + Role Switcher + Branch Selector + Nav Links */}
+          <div className="flex items-center gap-2 sm:gap-3.5 lg:gap-5">
             {/* Mobile Hamburger Drawer Button */}
             <button
               onClick={() => {
@@ -168,6 +184,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setProfileOpen(false);
                 setNotificationsOpen(false);
                 setBranchOpen(false);
+                setRoleSwitcherOpen(false);
               }}
               aria-label="Open Navigation Drawer"
               className="xl:hidden p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white transition active:scale-95"
@@ -178,7 +195,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Logo */}
             <Link
               href="/"
-              className="flex items-center gap-2 cursor-pointer group"
+              className="flex items-center gap-2 cursor-pointer group shrink-0"
             >
               <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 shadow-inner group-hover:scale-105 transition-transform">
                 <Activity className="w-5 h-5 text-teal-400 stroke-[2.5]" />
@@ -191,6 +208,98 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </Link>
 
+            {/* Interactive Role Switcher Pill */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setRoleSwitcherOpen(!roleSwitcherOpen);
+                  setBranchOpen(false);
+                  setProfileOpen(false);
+                  setNotificationsOpen(false);
+                }}
+                className="flex items-center gap-1.5 sm:gap-2 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-teal-500/50 rounded-full px-2.5 sm:px-3 py-1 text-xs font-semibold text-slate-200 transition shadow-sm active:scale-95 cursor-pointer"
+                title="Switch Clinical Role (Live RBAC Simulation)"
+              >
+                <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+                <span className="hidden lg:inline text-[11px] text-slate-400 font-normal">
+                  Role:
+                </span>
+                <span className="text-[11px] text-teal-300 font-semibold truncate max-w-[100px] sm:max-w-[130px]">
+                  {roleConfig.profile.badge}
+                </span>
+                <ChevronDown className="w-3 h-3 text-slate-400" />
+              </button>
+
+              {/* Role Switcher Dropdown */}
+              {roleSwitcherOpen && (
+                <div className="absolute left-0 mt-2 w-72 sm:w-80 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl py-2 z-50 text-xs animate-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-2.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+                    <div>
+                      <span className="font-bold text-white text-xs block">
+                        Switch Clinical Role
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        Live Role-Based Access Control
+                      </span>
+                    </div>
+                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 font-mono font-bold">
+                      {currentRole.toUpperCase()}
+                    </span>
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto p-1.5 space-y-1">
+                    {allRoles.map((r) => {
+                      const isSelected = r.key === currentRole;
+                      return (
+                        <button
+                          key={r.key}
+                          onClick={() => {
+                            setRole(r.key);
+                            setRoleSwitcherOpen(false);
+                          }}
+                          className={`w-full text-left p-2.5 rounded-xl transition flex items-center gap-2.5 cursor-pointer ${
+                            isSelected
+                              ? "bg-teal-500/15 border border-teal-500/30 text-white"
+                              : "hover:bg-slate-800 text-slate-300 hover:text-white"
+                          }`}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={r.profile.avatar}
+                            alt={r.profile.name}
+                            className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-slate-700"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-xs truncate">
+                                {r.profile.name}
+                              </span>
+                              {isSelected ? (
+                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-teal-500 text-slate-950 font-bold flex items-center gap-0.5">
+                                  <Check className="w-2.5 h-2.5" />
+                                  Active
+                                </span>
+                              ) : (
+                                <span className="text-[9px] text-slate-500">
+                                  Select
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[10px] text-teal-400/90 font-medium truncate">
+                              {r.profile.roleLabel}
+                            </div>
+                            <div className="text-[9px] text-slate-400 truncate">
+                              {r.profile.description}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Branch Dropdown Pill (Desktop) */}
             <div className="relative hidden 2xl:block">
               <button
@@ -198,6 +307,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setBranchOpen(!branchOpen);
                   setProfileOpen(false);
                   setNotificationsOpen(false);
+                  setRoleSwitcherOpen(false);
                 }}
                 className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 rounded-full px-3.5 py-1.5 text-xs font-medium text-slate-200 transition-colors"
               >
@@ -235,9 +345,9 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </div>
 
-            {/* Nav Links (Desktop >= 1280px) */}
+            {/* Nav Links (Desktop >= 1280px) - Dynamically Filtered */}
             <nav className="hidden xl:flex items-center gap-0.5 text-sm font-medium">
-              {desktopNavItems.map((item) => (
+              {visibleDesktopNavItems.map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}
@@ -253,7 +363,7 @@ export const Header: React.FC<HeaderProps> = ({
             </nav>
           </div>
 
-          {/* Right Side: Quick Menu + Notifications + Doctor Profile */}
+          {/* Right Side: Quick Menu + Notifications + Dynamic User Profile */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Quick Menu (ShortMenus) Button */}
             <button
@@ -275,6 +385,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setNotificationsOpen(!notificationsOpen);
                   setProfileOpen(false);
                   setBranchOpen(false);
+                  setRoleSwitcherOpen(false);
                 }}
                 title="Hospital Alerts & Notifications"
                 className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 flex items-center justify-center text-slate-300 hover:text-white transition relative cursor-pointer active:scale-95"
@@ -351,7 +462,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                   <div className="p-2 border-t border-slate-800 bg-slate-950/80 text-center">
                     <Link
-                      href="/admin"
+                      href={canAccessRoute("/admin") ? "/admin" : "/"}
                       onClick={() => setNotificationsOpen(false)}
                       className="text-[11px] font-semibold text-slate-400 hover:text-teal-400 transition"
                     >
@@ -362,13 +473,14 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </div>
 
-            {/* Doctor Profile Info & Dropdown */}
+            {/* Dynamic Active User Profile Info & Dropdown */}
             <div className="relative">
               <button
                 onClick={() => {
                   setProfileOpen(!profileOpen);
                   setNotificationsOpen(false);
                   setBranchOpen(false);
+                  setRoleSwitcherOpen(false);
                 }}
                 className="flex items-center gap-2 pl-1.5 sm:pl-2 pr-1 py-1 rounded-xl hover:bg-slate-800/60 transition group cursor-pointer"
               >
@@ -378,8 +490,8 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=256&auto=format&fit=crop"
-                        alt="Dr. Bhargav"
+                        src={roleConfig.profile.avatar}
+                        alt={roleConfig.profile.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -390,10 +502,10 @@ export const Header: React.FC<HeaderProps> = ({
                 {/* Text */}
                 <div className="text-left hidden sm:block">
                   <div className="text-xs font-semibold text-white group-hover:text-teal-300 transition">
-                    Dr. Bhargav
+                    {roleConfig.profile.name}
                   </div>
                   <div className="text-[10px] text-slate-400 font-medium">
-                    Chief Medical Officer
+                    {roleConfig.profile.roleLabel}
                   </div>
                 </div>
 
@@ -402,62 +514,93 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Profile Dropdown */}
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-60 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl py-2 z-50 text-xs animate-in zoom-in-95 duration-150">
-                  <div className="px-4 py-2 border-b border-slate-800">
-                    <p className="font-semibold text-white">Dr. Bhargav</p>
-                    <p className="text-slate-400 text-[11px] font-mono">
-                      dr.bhargav@metrocaredemo.com
+                <div className="absolute right-0 mt-2 w-64 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl py-2 z-50 text-xs animate-in zoom-in-95 duration-150">
+                  <div className="px-4 py-2.5 border-b border-slate-800">
+                    <p className="font-semibold text-white">
+                      {roleConfig.profile.name}
                     </p>
-                    <span className="inline-block px-2 py-0.5 bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded-md text-[10px] font-bold mt-1">
-                      Chief Medical Officer (CMO)
+                    <p className="text-slate-400 text-[11px] font-mono">
+                      {roleConfig.profile.email}
+                    </p>
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold mt-1.5 ${roleConfig.profile.badgeColor}`}
+                    >
+                      {roleConfig.profile.roleLabel}
                     </span>
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      {roleConfig.profile.department}
+                    </p>
                   </div>
 
                   <div className="py-1">
-                    <Link
-                      href="/doctors"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                    >
-                      <User className="w-3.5 h-3.5 text-teal-400" />
-                      Doctors Profile &amp; Schedule
-                    </Link>
+                    {canAccessRoute("/doctors") && (
+                      <Link
+                        href="/doctors"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
+                      >
+                        <User className="w-3.5 h-3.5 text-teal-400" />
+                        Doctors Profile &amp; Schedule
+                      </Link>
+                    )}
 
-                    <Link
-                      href="/settings"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                    >
-                      <Building className="w-3.5 h-3.5 text-blue-400" />
-                      Hospital Settings
-                    </Link>
+                    {canAccessRoute("/services") && (
+                      <Link
+                        href="/services"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
+                      >
+                        <Layers className="w-3.5 h-3.5 text-amber-400" />
+                        Services Catalog (86 listed)
+                      </Link>
+                    )}
 
-                    <Link
-                      href="/admin"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                    >
-                      <Shield className="w-3.5 h-3.5 text-purple-400" />
-                      Role &amp; Permissions (RBAC)
-                    </Link>
+                    {canAccessRoute("/accounts") && (
+                      <Link
+                        href="/accounts"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
+                      >
+                        <Wallet className="w-3.5 h-3.5 text-emerald-400" />
+                        Accounts &amp; Day Book
+                      </Link>
+                    )}
 
-                    <Link
-                      href="/services"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                    >
-                      <Layers className="w-3.5 h-3.5 text-amber-400" />
-                      Services Catalog (86 listed)
-                    </Link>
+                    {canAccessRoute("/settings") && (
+                      <Link
+                        href="/settings"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
+                      >
+                        <Building className="w-3.5 h-3.5 text-blue-400" />
+                        Hospital Settings
+                      </Link>
+                    )}
 
-                    <Link
-                      href="/accounts"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
+                    {canAccessRoute("/admin") && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
+                      >
+                        <Shield className="w-3.5 h-3.5 text-purple-400" />
+                        Role &amp; Permissions (RBAC)
+                      </Link>
+                    )}
+                  </div>
+
+                  {/* Switch Role shortcut inside Profile */}
+                  <div className="border-t border-slate-800 px-3 py-2 bg-slate-950/40">
+                    <button
+                      onClick={() => {
+                        setProfileOpen(false);
+                        setRoleSwitcherOpen(true);
+                      }}
+                      className="w-full text-left py-1 text-[11px] font-semibold text-teal-400 hover:text-teal-300 flex items-center justify-between"
                     >
-                      <Wallet className="w-3.5 h-3.5 text-emerald-400" />
-                      Accounts &amp; Day Book
-                    </Link>
+                      <span>Switch Active Role (RBAC)</span>
+                      <ChevronRight className="w-3 h-3" />
+                    </button>
                   </div>
 
                   <div className="border-t border-slate-800 pt-1">
@@ -465,7 +608,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => {
                         setProfileOpen(false);
                         alert(
-                          "Session active. Use logout to terminate credentials."
+                          `Session active for ${roleConfig.profile.name}. Role: ${roleConfig.profile.roleLabel}.`
                         );
                       }}
                       className="w-full text-left flex items-center gap-2 px-4 py-2 text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
@@ -513,14 +656,40 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
 
+            {/* Role indicator & switcher inside Drawer */}
+            <div className="p-3 bg-slate-900 border-b border-slate-800">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Active Clinical Role
+                </span>
+                <span
+                  className={`text-[9px] px-2 py-0.5 rounded font-mono font-bold ${roleConfig.profile.badgeColor}`}
+                >
+                  {roleConfig.profile.badge}
+                </span>
+              </div>
+              {/* Role Select Dropdown in Drawer */}
+              <select
+                value={currentRole}
+                onChange={(e) => setRole(e.target.value as RoleKey)}
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-teal-400"
+              >
+                {allRoles.map((r) => (
+                  <option key={r.key} value={r.key}>
+                    {r.profile.badge} ({r.profile.name})
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Quick Action Trigger inside Drawer */}
-            <div className="p-3.5 bg-gradient-to-r from-teal-950/40 to-slate-900 border-b border-slate-800/80">
+            <div className="p-3 bg-gradient-to-r from-teal-950/40 to-slate-900 border-b border-slate-800/80">
               <button
                 onClick={() => {
                   setMobileDrawerOpen(false);
                   onOpenQuickMenu();
                 }}
-                className="w-full flex items-center justify-between px-3 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 rounded-xl font-bold text-xs shadow-md shadow-teal-500/20 active:scale-95 transition"
+                className="w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 rounded-xl font-bold text-xs shadow-md shadow-teal-500/20 active:scale-95 transition"
               >
                 <span className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-slate-950" />
@@ -532,12 +701,12 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
 
-            {/* Navigation Modules List */}
+            {/* Navigation Modules List - Filtered by Role */}
             <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
               <div className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Clinical &amp; Hospital Modules
+                Permitted Modules ({visibleFullNavItems.length})
               </div>
-              {fullNavItems.map((item) => {
+              {visibleFullNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive =
                   activeNav === item.label ||
@@ -586,7 +755,7 @@ export const Header: React.FC<HeaderProps> = ({
               })}
             </div>
 
-            {/* Drawer Footer: Doctor profile + PWA Status */}
+            {/* Drawer Footer: Active Profile & PWA status */}
             <div className="p-3.5 border-t border-slate-800 bg-slate-950/60 space-y-2">
               <div className="flex items-center justify-between text-[11px] text-slate-400">
                 <span className="flex items-center gap-1.5">
@@ -600,16 +769,16 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="flex items-center gap-2.5 pt-1">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=256&auto=format&fit=crop"
-                  alt="Dr. Bhargav"
+                  src={roleConfig.profile.avatar}
+                  alt={roleConfig.profile.name}
                   className="w-7 h-7 rounded-full object-cover ring-1 ring-teal-500/40"
                 />
                 <div className="text-[11px]">
                   <p className="font-semibold text-white leading-tight">
-                    Dr. Bhargav (CMO)
+                    {roleConfig.profile.name}
                   </p>
-                  <p className="text-[9px] text-slate-400">
-                    Metro Multispecialty
+                  <p className="text-[9px] text-teal-400">
+                    {roleConfig.profile.roleLabel}
                   </p>
                 </div>
               </div>

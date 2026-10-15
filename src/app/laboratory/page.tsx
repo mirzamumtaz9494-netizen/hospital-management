@@ -20,6 +20,8 @@ import { Header } from "@/components/Header";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
 import { CreateOpModal } from "@/components/CreateOpModal";
 import { CreateIpModal } from "@/components/CreateIpModal";
+import { useRole } from "@/context/RoleContext";
+import { AccessDeniedGuard } from "@/components/AccessDeniedGuard";
 import { LabOrdersTab } from "@/components/laboratory/LabOrdersTab";
 import { PhlebotomyTab } from "@/components/laboratory/PhlebotomyTab";
 import { ResultsEntryTab } from "@/components/laboratory/ResultsEntryTab";
@@ -43,6 +45,7 @@ import {
 } from "@/data/labMockData";
 
 export default function LaboratoryPage() {
+  const { canAccessRoute } = useRole();
   const [activeTab, setActiveTab] = useState<
     "Orders Worklist" | "Phlebotomy" | "Results Entry" | "Test Directory" | "Lab Billing"
   >("Orders Worklist");
@@ -209,6 +212,25 @@ export default function LaboratoryPage() {
         showToast(`Action selected: ${actionId}`);
     }
   };
+
+  if (!canAccessRoute("/laboratory")) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">
+        <Header
+          activeNav="Laboratory"
+          onOpenQuickMenu={() => setIsQuickMenuOpen(true)}
+        />
+        <AccessDeniedGuard
+          moduleName="Clinical Laboratory & Diagnostics (LIS)"
+          requiredRoles={[
+            "Chief Biochemist & Pathologist",
+            "Consultant Doctor",
+            "Chief Medical Officer (CMO)",
+          ]}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">

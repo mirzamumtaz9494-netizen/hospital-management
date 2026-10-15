@@ -20,6 +20,8 @@ import { Header } from "@/components/Header";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
 import { CreateOpModal } from "@/components/CreateOpModal";
 import { CreateIpModal } from "@/components/CreateIpModal";
+import { useRole } from "@/context/RoleContext";
+import { AccessDeniedGuard } from "@/components/AccessDeniedGuard";
 import { FinancialReportsTab } from "@/components/reports/FinancialReportsTab";
 import { ClinicalReportsTab } from "@/components/reports/ClinicalReportsTab";
 import { LabAnalyticsTab } from "@/components/reports/LabAnalyticsTab";
@@ -40,6 +42,7 @@ import {
 } from "@/data/reportsMockData";
 
 export default function ReportsPage() {
+  const { canAccessRoute } = useRole();
   const [activeTab, setActiveTab] = useState<
     | "Financial Analytics"
     | "Clinical & Operations"
@@ -110,6 +113,26 @@ export default function ReportsPage() {
         showToast(`Action selected: ${actionId}`);
     }
   };
+
+  if (!canAccessRoute("/reports")) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">
+        <Header
+          activeNav="Reports"
+          onOpenQuickMenu={() => setIsQuickMenuOpen(true)}
+        />
+        <AccessDeniedGuard
+          moduleName="Hospital Analytics & Financial Reports"
+          requiredRoles={[
+            "Consultant Doctor",
+            "Medical Director",
+            "Chief Medical Officer (CMO)",
+            "Super Administrator",
+          ]}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">

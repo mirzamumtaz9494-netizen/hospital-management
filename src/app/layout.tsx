@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { RoleProvider } from "@/context/RoleContext";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -33,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-[#f8fafc] text-slate-800 antialiased">
-        {children}
+        <RoleProvider>{children}</RoleProvider>
       </body>
     </html>
   );

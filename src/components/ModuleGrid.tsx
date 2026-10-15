@@ -17,12 +17,15 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { MOCK_MODULES } from "@/data/mockData";
+import { useRole } from "@/context/RoleContext";
 
 interface ModuleGridProps {
   onSelectModule?: (moduleId: string) => void;
 }
 
 export const ModuleGrid: React.FC<ModuleGridProps> = ({ onSelectModule }) => {
+  const { canAccessModule } = useRole();
+
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case "users":
@@ -54,9 +57,12 @@ export const ModuleGrid: React.FC<ModuleGridProps> = ({ onSelectModule }) => {
     }
   };
 
+  // Dynamically filter modules based on active role permissions
+  const visibleModules = MOCK_MODULES.filter((mod) => canAccessModule(mod.id));
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-      {MOCK_MODULES.map((mod) => (
+      {visibleModules.map((mod) => (
         <div
           key={mod.id}
           onClick={() => onSelectModule?.(mod.id)}

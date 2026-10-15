@@ -13,8 +13,10 @@ import { CreateOpModal } from "@/components/CreateOpModal";
 import { CreateIpModal } from "@/components/CreateIpModal";
 import { MOCK_PATIENTS } from "@/data/mockData";
 import { Patient } from "@/types";
+import { useRole } from "@/context/RoleContext";
 
 export default function DashboardPage() {
+  const { roleConfig, currentRole, setRole, allRoles } = useRole();
   const [patients, setPatients] = useState<Patient[]>(MOCK_PATIENTS);
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -114,6 +116,68 @@ export default function DashboardPage() {
 
       {/* 3. Main Dashboard Content */}
       <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-4 sm:space-y-5">
+        {/* Active Role Clinical Desk Bar */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-3.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={roleConfig.profile.avatar}
+              alt={roleConfig.profile.name}
+              className="w-10 h-10 rounded-xl object-cover ring-2 ring-teal-500/30 shrink-0"
+            />
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-sm font-bold text-slate-800">
+                  {roleConfig.profile.name}
+                </h2>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-bold font-mono ${roleConfig.profile.badgeColor}`}
+                >
+                  {roleConfig.profile.badge}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500">
+                {roleConfig.profile.department} •{" "}
+                <span className="text-slate-400">
+                  {roleConfig.profile.description}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {/* Quick Role Switcher pills */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] font-semibold text-slate-400 mr-1 hidden sm:inline">
+              Simulate Role:
+            </span>
+            {allRoles.map((r) => (
+              <button
+                key={r.key}
+                onClick={() => setRole(r.key)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition active:scale-95 cursor-pointer ${
+                  r.key === currentRole
+                    ? "bg-teal-500 text-slate-950 shadow-xs"
+                    : "bg-slate-100 hover:bg-slate-200 text-slate-600"
+                }`}
+              >
+                {r.key === "cmo"
+                  ? "CMO / Admin"
+                  : r.key === "receptionist"
+                  ? "Reception"
+                  : r.key === "doctor"
+                  ? "Doctor"
+                  : r.key === "nurse"
+                  ? "Nurse"
+                  : r.key === "pharmacist"
+                  ? "Pharmacy"
+                  : r.key === "lab_tech"
+                  ? "Lab"
+                  : "Cashier"}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Metric Cards (6 KPI Cards) */}
         <MetricCards />
 

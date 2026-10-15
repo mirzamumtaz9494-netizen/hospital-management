@@ -19,6 +19,8 @@ import { Header } from "@/components/Header";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
 import { CreateOpModal } from "@/components/CreateOpModal";
 import { CreateIpModal } from "@/components/CreateIpModal";
+import { useRole } from "@/context/RoleContext";
+import { AccessDeniedGuard } from "@/components/AccessDeniedGuard";
 import { PharmacyDispensingTab } from "@/components/pharmacy/PharmacyDispensingTab";
 import { PharmacyPosTab } from "@/components/pharmacy/PharmacyPosTab";
 import { PharmacyInventoryTab } from "@/components/pharmacy/PharmacyInventoryTab";
@@ -43,6 +45,7 @@ import {
 } from "@/data/pharmacyMockData";
 
 export default function PharmacyPage() {
+  const { canAccessRoute } = useRole();
   const [activeTab, setActiveTab] = useState<
     | "e-Prescriptions"
     | "Retail POS"
@@ -270,6 +273,24 @@ export default function PharmacyPage() {
   const lowStockCount = medicines.filter(
     (m) => m.stockQuantity <= m.minReorderLevel
   ).length;
+
+  if (!canAccessRoute("/pharmacy")) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">
+        <Header
+          activeNav="Pharmacy"
+          onOpenQuickMenu={() => setIsQuickMenuOpen(true)}
+        />
+        <AccessDeniedGuard
+          moduleName="Central Pharmacy & Dispensing POS"
+          requiredRoles={[
+            "Senior Pharmacist & In-Charge",
+            "Chief Medical Officer (CMO)",
+          ]}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">

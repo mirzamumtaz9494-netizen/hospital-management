@@ -22,6 +22,8 @@ import { Header } from "@/components/Header";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
 import { CreateOpModal } from "@/components/CreateOpModal";
 import { CreateIpModal } from "@/components/CreateIpModal";
+import { useRole } from "@/context/RoleContext";
+import { AccessDeniedGuard } from "@/components/AccessDeniedGuard";
 import { UsersTab } from "@/components/admin/UsersTab";
 import { RolesPermissionsTab } from "@/components/admin/RolesPermissionsTab";
 import { DepartmentsTab } from "@/components/admin/DepartmentsTab";
@@ -59,6 +61,7 @@ import {
 } from "@/data/adminMockData";
 
 export default function AdminPage() {
+  const { canAccessRoute } = useRole();
   const [activeTab, setActiveTab] = useState<
     | "Staff Users (RBAC)"
     | "Roles & Privileges"
@@ -216,6 +219,24 @@ export default function AdminPage() {
         showToast(`Action selected: ${actionId}`);
     }
   };
+
+  if (!canAccessRoute("/admin")) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">
+        <Header
+          activeNav="Admin"
+          onOpenQuickMenu={() => setIsQuickMenuOpen(true)}
+        />
+        <AccessDeniedGuard
+          moduleName="Hospital Governance & Administration"
+          requiredRoles={[
+            "Chief Medical Officer (CMO)",
+            "Super Administrator",
+          ]}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">

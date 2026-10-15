@@ -17,6 +17,7 @@ import {
   FileText,
   Settings,
 } from "lucide-react";
+import { useRole } from "@/context/RoleContext";
 
 interface QuickMenuModalProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
   onClose,
   onActionSelect,
 }) => {
+  const { canAccessAction, roleConfig } = useRole();
   const [filter, setFilter] = useState("");
 
   // Keyboard shortcut: close on Escape
@@ -46,7 +48,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
 
   if (!isOpen) return null;
 
-  const actions = [
+  const allActions = [
     {
       id: "create_op",
       title: "Create New OP",
@@ -145,13 +147,18 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
     },
   ];
 
-  const filteredActions = actions.filter(
+  // Filter actions allowed for current active role
+  const roleAllowedActions = allActions.filter((act) =>
+    canAccessAction(act.id)
+  );
+
+  const filteredActions = roleAllowedActions.filter(
     (act) =>
       act.title.toLowerCase().includes(filter.toLowerCase()) ||
       act.description.toLowerCase().includes(filter.toLowerCase())
   );
 
-  const handleActionClick = (action: typeof actions[0]) => {
+  const handleActionClick = (action: (typeof allActions)[0]) => {
     onActionSelect(action.id);
     onClose();
     if (action.href) {
@@ -165,16 +172,26 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
         {/* Header */}
         <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
-            <h3 className="text-base font-bold text-slate-900">
-              Quick Menu • Clinical Action Tray
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-bold text-slate-900">
+                Quick Menu • Clinical Action Tray
+              </h3>
+              <span
+                className={`text-[10px] px-2 py-0.5 rounded-md font-bold font-mono ${roleConfig.profile.badgeColor}`}
+              >
+                {roleConfig.profile.badge}
+              </span>
+            </div>
             <p className="text-xs text-slate-500">
-              Direct access shortcuts for front desk, clinical &amp; billing workflows
+              Direct access shortcuts authorized for{" "}
+              <strong className="text-slate-700">
+                {roleConfig.profile.roleLabel}
+              </strong>
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -195,46 +212,57 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
           </div>
         </div>
 
-        {/* 12 Tiles Grid */}
+        {/* Action Tiles Grid */}
         <div className="p-5 grid grid-cols-1 sm:grid-cols-3 gap-3 max-h-[60vh] overflow-y-auto">
-          {filteredActions.map((action) => {
-            const Icon = action.icon;
-            return (
-              <button
-                key={action.id}
-                onClick={() => handleActionClick(action)}
-                className="group p-3.5 rounded-2xl border border-slate-200/90 hover:border-teal-500/60 bg-white hover:bg-teal-50/30 text-left transition-all duration-150 hover:shadow-md flex flex-col justify-between cursor-pointer"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div
-                    className={`w-9 h-9 rounded-xl border flex items-center justify-center ${action.color} group-hover:scale-105 transition-transform`}
-                  >
-                    <Icon className="w-5 h-5" />
+          {filteredActions.length === 0 ? (
+            <div className="col-span-3 text-center py-8 text-slate-400 text-xs">
+              No matching actions found for {roleConfig.profile.badge}.
+            </div>
+          ) : (
+            filteredActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <button
+                  key={action.id}
+                  onClick={() => handleActionClick(action)}
+                  className="group p-3.5 rounded-2xl border border-slate-200/90 hover:border-teal-500/60 bg-white hover:bg-teal-50/30 text-left transition-all duration-150 hover:shadow-md flex flex-col justify-between cursor-pointer"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div
+                      className={`w-9 h-9 rounded-xl border flex items-center justify-center ${action.color} group-hover:scale-105 transition-transform`}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-400 group-hover:text-teal-600 transition font-bold">
+                      {action.href ? "NAVIGATE" : "MODAL"}
+                    </span>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400 group-hover:text-teal-600 transition font-bold">
-                    {action.href ? "NAVIGATE" : "MODAL"}
-                  </span>
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-800 group-hover:text-teal-900 transition">
-                    {action.title}
+                  <div>
+                    <div className="text-xs font-bold text-slate-800 group-hover:text-teal-900 transition">
+                      {action.title}
+                    </div>
+                    <div className="text-[11px] text-slate-500 font-normal mt-0.5 line-clamp-1">
+                      {action.description}
+                    </div>
                   </div>
-                  <div className="text-[11px] text-slate-500 font-normal mt-0.5 line-clamp-1">
-                    {action.description}
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })
+          )}
         </div>
 
         {/* Footer */}
         <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
           <span>
-            Press <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-mono text-[10px]">ESC</kbd> to exit
+            Press{" "}
+            <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-mono text-[10px]">
+              ESC
+            </kbd>{" "}
+            to exit
           </span>
           <span className="text-teal-600 font-semibold">
-            {actions.length} Clinical &amp; Administrative Shortcuts Available
+            {filteredActions.length} Authorized Actions for{" "}
+            {roleConfig.profile.badge}
           </span>
         </div>
       </div>

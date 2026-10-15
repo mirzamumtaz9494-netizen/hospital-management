@@ -22,6 +22,8 @@ import { Header } from "@/components/Header";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
 import { CreateOpModal } from "@/components/CreateOpModal";
 import { CreateIpModal } from "@/components/CreateIpModal";
+import { useRole } from "@/context/RoleContext";
+import { AccessDeniedGuard } from "@/components/AccessDeniedGuard";
 import { HospitalProfileTab } from "@/components/settings/HospitalProfileTab";
 import { ClinicalPreferencesTab } from "@/components/settings/ClinicalPreferencesTab";
 import { BillingTaxTab } from "@/components/settings/BillingTaxTab";
@@ -53,6 +55,7 @@ import {
 } from "@/data/settingsMockData";
 
 export default function SettingsPage() {
+  const { canAccessRoute } = useRole();
   const [activeTab, setActiveTab] = useState<
     | "Hospital Profile"
     | "Clinical & Safety"
@@ -162,6 +165,24 @@ export default function SettingsPage() {
         showToast(`Action selected: ${actionId}`);
     }
   };
+
+  if (!canAccessRoute("/settings")) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">
+        <Header
+          activeNav="Settings"
+          onOpenQuickMenu={() => setIsQuickMenuOpen(true)}
+        />
+        <AccessDeniedGuard
+          moduleName="Hospital Infrastructure & System Settings"
+          requiredRoles={[
+            "Chief Medical Officer (CMO)",
+            "Super Administrator",
+          ]}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">

@@ -24,10 +24,13 @@ import { Header } from "@/components/Header";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
 import { CreateOpModal } from "@/components/CreateOpModal";
 import { CreateIpModal } from "@/components/CreateIpModal";
+import { useRole } from "@/context/RoleContext";
+import { AccessDeniedGuard } from "@/components/AccessDeniedGuard";
 import { MOCK_ACCOUNT_TRANSACTIONS } from "@/data/accountsMockData";
 import { HospitalAccountTransaction } from "@/types";
 
 export default function AccountsPage() {
+  const { canAccessRoute } = useRole();
   const [transactions, setTransactions] = useState<
     HospitalAccountTransaction[]
   >(MOCK_ACCOUNT_TRANSACTIONS);
@@ -119,6 +122,25 @@ export default function AccountsPage() {
         showToast(`Action selected: ${actionId}`);
     }
   };
+
+  if (!canAccessRoute("/accounts")) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">
+        <Header
+          activeNav="Accounts"
+          onOpenQuickMenu={() => setIsQuickMenuOpen(true)}
+        />
+        <AccessDeniedGuard
+          moduleName="Hospital Accounts & Day Book"
+          requiredRoles={[
+            "Billing Cashier",
+            "Front Desk & Triage Receptionist",
+            "Chief Medical Officer (CMO)",
+          ]}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">
