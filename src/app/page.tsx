@@ -113,6 +113,12 @@ export default function DashboardPage() {
               window.location.href = "/admin";
             } else if (modId === "settings") {
               window.location.href = "/settings";
+            } else if (modId === "doctors") {
+              window.location.href = "/doctors";
+            } else if (modId === "services") {
+              window.location.href = "/services";
+            } else if (modId === "accounts") {
+              window.location.href = "/accounts";
             } else if (modId === "patients") {
               const el = document.getElementById("patients");
               el?.scrollIntoView({ behavior: "smooth" });

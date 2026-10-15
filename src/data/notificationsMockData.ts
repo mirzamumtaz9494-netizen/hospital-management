@@ -1,0 +1,58 @@
+import { HospitalNotificationItem } from "@/types";
+
+export const MOCK_NOTIFICATIONS: HospitalNotificationItem[] = [
+  {
+    id: "notif-01",
+    timestamp: "5 mins ago",
+    title: "Critical Lab Panic Value: Troponin-I Elevated",
+    description: "Patient Suresh Babu (IP-22040) Troponin-I: 1.42 ng/mL (Ref < 0.04). Urgent cardiology review requested.",
+    category: "Critical Alert",
+    unread: true,
+    linkHref: "/laboratory",
+  },
+  {
+    id: "notif-02",
+    timestamp: "20 mins ago",
+    title: "ICU Bed Capacity Alert (90% Occupancy)",
+    description: "Multi-Disciplinary ICU has reached 18 of 20 beds occupied. Only 2 ventilator beds available.",
+    category: "Clinical",
+    unread: true,
+    linkHref: "/ipd",
+  },
+  {
+    id: "notif-03",
+    timestamp: "45 mins ago",
+    title: "8 Staff Access & Elevation Requests Pending",
+    description: "Staff registrations awaiting Administrator verification and RBAC privilege assignment.",
+    category: "Access",
+    unread: true,
+    linkHref: "/admin",
+  },
+  {
+    id: "notif-04",
+    timestamp: "2 hours ago",
+    title: "Near-Expiry Medication Risk Alert",
+    description: "Inj. Meropenem 1g (Batch MP-4091) expires in 28 days. Current stock: 85 vials.",
+    category: "Inventory",
+    unread: true,
+    linkHref: "/pharmacy",
+  },
+  {
+    id: "notif-05",
+    timestamp: "3 hours ago",
+    title: "Statutory License Renewal Reminder",
+    description: "Bio-Medical Waste Management (BMW) Authorization expires in 16 days. Renewal filing pending.",
+    category: "Statutory",
+    unread: true,
+    linkHref: "/admin",
+  },
+  {
+    id: "notif-06",
+    timestamp: "5 hours ago",
+    title: "Automated Daily Cloud Backup Verified",
+    description: "Disaster recovery database snapshot carepulse_db_snapshot_20261015_1300.enc (1.84 GB) stored in AWS S3.",
+    category: "Clinical",
+    unread: false,
+    linkHref: "/settings",
+  },
+];

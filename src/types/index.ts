@@ -839,3 +839,63 @@ export interface ExternalIntegrationItem {
   details: string;
 }
 
+/* ========================================================================= */
+/* HOSPITAL SERVICES, ACCOUNTS & DOCTORS TYPES */
+/* ========================================================================= */
+
+export interface HospitalServiceItem {
+  id: string;
+  code: string;
+  name: string;
+  category: "Radiology & Imaging" | "Surgical & OT" | "Cardiology Procedures" | "Allied & Day Care" | "Emergency Services";
+  department: string;
+  standardFee: number;
+  durationMins: number;
+  nabhCode: string;
+  status: "Active" | "Inactive";
+  isEmergencyAvailable: boolean;
+}
+
+export interface HospitalAccountTransaction {
+  id: string;
+  voucherNo: string;
+  timestamp: string;
+  type: "OP Collection" | "IP Advance" | "Discharge Settlement" | "Pharmacy POS" | "Petty Expense" | "Refund";
+  category: "Revenue" | "Expense" | "Deposit";
+  amount: number;
+  paymentMode: "Cash" | "UPI / QR" | "Credit/Debit Card" | "TPA Cashless";
+  patientOrVendor: string;
+  refNumber: string;
+  cashierName: string;
+  notes: string;
+}
+
+export interface DoctorProfileItem {
+  id: string;
+  name: string;
+  qualifications: string;
+  designation: string;
+  department: string;
+  experienceYears: number;
+  opRoom: string;
+  consultationFee: number;
+  phone: string;
+  email: string;
+  status: "On Duty" | "Available" | "In OT" | "On Leave";
+  timings: string;
+  days: string;
+  rating: number;
+  activePatientsToday: number;
+  avatarUrl?: string;
+}
+
+export interface HospitalNotificationItem {
+  id: string;
+  timestamp: string;
+  title: string;
+  description: string;
+  category: "Critical Alert" | "Clinical" | "Inventory" | "Statutory" | "Access";
+  unread: boolean;
+  linkHref: string;
+}
+
