@@ -45,7 +45,7 @@ import {
 } from "@/data/labMockData";
 
 export default function LaboratoryPage() {
-  const { canAccessRoute } = useRole();
+  const { canAccessRoute, canAccessAction } = useRole();
   const [activeTab, setActiveTab] = useState<
     "Orders Worklist" | "Phlebotomy" | "Results Entry" | "Test Directory" | "Lab Billing"
   >("Orders Worklist");
@@ -292,13 +292,15 @@ export default function LaboratoryPage() {
               Sample Collection Desk
             </button>
 
-            <button
-              onClick={() => setIsNewOrderModalOpen(true)}
-              className="px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-teal-800/20 transition flex items-center gap-1.5"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              New Lab Order
-            </button>
+            {canAccessAction("lab_billing") && (
+              <button
+                onClick={() => setIsNewOrderModalOpen(true)}
+                className="px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-teal-800/20 transition flex items-center gap-1.5 active:scale-95"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>New Lab Order</span>
+              </button>
+            )}
           </div>
         </div>
 
