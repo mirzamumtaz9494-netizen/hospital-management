@@ -19,6 +19,7 @@ import { OpdFollowUpsTab } from "@/components/opd/OpdFollowUpsTab";
 import { OpdBillingTab } from "@/components/opd/OpdBillingTab";
 import { PrintPrescriptionModal } from "@/components/opd/PrintPrescriptionModal";
 import { PrintOpBillModal } from "@/components/opd/PrintOpBillModal";
+import { useRole } from "@/context/RoleContext";
 import {
   OpQueueItem,
   AllOpRecord,
@@ -38,6 +39,7 @@ import {
 } from "@/data/opdMockData";
 
 export default function OutpatientPage() {
+  const { canAccessAction, currentRole } = useRole();
   const [activeTab, setActiveTab] = useState<
     "Queue" | "Appointments" | "Consultations" | "Follow-ups" | "OP Billing"
   >("Queue");
@@ -224,35 +226,40 @@ export default function OutpatientPage() {
           </div>
 
           {/* Top Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={handleCallNext}
-              className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-teal-800 rounded-xl text-xs font-bold transition shadow-2xs hover:shadow"
+              className="flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-teal-800 rounded-xl text-xs font-bold transition shadow-2xs hover:shadow active:scale-95"
             >
               <PhoneCall className="w-4 h-4 text-teal-600" />
-              Call Next
+              <span>Call Next</span>
             </button>
-            <button
-              onClick={() => setIsOpModalOpen(true)}
-              className="flex items-center gap-2 px-5 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold transition shadow-sm hover:shadow"
-            >
-              <Plus className="w-4 h-4" />
-              + New OP Registration
-            </button>
+            {canAccessAction("create_op") && (
+              <button
+                onClick={() => setIsOpModalOpen(true)}
+                className="flex items-center gap-2 px-4 sm:px-5 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold transition shadow-sm hover:shadow active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">+ New OP Registration</span>
+                <span className="sm:hidden">+ New OP</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* 5 Primary Navigation Tabs */}
+        {/* Primary Navigation Tabs Filtered by Role */}
         <div className="border-b border-slate-200 flex items-center gap-4 sm:gap-8 text-xs font-semibold overflow-x-auto">
           {(
             [
-              { id: "Queue", label: "Queue", count: queue.filter((q) => q.status === "Waiting").length },
-              { id: "Appointments", label: "Appointments", count: appointments.filter((a) => a.status === "Confirmed").length },
-              { id: "Consultations", label: "Consultants", count: queue.filter((q) => q.status === "In Consultation").length },
-              { id: "Follow-ups", label: "Follow-up", count: followUps.filter((f) => f.status === "Due Today").length },
-              { id: "OP Billing", label: "OP Billing", count: bills.length },
+              { id: "Queue", label: "Queue", count: queue.filter((q) => q.status === "Waiting").length, roles: ["cmo", "receptionist", "doctor", "nurse", "cashier"] },
+              { id: "Appointments", label: "Appointments", count: appointments.filter((a) => a.status === "Confirmed").length, roles: ["cmo", "receptionist", "doctor", "nurse", "cashier"] },
+              { id: "Consultations", label: "Consultants", count: queue.filter((q) => q.status === "In Consultation").length, roles: ["cmo", "doctor", "nurse", "receptionist"] },
+              { id: "Follow-ups", label: "Follow-up", count: followUps.filter((f) => f.status === "Due Today").length, roles: ["cmo", "doctor", "nurse", "receptionist"] },
+              { id: "OP Billing", label: "OP Billing", count: bills.length, roles: ["cmo", "receptionist", "cashier"] },
             ] as const
-          ).map((tab) => (
+          )
+            .filter((tab) => tab.roles.includes(currentRole as any))
+            .map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}

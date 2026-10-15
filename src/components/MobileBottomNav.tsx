@@ -9,7 +9,12 @@ import {
   BedDouble,
   Sparkles,
   Menu,
+  Pill,
+  FlaskConical,
+  Wallet,
+  Layers,
 } from "lucide-react";
+import { useRole } from "@/context/RoleContext";
 
 interface MobileBottomNavProps {
   onOpenQuickMenu: () => void;
@@ -21,10 +26,30 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   onOpenMenu,
 }) => {
   const pathname = usePathname();
+  const { currentRole } = useRole();
 
   const isHome = pathname === "/";
-  const isOpd = pathname?.startsWith("/opd");
-  const isIpd = pathname?.startsWith("/ipd");
+
+  // Dynamic slot 1 and slot 2 items based on active staff role
+  let slot1 = { label: "OPD", href: "/opd", icon: Stethoscope };
+  let slot2 = { label: "IPD", href: "/ipd", icon: BedDouble };
+
+  if (currentRole === "pharmacist") {
+    slot1 = { label: "Pharmacy", href: "/pharmacy", icon: Pill };
+    slot2 = { label: "Services", href: "/services", icon: Layers };
+  } else if (currentRole === "lab_tech") {
+    slot1 = { label: "Lab", href: "/laboratory", icon: FlaskConical };
+    slot2 = { label: "Services", href: "/services", icon: Layers };
+  } else if (currentRole === "cashier") {
+    slot1 = { label: "Accounts", href: "/accounts", icon: Wallet };
+    slot2 = { label: "OPD", href: "/opd", icon: Stethoscope };
+  }
+
+  const isSlot1Active = pathname?.startsWith(slot1.href);
+  const isSlot2Active = pathname?.startsWith(slot2.href);
+
+  const Slot1Icon = slot1.icon;
+  const Slot2Icon = slot2.icon;
 
   return (
     <nav
@@ -35,7 +60,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         {/* Home */}
         <Link
           href="/"
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-[11px] font-medium ${
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-[11px] font-medium active:scale-95 ${
             isHome
               ? "text-teal-400 font-semibold"
               : "text-slate-400 hover:text-slate-200"
@@ -49,21 +74,21 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <span>Home</span>
         </Link>
 
-        {/* OPD */}
+        {/* Slot 1 (Role-specific) */}
         <Link
-          href="/opd"
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-[11px] font-medium ${
-            isOpd
+          href={slot1.href}
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-[11px] font-medium active:scale-95 ${
+            isSlot1Active
               ? "text-teal-400 font-semibold"
               : "text-slate-400 hover:text-slate-200"
           }`}
         >
-          <Stethoscope
+          <Slot1Icon
             className={`w-5 h-5 mb-0.5 ${
-              isOpd ? "text-teal-400 stroke-[2.2]" : "text-slate-400"
+              isSlot1Active ? "text-teal-400 stroke-[2.2]" : "text-slate-400"
             }`}
           />
-          <span>OPD</span>
+          <span>{slot1.label}</span>
         </Link>
 
         {/* Floating Quick Action Button (Center FAB) */}
@@ -71,35 +96,35 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <button
             onClick={onOpenQuickMenu}
             aria-label="Quick Actions Menu"
-            className="w-12 h-12 rounded-full bg-gradient-to-tr from-teal-500 via-teal-400 to-cyan-400 text-slate-950 font-bold flex items-center justify-center shadow-lg shadow-teal-500/30 hover:scale-105 active:scale-95 transition-all ring-4 ring-[#0c1322]"
+            className="w-12 h-12 rounded-full bg-gradient-to-tr from-teal-500 via-teal-400 to-cyan-400 text-slate-950 font-bold flex items-center justify-center shadow-lg shadow-teal-500/30 hover:scale-105 active:scale-95 transition-all ring-4 ring-[#0c1322] cursor-pointer"
           >
             <Sparkles className="w-5 h-5 text-slate-950 stroke-[2.5]" />
           </button>
           <span className="text-[10px] font-bold text-teal-400 mt-0.5">Quick</span>
         </div>
 
-        {/* IPD */}
+        {/* Slot 2 (Role-specific) */}
         <Link
-          href="/ipd"
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-[11px] font-medium ${
-            isIpd
+          href={slot2.href}
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-[11px] font-medium active:scale-95 ${
+            isSlot2Active
               ? "text-teal-400 font-semibold"
               : "text-slate-400 hover:text-slate-200"
           }`}
         >
-          <BedDouble
+          <Slot2Icon
             className={`w-5 h-5 mb-0.5 ${
-              isIpd ? "text-teal-400 stroke-[2.2]" : "text-slate-400"
+              isSlot2Active ? "text-teal-400 stroke-[2.2]" : "text-slate-400"
             }`}
           />
-          <span>IPD</span>
+          <span>{slot2.label}</span>
         </Link>
 
         {/* Modules Drawer Toggle */}
         <button
           onClick={onOpenMenu}
           aria-label="Open Full Menu"
-          className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-[11px] font-medium text-slate-400 hover:text-slate-200"
+          className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-[11px] font-medium text-slate-400 hover:text-slate-200 active:scale-95 cursor-pointer"
         >
           <Menu className="w-5 h-5 mb-0.5 text-slate-400" />
           <span>Menu</span>

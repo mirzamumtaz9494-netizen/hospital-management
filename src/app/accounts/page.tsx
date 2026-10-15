@@ -30,7 +30,7 @@ import { MOCK_ACCOUNT_TRANSACTIONS } from "@/data/accountsMockData";
 import { HospitalAccountTransaction } from "@/types";
 
 export default function AccountsPage() {
-  const { canAccessRoute } = useRole();
+  const { canAccessRoute, canAccessAction } = useRole();
   const [transactions, setTransactions] = useState<
     HospitalAccountTransaction[]
   >(MOCK_ACCOUNT_TRANSACTIONS);
@@ -199,13 +199,15 @@ export default function AccountsPage() {
               Export Day Book
             </button>
 
-            <button
-              onClick={() => setIsAddExpenseModalOpen(true)}
-              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add Expense Voucher
-            </button>
+            {canAccessAction("add_expenses") && (
+              <button
+                onClick={() => setIsAddExpenseModalOpen(true)}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5 active:scale-95"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Expense Voucher</span>
+              </button>
+            )}
           </div>
         </div>
 

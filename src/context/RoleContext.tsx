@@ -144,7 +144,6 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       "/reports",
     ],
     allowedModules: [
-      "patients",
       "opd",
       "ipd",
       "lab",
@@ -175,7 +174,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
         "Ward bed grid, vitals logging, nursing indents, triage queue, and patient clinical records.",
     },
     allowedRoutes: ["/", "/opd", "/ipd", "/doctors", "/services"],
-    allowedModules: ["patients", "opd", "ipd", "wards", "doctors", "services"],
+    allowedModules: ["opd", "ipd", "wards", "doctors", "services"],
     allowedQuickActions: [
       "emergency_services",
       "doctor_roster",
@@ -197,7 +196,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
         "Medication dispensing, prescription POS, formulary inventory, and narcotic control register.",
     },
     allowedRoutes: ["/", "/pharmacy", "/services"],
-    allowedModules: ["patients", "pharmacy", "services"],
+    allowedModules: ["pharmacy", "services"],
     allowedQuickActions: ["pharmacy_billing", "other_services"],
   },
   lab_tech: {
@@ -215,7 +214,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
         "Phlebotomy sample accessioning, analyzer test results entry, and NABL diagnostic sign-offs.",
     },
     allowedRoutes: ["/", "/laboratory", "/services"],
-    allowedModules: ["patients", "lab", "services"],
+    allowedModules: ["lab", "services"],
     allowedQuickActions: ["lab_billing", "other_services"],
   },
   cashier: {
@@ -233,7 +232,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
         "Day book cash register, advance deposits, IP discharge bill settlement, and expense vouchers.",
     },
     allowedRoutes: ["/", "/accounts", "/services", "/opd", "/ipd"],
-    allowedModules: ["accounts", "services", "patients", "opd", "ipd"],
+    allowedModules: ["accounts", "services", "opd", "ipd"],
     allowedQuickActions: [
       "add_expenses",
       "advance_payment",

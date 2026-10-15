@@ -21,10 +21,12 @@ import { Header } from "@/components/Header";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
 import { CreateOpModal } from "@/components/CreateOpModal";
 import { CreateIpModal } from "@/components/CreateIpModal";
+import { useRole } from "@/context/RoleContext";
 import { MOCK_HOSPITAL_SERVICES } from "@/data/servicesMockData";
 import { HospitalServiceItem } from "@/types";
 
 export default function ServicesPage() {
+  const { currentRole } = useRole();
   const [services, setServices] =
     useState<HospitalServiceItem[]>(MOCK_HOSPITAL_SERVICES);
   const [searchTerm, setSearchTerm] = useState("");
@@ -186,13 +188,15 @@ export default function ServicesPage() {
               Export Catalog
             </button>
 
-            <button
-              onClick={() => setIsAddServiceModalOpen(true)}
-              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add Service Procedure
-            </button>
+            {currentRole === "cmo" && (
+              <button
+                onClick={() => setIsAddServiceModalOpen(true)}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5 active:scale-95"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Service Procedure</span>
+              </button>
+            )}
           </div>
         </div>
 

@@ -14,9 +14,17 @@ import { CreateIpModal } from "@/components/CreateIpModal";
 import { MOCK_PATIENTS } from "@/data/mockData";
 import { Patient } from "@/types";
 import { useRole } from "@/context/RoleContext";
+import {
+  DoctorDashboardView,
+  NurseDashboardView,
+  CashierDashboardView,
+  PharmacistDashboardView,
+  LabTechDashboardView,
+} from "@/components/RoleDashboardViews";
 
 export default function DashboardPage() {
-  const { roleConfig, currentRole, setRole, allRoles } = useRole();
+  const { roleConfig, currentRole, setRole, allRoles, canAccessModule } =
+    useRole();
   const [patients, setPatients] = useState<Patient[]>(MOCK_PATIENTS);
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -213,16 +221,28 @@ export default function DashboardPage() {
           }}
         />
 
-        {/* High-Density Patient Records Table */}
-        <PatientRegistryTable
-          patients={patients}
-          onViewPatient={(patient) => setSelectedPatient(patient)}
-          onPrintSlip={(patient) => setPrintPatient(patient)}
-          onAdmitPatient={(patient) => {
-            setIpInitialPatient(patient);
-            setIsCreateIpOpen(true);
-          }}
-        />
+        {/* High-Density Patient Records Table (Restricted to Front Desk & Super Admin) */}
+        {canAccessModule("patients") ? (
+          <PatientRegistryTable
+            patients={patients}
+            onViewPatient={(patient) => setSelectedPatient(patient)}
+            onPrintSlip={(patient) => setPrintPatient(patient)}
+            onAdmitPatient={(patient) => {
+              setIpInitialPatient(patient);
+              setIsCreateIpOpen(true);
+            }}
+          />
+        ) : currentRole === "doctor" ? (
+          <DoctorDashboardView />
+        ) : currentRole === "nurse" ? (
+          <NurseDashboardView />
+        ) : currentRole === "cashier" ? (
+          <CashierDashboardView />
+        ) : currentRole === "pharmacist" ? (
+          <PharmacistDashboardView />
+        ) : currentRole === "lab_tech" ? (
+          <LabTechDashboardView />
+        ) : null}
       </main>
 
       {/* Floating Toast Notification */}

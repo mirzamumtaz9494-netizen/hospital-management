@@ -29,6 +29,7 @@ import { IpdBillingTab } from "@/components/ipd/IpdBillingTab";
 import { BedTransferModal } from "@/components/ipd/BedTransferModal";
 import { DischargePatientModal } from "@/components/ipd/DischargePatientModal";
 import { PrintCertificatesModal } from "@/components/ipd/PrintCertificatesModal";
+import { useRole } from "@/context/RoleContext";
 import {
   IpdBed,
   ActiveAdmission,
@@ -48,6 +49,7 @@ import {
 } from "@/data/ipdMockData";
 
 export default function InpatientPage() {
+  const { canAccessAction, currentRole } = useRole();
   const [activeTab, setActiveTab] = useState<
     "Bed Map" | "Admissions" | "Transfers" | "IP Billing"
   >("Bed Map");
@@ -478,38 +480,45 @@ export default function InpatientPage() {
               Transfer Bed
             </button>
 
-            <button
-              onClick={() => setIsNewIpModalOpen(true)}
-              className="px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-teal-800/20 transition flex items-center gap-1.5"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              New Admission
-            </button>
+            {canAccessAction("create_ip") && (
+              <button
+                onClick={() => setIsNewIpModalOpen(true)}
+                className="px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-teal-800/20 transition flex items-center gap-1.5 active:scale-95"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>New Admission</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Tab Navigation Pill Bar */}
+        {/* Tab Navigation Pill Bar Filtered by Role */}
         <div className="flex items-center gap-2 border-b border-slate-200/80 pb-3 mb-5 overflow-x-auto no-scrollbar">
           {(
             [
-              { id: "Bed Map", label: "Bed Map", badge: "234/300" },
+              { id: "Bed Map", label: "Bed Map", badge: "234/300", roles: ["cmo", "receptionist", "doctor", "nurse"] },
               {
                 id: "Admissions",
                 label: "Admissions",
                 badge: `${admissions.length} Active`,
+                roles: ["cmo", "receptionist", "doctor", "nurse", "cashier"],
               },
               {
                 id: "Transfers",
                 label: "Transfers",
                 badge: `${transfers.length}`,
+                roles: ["cmo", "receptionist", "doctor", "nurse", "cashier"],
               },
               {
                 id: "IP Billing",
                 label: "IP Billing",
                 badge: `${bills.filter((b) => b.balanceDue > 0).length} Due`,
+                roles: ["cmo", "receptionist", "cashier"],
               },
             ] as const
-          ).map((tab) => {
+          )
+            .filter((tab) => tab.roles.includes(currentRole as any))
+            .map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
