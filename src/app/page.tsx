@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Lock, Sparkles, ShieldCheck, Clock } from "lucide-react";
 import { Header } from "@/components/Header";
 import { AlertBanner } from "@/components/AlertBanner";
 import { MetricCards } from "@/components/MetricCards";
@@ -23,7 +24,7 @@ import {
 } from "@/components/RoleDashboardViews";
 
 export default function DashboardPage() {
-  const { roleConfig, currentRole, setRole, allRoles, canAccessModule } =
+  const { roleConfig, currentRole, canAccessModule, lockSession } =
     useRole();
   const [patients, setPatients] = useState<Patient[]>(MOCK_PATIENTS);
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
@@ -153,36 +154,35 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Quick Role Switcher pills - smooth touch-scrollable strip on mobile */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full sm:flex-wrap sm:pb-0">
-            <span className="text-[11px] font-semibold text-slate-400 mr-1 hidden lg:inline shrink-0">
-              Simulate Role:
-            </span>
-            {allRoles.map((r) => (
-              <button
-                key={r.key}
-                onClick={() => setRole(r.key)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
-                  r.key === currentRole
-                    ? "bg-teal-500 text-slate-950 shadow-xs"
-                    : "bg-slate-100 hover:bg-slate-200 text-slate-600"
-                }`}
-              >
-                {r.key === "cmo"
-                  ? "CMO / Admin"
-                  : r.key === "receptionist"
-                  ? "Reception"
-                  : r.key === "doctor"
-                  ? "Doctor"
-                  : r.key === "nurse"
-                  ? "Nurse"
-                  : r.key === "pharmacist"
-                  ? "Pharmacy"
-                  : r.key === "lab_tech"
-                  ? "Lab"
-                  : "Cashier"}
-              </button>
-            ))}
+          {/* Clinical Shift & Terminal Station Status */}
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="font-semibold text-slate-700">Station Active</span>
+              <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">
+                • Counter 02 (NABH)
+              </span>
+            </div>
+
+            <button
+              onClick={() => lockSession()}
+              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 cursor-pointer"
+              title="Lock Clinical Terminal"
+            >
+              <Lock className="w-3.5 h-3.5 text-slate-500" />
+              <span className="hidden sm:inline">Lock Station</span>
+            </button>
+
+            <button
+              onClick={() => setQuickMenuOpen(true)}
+              className="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow-xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+              <span>Actions</span>
+              <span className="text-[10px] bg-teal-200/60 px-1 rounded font-mono hidden md:inline">
+                ⌘K
+              </span>
+            </button>
           </div>
         </div>
 
