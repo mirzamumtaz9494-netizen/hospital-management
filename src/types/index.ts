@@ -553,3 +553,53 @@ export interface PharmacyPurchaseOrder {
   totalAmount: number;
   status: "Order Placed" | "Goods Received (GRN)" | "Payment Settled";
 }
+
+/* ========================================================================= */
+/* HOSPITAL REPORTS, ANALYTICS & MIS TYPES */
+/* ========================================================================= */
+
+export type ReportCategory =
+  | "Financial"
+  | "Clinical"
+  | "Laboratory"
+  | "Pharmacy"
+  | "Compliance"
+  | "Executive";
+
+export interface SavedReportItem {
+  id: string;
+  code: string;
+  title: string;
+  description: string;
+  category: ReportCategory;
+  frequency: "Daily" | "Weekly" | "Monthly" | "On-Demand";
+  lastGenerated: string;
+  generatedBy: string;
+  format: "PDF" | "Excel" | "CSV";
+  size: string;
+  tags: string[];
+}
+
+export interface DepartmentRevenueItem {
+  department: string;
+  opdRevenue: number;
+  ipdRevenue: number;
+  labRevenue: number;
+  pharmacyRevenue: number;
+  totalRevenue: number;
+  patientCount: number;
+  growth: number;
+}
+
+export interface HospitalCensusStats {
+  date: string;
+  totalAdmissions: number;
+  totalDischarges: number;
+  occupiedBeds: number;
+  occupancyRate: number;
+  opdVisits: number;
+  erVisits: number;
+  surgeriesConducted: number;
+  avgLengthOfStay: number;
+}
+

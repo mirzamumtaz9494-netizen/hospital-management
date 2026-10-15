@@ -107,6 +107,8 @@ export default function DashboardPage() {
               window.location.href = "/laboratory";
             } else if (modId === "pharmacy") {
               window.location.href = "/pharmacy";
+            } else if (modId === "reports") {
+              window.location.href = "/reports";
             } else if (modId === "patients") {
               const el = document.getElementById("patients");
               el?.scrollIntoView({ behavior: "smooth" });
