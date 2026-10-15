@@ -243,6 +243,12 @@ interface RoleContextValue {
   canAccessModule: (moduleId: string) => boolean;
   canAccessAction: (actionId: string) => boolean;
   allRoles: RoleConfig[];
+  isAuthenticated: boolean;
+  login: (role: RoleKey, customName?: string) => void;
+  logout: () => void;
+  isLocked: boolean;
+  lockSession: () => void;
+  unlockSession: (pin: string) => boolean;
 }
 
 const RoleContext = createContext<RoleContextValue | undefined>(undefined);
@@ -251,13 +257,21 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [currentRole, setCurrentRole] = useState<RoleKey>("cmo");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [isLocked, setIsLocked] = useState<boolean>(false);
 
-  // Load persisted role if any
+  // Load persisted auth and role if any
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("carepulse_active_role") as RoleKey;
-      if (saved && ROLES_REGISTRY[saved]) {
-        setCurrentRole(saved);
+      const savedRole = localStorage.getItem("carepulse_active_role") as RoleKey;
+      if (savedRole && ROLES_REGISTRY[savedRole]) {
+        setCurrentRole(savedRole);
+      }
+      const savedAuth = localStorage.getItem("carepulse_is_auth");
+      if (savedAuth === "false") {
+        setIsAuthenticated(false);
+      } else {
+        setIsAuthenticated(true);
       }
     } catch {
       // Ignore localStorage issues in SSR
@@ -271,6 +285,44 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch {
       // Ignore
     }
+  };
+
+  const login = (role: RoleKey, customName?: string) => {
+    setCurrentRole(role);
+    setIsAuthenticated(true);
+    setIsLocked(false);
+    try {
+      localStorage.setItem("carepulse_active_role", role);
+      localStorage.setItem("carepulse_is_auth", "true");
+      if (customName) {
+        localStorage.setItem("carepulse_user_name", customName);
+      }
+    } catch {
+      // Ignore
+    }
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    setIsLocked(false);
+    try {
+      localStorage.setItem("carepulse_is_auth", "false");
+    } catch {
+      // Ignore
+    }
+  };
+
+  const lockSession = () => {
+    setIsLocked(true);
+  };
+
+  const unlockSession = (pin: string): boolean => {
+    // Default unlock pin: 1234 or any 4-digit code
+    if (pin === "1234" || pin.length === 4) {
+      setIsLocked(false);
+      return true;
+    }
+    return false;
   };
 
   const roleConfig = ROLES_REGISTRY[currentRole] || ROLES_REGISTRY.cmo;
@@ -306,6 +358,12 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
         canAccessModule,
         canAccessAction,
         allRoles,
+        isAuthenticated,
+        login,
+        logout,
+        isLocked,
+        lockSession,
+        unlockSession,
       }}
     >
       {children}

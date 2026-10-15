@@ -17,6 +17,7 @@ import {
   FileText,
   Settings,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useRole } from "@/context/RoleContext";
 
 interface QuickMenuModalProps {
@@ -30,6 +31,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
   onClose,
   onActionSelect,
 }) => {
+  const router = useRouter();
   const { canAccessAction, roleConfig } = useRole();
   const [filter, setFilter] = useState("");
 
@@ -162,7 +164,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
     onActionSelect(action.id);
     onClose();
     if (action.href) {
-      window.location.href = action.href;
+      router.push(action.href);
     }
   };
 

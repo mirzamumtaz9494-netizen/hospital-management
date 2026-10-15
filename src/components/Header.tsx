@@ -32,11 +32,18 @@ import {
   Smartphone,
   UserCheck,
   Check,
+  KeyRound,
+  Lock,
+  UserPlus,
+  LogIn,
 } from "lucide-react";
 import { MOCK_NOTIFICATIONS } from "@/data/notificationsMockData";
 import { HospitalNotificationItem } from "@/types";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useRole, RoleKey } from "@/context/RoleContext";
+import { LogoutModal } from "@/components/auth/LogoutModal";
+import { ChangePasswordModal } from "@/components/auth/ChangePasswordModal";
+import { LockScreenModal } from "@/components/auth/LockScreenModal";
 
 interface HeaderProps {
   onOpenQuickMenu: () => void;
@@ -49,14 +56,22 @@ export const Header: React.FC<HeaderProps> = ({
   activeNav = "Dashboard",
   onSelectNav,
 }) => {
-  const { currentRole, setRole, roleConfig, canAccessRoute, allRoles } =
-    useRole();
+  const {
+    currentRole,
+    setRole,
+    roleConfig,
+    canAccessRoute,
+    allRoles,
+    lockSession,
+  } = useRole();
 
   const [branchOpen, setBranchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
   const [notifications, setNotifications] =
     useState<HospitalNotificationItem[]>(MOCK_NOTIFICATIONS);
   const [selectedBranch, setSelectedBranch] = useState(
@@ -589,32 +604,61 @@ export const Header: React.FC<HeaderProps> = ({
                     )}
                   </div>
 
-                  {/* Switch Role shortcut inside Profile */}
-                  <div className="border-t border-slate-800 px-3 py-2 bg-slate-950/40">
+                  {/* Security & Terminal Actions inside Profile */}
+                  <div className="border-t border-slate-800 py-1 bg-slate-950/40">
                     <button
                       onClick={() => {
                         setProfileOpen(false);
                         setRoleSwitcherOpen(true);
                       }}
-                      className="w-full text-left py-1 text-[11px] font-semibold text-teal-400 hover:text-teal-300 flex items-center justify-between"
+                      className="w-full text-left px-4 py-1.5 text-[11px] font-semibold text-teal-400 hover:text-teal-300 hover:bg-slate-800/50 flex items-center justify-between cursor-pointer"
                     >
                       <span>Switch Active Role (RBAC)</span>
                       <ChevronRight className="w-3 h-3" />
                     </button>
+
+                    <button
+                      onClick={() => {
+                        setProfileOpen(false);
+                        lockSession();
+                      }}
+                      className="w-full text-left flex items-center gap-2.5 px-4 py-1.5 text-slate-300 hover:bg-slate-800 hover:text-white transition cursor-pointer text-xs"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-amber-400" />
+                      Lock Clinical Terminal
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setProfileOpen(false);
+                        setChangePasswordModalOpen(true);
+                      }}
+                      className="w-full text-left flex items-center gap-2.5 px-4 py-1.5 text-slate-300 hover:bg-slate-800 hover:text-white transition cursor-pointer text-xs"
+                    >
+                      <KeyRound className="w-3.5 h-3.5 text-teal-400" />
+                      Change Password
+                    </button>
+
+                    <Link
+                      href="/register"
+                      onClick={() => setProfileOpen(false)}
+                      className="w-full text-left flex items-center gap-2.5 px-4 py-1.5 text-slate-300 hover:bg-slate-800 hover:text-white transition text-xs"
+                    >
+                      <UserPlus className="w-3.5 h-3.5 text-cyan-400" />
+                      Register New Staff
+                    </Link>
                   </div>
 
                   <div className="border-t border-slate-800 pt-1">
                     <button
                       onClick={() => {
                         setProfileOpen(false);
-                        alert(
-                          `Session active for ${roleConfig.profile.name}. Role: ${roleConfig.profile.roleLabel}.`
-                        );
+                        setLogoutModalOpen(true);
                       }}
-                      className="w-full text-left flex items-center gap-2 px-4 py-2 text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+                      className="w-full text-left flex items-center gap-2 px-4 py-2 text-rose-400 hover:bg-rose-500/10 transition cursor-pointer font-semibold"
                     >
                       <LogOut className="w-3.5 h-3.5" />
-                      Log Out
+                      End Shift &amp; Log Out
                     </button>
                   </div>
                 </div>
@@ -766,21 +810,72 @@ export const Header: React.FC<HeaderProps> = ({
                   ● Standalone
                 </span>
               </div>
-              <div className="flex items-center gap-2.5 pt-1">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={roleConfig.profile.avatar}
-                  alt={roleConfig.profile.name}
-                  className="w-7 h-7 rounded-full object-cover ring-1 ring-teal-500/40"
-                />
-                <div className="text-[11px]">
-                  <p className="font-semibold text-white leading-tight">
-                    {roleConfig.profile.name}
-                  </p>
-                  <p className="text-[9px] text-teal-400">
-                    {roleConfig.profile.roleLabel}
-                  </p>
+
+              {/* Active Profile Info */}
+              <div className="flex items-center justify-between pt-1">
+                <div className="flex items-center gap-2.5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={roleConfig.profile.avatar}
+                    alt={roleConfig.profile.name}
+                    className="w-8 h-8 rounded-full object-cover ring-1 ring-teal-500/40"
+                  />
+                  <div className="text-[11px]">
+                    <p className="font-semibold text-white leading-tight">
+                      {roleConfig.profile.name}
+                    </p>
+                    <p className="text-[9px] text-teal-400">
+                      {roleConfig.profile.roleLabel}
+                    </p>
+                  </div>
                 </div>
+
+                <button
+                  onClick={() => {
+                    setMobileDrawerOpen(false);
+                    lockSession();
+                  }}
+                  className="p-1.5 rounded-lg bg-slate-800 text-amber-400 hover:bg-slate-700 transition"
+                  title="Lock Terminal"
+                >
+                  <Lock className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Mobile Drawer Auth Actions */}
+              <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-slate-800/80">
+                <button
+                  onClick={() => {
+                    setMobileDrawerOpen(false);
+                    setChangePasswordModalOpen(true);
+                  }}
+                  className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-teal-300 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
+                >
+                  <KeyRound className="w-3 h-3" />
+                  <span>Password</span>
+                </button>
+
+                <Link
+                  href="/register"
+                  onClick={() => setMobileDrawerOpen(false)}
+                  className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-300 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
+                >
+                  <UserPlus className="w-3 h-3" />
+                  <span>Register</span>
+                </Link>
+              </div>
+
+              <div className="pt-1">
+                <button
+                  onClick={() => {
+                    setMobileDrawerOpen(false);
+                    setLogoutModalOpen(true);
+                  }}
+                  className="w-full py-2 bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/30 text-rose-300 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition active:scale-95"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>End Duty Shift &amp; Log Out</span>
+                </button>
               </div>
             </div>
           </div>
@@ -792,6 +887,19 @@ export const Header: React.FC<HeaderProps> = ({
         onOpenQuickMenu={onOpenQuickMenu}
         onOpenMenu={() => setMobileDrawerOpen(true)}
       />
+
+      {/* Global Auth & Session Modals */}
+      <LogoutModal
+        isOpen={logoutModalOpen}
+        onClose={() => setLogoutModalOpen(false)}
+      />
+
+      <ChangePasswordModal
+        isOpen={changePasswordModalOpen}
+        onClose={() => setChangePasswordModalOpen(false)}
+      />
+
+      <LockScreenModal />
     </>
   );
 };
