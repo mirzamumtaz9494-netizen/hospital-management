@@ -109,6 +109,8 @@ export default function DashboardPage() {
               window.location.href = "/pharmacy";
             } else if (modId === "reports") {
               window.location.href = "/reports";
+            } else if (modId === "admin") {
+              window.location.href = "/admin";
             } else if (modId === "patients") {
               const el = document.getElementById("patients");
               el?.scrollIntoView({ behavior: "smooth" });

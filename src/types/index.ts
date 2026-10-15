@@ -603,3 +603,138 @@ export interface HospitalCensusStats {
   avgLengthOfStay: number;
 }
 
+/* ========================================================================= */
+/* HOSPITAL ADMINISTRATION, RBAC & GOVERNANCE TYPES */
+/* ========================================================================= */
+
+export type StaffRole =
+  | "Super Administrator"
+  | "Medical Director"
+  | "Consultant Doctor"
+  | "Head Nurse"
+  | "Senior Pharmacist"
+  | "Chief Biochemist"
+  | "Billing Cashier";
+
+export interface AdminStaffUser {
+  id: string;
+  employeeId: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: StaffRole;
+  department: string;
+  designation: string;
+  status: "Active" | "Suspended" | "Pending Approval";
+  twoFactorEnabled: boolean;
+  lastActive: string;
+  joinDate: string;
+}
+
+export interface RoleDefinition {
+  id: string;
+  roleName: StaffRole;
+  description: string;
+  usersCount: number;
+  isSystemRole: boolean;
+  permissions: {
+    canViewMedicalRecords: boolean;
+    canPrescribeMedication: boolean;
+    canAdmitDischargeIP: boolean;
+    canWaiveBillDiscounts: boolean;
+    canDispenseNarcotics: boolean;
+    canSignLabResults: boolean;
+    canManageUsers: boolean;
+    canEditTariffMasters: boolean;
+    canExportFinancialMIS: boolean;
+    canAccessAuditLogs: boolean;
+  };
+}
+
+export interface HospitalDepartmentItem {
+  id: string;
+  code: string;
+  name: string;
+  type: "Clinical" | "Diagnostic" | "Support" | "Administrative";
+  hodName: string;
+  floorLocation: string;
+  block: string;
+  bedQuota: number;
+  onDutyDoctors: number;
+  opFee: number;
+  status: "Active" | "Inactive";
+}
+
+export interface DoctorRosterSchedule {
+  id: string;
+  doctorName: string;
+  department: string;
+  shift: "Morning (08:00 - 14:00)" | "Evening (14:00 - 20:00)" | "Night (20:00 - 08:00)" | "On-Call Emergency";
+  dayOfWeek: string;
+  roomNo: string;
+  status: "On Duty" | "Scheduled" | "Leave";
+}
+
+export interface WardTariffMaster {
+  id: string;
+  wardCode: string;
+  wardName: string;
+  category: "Intensive Care" | "Critical Care" | "General" | "Private" | "Specialty";
+  dailyBedRate: number;
+  nursingRate: number;
+  rmoRate: number;
+  totalDailyTariff: number;
+  occupancyBeds: number;
+  totalBeds: number;
+  taxPercent: number;
+}
+
+export interface BiomedicalAssetItem {
+  id: string;
+  assetCode: string;
+  assetName: string;
+  model: string;
+  department: string;
+  serialNo: string;
+  purchaseDate: string;
+  amcVendor: string;
+  amcExpiry: string;
+  nextCalibration: string;
+  status: "Operational" | "Maintenance Due" | "Breakdown / Repair" | "Under Calibration";
+  riskClass: "Class A - High Risk" | "Class B - Medium Risk" | "Class C - Low Risk";
+}
+
+export interface StatutoryLicenseItem {
+  id: string;
+  licenseName: string;
+  authority: string;
+  licenseNo: string;
+  issueDate: string;
+  expiryDate: string;
+  daysLeft: number;
+  status: "Valid" | "Expiring Soon" | "Renewal Pending";
+  documentRef: string;
+}
+
+export interface SystemAuditLogItem {
+  id: string;
+  timestamp: string;
+  userName: string;
+  userRole: string;
+  actionType: "User Access" | "Financial Override" | "Clinical Change" | "Inventory Authorization" | "System Config";
+  details: string;
+  ipAddress: string;
+  severity: "Info" | "Warning" | "Critical";
+}
+
+export interface PendingAccessRequest {
+  id: string;
+  applicantName: string;
+  applicantEmail: string;
+  requestedRole: StaffRole;
+  department: string;
+  justification: string;
+  requestDate: string;
+  status: "Pending" | "Approved" | "Rejected";
+}
+
