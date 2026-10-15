@@ -310,3 +310,121 @@ export interface IpBillDetail {
   status: "Settled" | "Partially Paid" | "Pending";
   settlementMode?: string;
 }
+
+/* ========================================================================= */
+/* LABORATORY & DIAGNOSTICS (LIS) SPECIFIC TYPES */
+/* ========================================================================= */
+
+export type LabOrderStatus =
+  | "Pending Sample"
+  | "Sample Collected"
+  | "In Analysis"
+  | "Pending Approval"
+  | "Completed"
+  | "Cancelled";
+
+export type LabPriority = "Routine" | "Stat" | "Emergency";
+
+export type LabDepartment =
+  | "Hematology"
+  | "Biochemistry"
+  | "Microbiology"
+  | "Serology"
+  | "Immunology"
+  | "Clinical Pathology"
+  | "Radiology / Imaging";
+
+export interface LabTestParameter {
+  id: string;
+  name: string;
+  unit: string;
+  normalRange: string;
+  minValue?: number;
+  maxValue?: number;
+  defaultValue?: string | number;
+}
+
+export interface LabCatalogItem {
+  id: string;
+  code: string;
+  name: string;
+  department: LabDepartment;
+  sampleType: string;
+  tubeColor: string;
+  tatHours: number;
+  price: number;
+  parameters: LabTestParameter[];
+}
+
+export interface LabParameterResult {
+  parameterId: string;
+  parameterName: string;
+  unit: string;
+  normalRange: string;
+  value: string;
+  flag?: "Normal" | "High" | "Low" | "Critical";
+  notes?: string;
+}
+
+export interface LabOrderTestItem {
+  id: string;
+  testCode: string;
+  testName: string;
+  department: LabDepartment;
+  price: number;
+  status: LabOrderStatus;
+  sampleType: string;
+  tubeColor: string;
+  results?: LabParameterResult[];
+}
+
+export interface LabOrder {
+  id: string;
+  orderNo: string;
+  barcode: string;
+  patientId: string;
+  mrId: string;
+  opIpNo: string;
+  patientName: string;
+  initials: string;
+  age: number;
+  gender: "M" | "F" | "Other";
+  phone: string;
+  source: "OPD" | "IPD" | "Emergency" | "Walk-in";
+  wardBed?: string;
+  referringDoctor: string;
+  tests: LabOrderTestItem[];
+  totalAmount: number;
+  paidAmount: number;
+  paymentStatus: "Paid" | "Unpaid" | "Partial";
+  priority: LabPriority;
+  orderDate: string;
+  orderTime: string;
+  sampleCollectedAt?: string;
+  phlebotomist?: string;
+  analyzedAt?: string;
+  technician?: string;
+  approvedAt?: string;
+  approvedBy?: string;
+  status: LabOrderStatus;
+  clinicalNotes?: string;
+}
+
+export interface LabBillItem {
+  id: string;
+  billNo: string;
+  orderNo: string;
+  patientName: string;
+  mrId: string;
+  doctor: string;
+  tests: { testName: string; department: string; cost: number }[];
+  totalCost: number;
+  discount: number;
+  netPayable: number;
+  paidAmount: number;
+  balanceDue: number;
+  paymentMode: string;
+  date: string;
+  time: string;
+  status: "Paid" | "Partial" | "Unpaid";
+}
