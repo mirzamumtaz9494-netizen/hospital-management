@@ -18,9 +18,12 @@ import {
   AlertCircle,
   BedDouble,
   ChevronDown,
+  Lock,
+  ShieldAlert,
 } from "lucide-react";
 import { ConsultationEncounter, PrescriptionMedicine, OpQueueItem, Patient } from "@/types";
 import { MOCK_CONSULTATION_ENCOUNTER } from "@/data/opdMockData";
+import { useRole } from "@/context/RoleContext";
 
 interface OpdConsultationsTabProps {
   queue: OpQueueItem[];
@@ -35,6 +38,10 @@ export const OpdConsultationsTab: React.FC<OpdConsultationsTabProps> = ({
   onPrintPrescription,
   onAdmitToIp,
 }) => {
+  const { currentRole } = useRole();
+  const isDoctorOrCmo = currentRole === "doctor" || currentRole === "cmo";
+  const isNurse = currentRole === "nurse";
+
   const [encounter, setEncounter] = useState<ConsultationEncounter>(MOCK_CONSULTATION_ENCOUNTER);
   const [selectedDoctor, setSelectedDoctor] = useState("Dr. S. Reddy");
 
@@ -294,30 +301,50 @@ export const OpdConsultationsTab: React.FC<OpdConsultationsTabProps> = ({
           {/* Chief Complaints & Clinical Diagnosis */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                Chief Complaints & Symptoms
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                  Chief Complaints &amp; Symptoms
+                </label>
+                {!isDoctorOrCmo && (
+                  <span className="text-[10px] text-slate-400 italic">Doctor Only</span>
+                )}
+              </div>
               <textarea
                 rows={3}
+                readOnly={!isDoctorOrCmo}
                 value={encounter.chiefComplaints}
                 onChange={(e) =>
                   setEncounter({ ...encounter, chiefComplaints: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                className={`w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-medium ${
+                  !isDoctorOrCmo
+                    ? "cursor-default bg-slate-50/70 opacity-90"
+                    : "focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                }`}
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                Provisional Diagnosis & Findings
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                  Provisional Diagnosis &amp; Findings
+                </label>
+                {!isDoctorOrCmo && (
+                  <span className="text-[10px] text-slate-400 italic">Doctor Only</span>
+                )}
+              </div>
               <textarea
                 rows={3}
+                readOnly={!isDoctorOrCmo}
                 value={encounter.diagnosis}
                 onChange={(e) =>
                   setEncounter({ ...encounter, diagnosis: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                className={`w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-medium ${
+                  !isDoctorOrCmo
+                    ? "cursor-default bg-slate-50/70 opacity-90"
+                    : "focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                }`}
               />
             </div>
           </div>
@@ -341,7 +368,7 @@ export const OpdConsultationsTab: React.FC<OpdConsultationsTabProps> = ({
                     <th className="py-2 px-3">Frequency</th>
                     <th className="py-2 px-3">Duration</th>
                     <th className="py-2 px-3">Instructions</th>
-                    <th className="py-2 px-3 text-right">Remove</th>
+                    {isDoctorOrCmo && <th className="py-2 px-3 text-right">Remove</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -352,77 +379,99 @@ export const OpdConsultationsTab: React.FC<OpdConsultationsTabProps> = ({
                       <td className="py-2.5 px-3 text-teal-800 font-bold">{med.frequency}</td>
                       <td className="py-2.5 px-3 text-slate-700">{med.duration}</td>
                       <td className="py-2.5 px-3 text-slate-500 italic">{med.instructions}</td>
-                      <td className="py-2.5 px-3 text-right">
-                        <button
-                          onClick={() => handleRemoveMedicine(med.id)}
-                          className="p-1 text-slate-400 hover:text-rose-600 transition"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
+                      {isDoctorOrCmo && (
+                        <td className="py-2.5 px-3 text-right">
+                          <button
+                            onClick={() => handleRemoveMedicine(med.id)}
+                            className="p-1 text-slate-400 hover:text-rose-600 transition"
+                            title="Remove medication"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            {/* Add medicine row input */}
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-wrap items-center gap-2 text-xs">
-              <input
-                type="text"
-                placeholder="Medicine Name (e.g. Tab. Pan 40mg)"
-                value={newMed.medicine}
-                onChange={(e) => setNewMed({ ...newMed, medicine: e.target.value })}
-                className="flex-1 min-w-[160px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 font-medium"
-              />
-              <input
-                type="text"
-                placeholder="Dosage (1 Tab)"
-                value={newMed.dosage}
-                onChange={(e) => setNewMed({ ...newMed, dosage: e.target.value })}
-                className="w-24 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"
-              />
-              <select
-                value={newMed.frequency}
-                onChange={(e) => setNewMed({ ...newMed, frequency: e.target.value })}
-                className="bg-white border border-slate-200 rounded-lg px-2 py-1.5 font-medium"
-              >
-                <option value="1-0-0">1-0-0 (Morning)</option>
-                <option value="1-0-1">1-0-1 (Morning & Night)</option>
-                <option value="1-1-1">1-1-1 (TID)</option>
-                <option value="0-0-1">0-0-1 (Bedtime)</option>
-                <option value="SOS">SOS (When needed)</option>
-              </select>
-              <input
-                type="text"
-                placeholder="Duration (e.g. 5 Days)"
-                value={newMed.duration}
-                onChange={(e) => setNewMed({ ...newMed, duration: e.target.value })}
-                className="w-24 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"
-              />
-              <input
-                type="text"
-                placeholder="Instructions (After food)"
-                value={newMed.instructions}
-                onChange={(e) => setNewMed({ ...newMed, instructions: e.target.value })}
-                className="flex-1 min-w-[120px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"
-              />
-              <button
-                type="button"
-                onClick={handleAddMedicine}
-                className="flex items-center gap-1 px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-lg shadow-2xs"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Add
-              </button>
-            </div>
+            {/* Add medicine row input - Gated to Doctor and CMO only */}
+            {isDoctorOrCmo ? (
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-wrap items-center gap-2 text-xs">
+                <input
+                  type="text"
+                  placeholder="Medicine Name (e.g. Tab. Pan 40mg)"
+                  value={newMed.medicine}
+                  onChange={(e) => setNewMed({ ...newMed, medicine: e.target.value })}
+                  className="flex-1 min-w-[160px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 font-medium"
+                />
+                <input
+                  type="text"
+                  placeholder="Dosage (1 Tab)"
+                  value={newMed.dosage}
+                  onChange={(e) => setNewMed({ ...newMed, dosage: e.target.value })}
+                  className="w-24 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"
+                />
+                <select
+                  value={newMed.frequency}
+                  onChange={(e) => setNewMed({ ...newMed, frequency: e.target.value })}
+                  className="bg-white border border-slate-200 rounded-lg px-2 py-1.5 font-medium"
+                >
+                  <option value="1-0-0">1-0-0 (Morning)</option>
+                  <option value="1-0-1">1-0-1 (Morning & Night)</option>
+                  <option value="1-1-1">1-1-1 (TID)</option>
+                  <option value="0-0-1">0-0-1 (Bedtime)</option>
+                  <option value="SOS">SOS (When needed)</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder="Duration (e.g. 5 Days)"
+                  value={newMed.duration}
+                  onChange={(e) => setNewMed({ ...newMed, duration: e.target.value })}
+                  className="w-24 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"
+                />
+                <input
+                  type="text"
+                  placeholder="Instructions (After food)"
+                  value={newMed.instructions}
+                  onChange={(e) => setNewMed({ ...newMed, instructions: e.target.value })}
+                  className="flex-1 min-w-[120px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddMedicine}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-lg shadow-2xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add
+                </button>
+              </div>
+            ) : (
+              <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between text-xs text-slate-600">
+                <div className="flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-teal-600 shrink-0" />
+                  <span>
+                    Prescription medications are <strong>read-only</strong> for Reception &amp; Front-Desk staff. Only attending physicians have clinical prescribing authority.
+                  </span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                  Read-Only Mode
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Diagnostic & Laboratory Orders */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center gap-1.5">
               <FlaskConical className="w-3.5 h-3.5 text-teal-600" />
-              Prescribe Diagnostic & Laboratory Tests
+              Prescribe Diagnostic &amp; Laboratory Tests
+              {!isDoctorOrCmo && (
+                <span className="text-[10px] font-normal text-slate-400 lowercase italic">
+                  (read-only)
+                </span>
+              )}
             </h3>
             <div className="flex flex-wrap gap-2">
               {availableLabTests.map((test) => {
@@ -431,12 +480,13 @@ export const OpdConsultationsTab: React.FC<OpdConsultationsTabProps> = ({
                   <button
                     key={test}
                     type="button"
+                    disabled={!isDoctorOrCmo}
                     onClick={() => toggleLabTest(test)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
                       isSelected
                         ? "bg-teal-800 text-white border-teal-800 shadow-2xs"
                         : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                    }`}
+                    } ${!isDoctorOrCmo ? "opacity-75 cursor-default" : "cursor-pointer"}`}
                   >
                     {isSelected ? "✓ " : "+ "}
                     {test}
@@ -451,6 +501,7 @@ export const OpdConsultationsTab: React.FC<OpdConsultationsTabProps> = ({
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <span>Next Follow-up:</span>
               <select
+                disabled={!isDoctorOrCmo}
                 value={encounter.followUpDays}
                 onChange={(e) =>
                   setEncounter({
@@ -458,7 +509,7 @@ export const OpdConsultationsTab: React.FC<OpdConsultationsTabProps> = ({
                     followUpDays: parseInt(e.target.value, 10),
                   })
                 }
-                className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 font-bold text-slate-800"
+                className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 font-bold text-slate-800 disabled:opacity-70"
               >
                 <option value={7}>After 7 Days (Free Revisit)</option>
                 <option value={14}>After 14 Days</option>
@@ -471,19 +522,21 @@ export const OpdConsultationsTab: React.FC<OpdConsultationsTabProps> = ({
               <button
                 type="button"
                 onClick={() => onPrintPrescription(encounter)}
-                className="flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-bold rounded-xl text-xs transition shadow-2xs"
+                className="flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-bold rounded-xl text-xs transition shadow-2xs cursor-pointer"
               >
                 <Printer className="w-3.5 h-3.5 text-teal-700" />
                 Print Prescription Letterhead
               </button>
-              <button
-                type="button"
-                onClick={() => onCompleteConsultation(encounter)}
-                className="flex items-center gap-1.5 px-5 py-2 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl text-xs transition shadow-xs"
-              >
-                <CheckCircle className="w-3.5 h-3.5" />
-                Complete Consultation
-              </button>
+              {isDoctorOrCmo && (
+                <button
+                  type="button"
+                  onClick={() => onCompleteConsultation(encounter)}
+                  className="flex items-center gap-1.5 px-5 py-2 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl text-xs transition shadow-xs cursor-pointer"
+                >
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  Complete Consultation
+                </button>
+              )}
             </div>
           </div>
         </div>

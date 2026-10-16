@@ -48,7 +48,7 @@ export const PrintWardIndentSlipModal: React.FC<PrintWardIndentSlipModalProps> =
         <div className="print-container overflow-y-auto p-8 font-sans text-slate-900 bg-white space-y-4">
           <div className="border-b-2 border-slate-900 pb-3 text-center">
             <h2 className="text-base font-black uppercase text-slate-900">
-              CarePulse Multispecialty Hospital
+              VitalSync Multispecialty Hospital
             </h2>
             <p className="text-[11px] font-bold text-teal-800 uppercase tracking-wider">
               Ward Floor Stock Drug Issue Slip &amp; Nurse MAR Voucher

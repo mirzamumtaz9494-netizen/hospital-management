@@ -78,7 +78,7 @@ export const TriggerBackupModal: React.FC<TriggerBackupModalProps> = ({
       const newSnap: DatabaseBackupSnapshot = {
         id: `snp-${Date.now()}`,
         timestamp: `${dateStr}, ${timeStr}`,
-        fileName: `carepulse_manual_snapshot_${Date.now()}.enc`,
+        fileName: `VitalSync_manual_snapshot_${Date.now()}.enc`,
         size: "1.86 GB",
         type: "Manual Snapshot",
         storageTarget: "AWS GovCloud S3 Glacier",

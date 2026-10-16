@@ -89,7 +89,7 @@ export const PrintCertificatesModal: React.FC<PrintCertificatesModalProps> = ({
               <div className="flex items-center gap-2">
                 <Activity className="w-6 h-6 text-teal-800" />
                 <h1 className="text-xl font-black tracking-tight text-slate-900 uppercase">
-                  CarePulse Multispecialty Hospital
+                  VitalSync Multispecialty Hospital
                 </h1>
               </div>
               <p className="text-[11px] text-slate-600 font-medium mt-0.5">
@@ -326,7 +326,7 @@ export const PrintCertificatesModal: React.FC<PrintCertificatesModalProps> = ({
               </div>
               <p>
                 I, the undersigned patient / guardian of <strong>{patient.name}</strong>, hereby declare that I am leaving 
-                CarePulse Multispecialty Hospital at my own risk and against the advice of attending doctor{" "}
+                VitalSync Multispecialty Hospital at my own risk and against the advice of attending doctor{" "}
                 <strong>{patient.attendingDoctor}</strong>.
               </p>
               <p>
@@ -356,7 +356,7 @@ export const PrintCertificatesModal: React.FC<PrintCertificatesModalProps> = ({
             <div className="space-y-4 py-4 text-xs leading-relaxed text-slate-800">
               <p>
                 This is to certify that a healthy live child was born to mother <strong>{patient.name}</strong> in the Obstetrics 
-                Delivery Suite of CarePulse Multispecialty Hospital.
+                Delivery Suite of VitalSync Multispecialty Hospital.
               </p>
               <p><strong>Attending Obstetrician:</strong> {patient.attendingDoctor}</p>
             </div>
@@ -365,7 +365,7 @@ export const PrintCertificatesModal: React.FC<PrintCertificatesModalProps> = ({
           {/* Doctor Signature & Hospital Seal */}
           <div className="mt-12 pt-6 border-t border-slate-300 flex items-end justify-between text-xs">
             <div>
-              <p className="text-[10px] text-slate-400">Document Generated: 12 Oct 2026 • CarePulse HMS</p>
+              <p className="text-[10px] text-slate-400">Document Generated: 12 Oct 2026 • VitalSync HMS</p>
               <p className="text-[10px] text-slate-400">Authenticated via Secure Medical Hash</p>
             </div>
             <div className="text-right">

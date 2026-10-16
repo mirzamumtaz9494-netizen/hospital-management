@@ -96,7 +96,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                 Update Staff Password
               </h3>
               <p className="text-xs text-slate-500">
-                Secure your CarePulse clinical station credentials
+                Secure your VitalSync clinical station credentials
               </p>
             </div>
           </div>

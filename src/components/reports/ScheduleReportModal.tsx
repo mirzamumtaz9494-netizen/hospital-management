@@ -14,7 +14,7 @@ export const ScheduleReportModal: React.FC<ScheduleReportModalProps> = ({
   onClose,
   onConfirmSchedule,
 }) => {
-  const [email, setEmail] = useState("director@carepulse.hospital");
+  const [email, setEmail] = useState("director@VitalSync.hospital");
   const [frequency, setFrequency] = useState("Daily at 08:00 AM");
   const [format, setFormat] = useState("PDF Executive Summary");
 

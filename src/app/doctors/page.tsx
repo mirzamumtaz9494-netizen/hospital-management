@@ -100,7 +100,7 @@ export default function DoctorsPage() {
       opRoom: newRoom,
       consultationFee: Number(newFee) || 600,
       phone: "+91 98000 00000",
-      email: `${newDoctorName.toLowerCase().replace(/[^a-z]/g, "")}@carepulse.hms`,
+      email: `${newDoctorName.toLowerCase().replace(/[^a-z]/g, "")}@VitalSync.hms`,
       status: "On Duty",
       timings: "09:00 AM - 02:00 PM",
       days: "Monday - Saturday",
@@ -178,7 +178,7 @@ export default function DoctorsPage() {
               onClick={() => {
                 showToast("Exporting hospital doctors duty roster (PDF/Excel)...");
                 setTimeout(() => {
-                  showToast("Downloaded carepulse-doctors-roster-2026.csv");
+                  showToast("Downloaded VitalSync-doctors-roster-2026.csv");
                 }, 1200);
               }}
               className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 rounded-xl text-xs font-bold shadow-2xs transition flex items-center gap-1.5"

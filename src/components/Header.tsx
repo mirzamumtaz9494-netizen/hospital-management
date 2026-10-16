@@ -217,7 +217,7 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-base sm:text-lg tracking-tight text-white flex items-center gap-1">
-                  CarePulse{" "}
+                  VitalSync{" "}
                   <span className="text-teal-400 font-semibold">HMS</span>
                 </span>
               </div>
@@ -338,8 +338,8 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                   {[
                     "Metro Multispecialty - Main Branch",
-                    "CarePulse North Wing - Day Care",
-                    "CarePulse Diagnostic & Specialty Center",
+                    "VitalSync North Wing - Day Care",
+                    "VitalSync Diagnostic & Specialty Center",
                   ].map((branch) => (
                     <button
                       key={branch}
@@ -687,7 +687,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-white">
-                    CarePulse <span className="text-teal-400">HMS</span>
+                    VitalSync <span className="text-teal-400">HMS</span>
                   </h3>
                   <p className="text-[10px] text-slate-400">Clinical Mobile Portal</p>
                 </div>

@@ -51,7 +51,7 @@ export const PrintOpBillModal: React.FC<PrintOpBillModalProps> = ({
               <div className="flex items-center gap-2">
                 <Activity className="w-6 h-6 text-teal-700" />
                 <h1 className="text-lg font-black tracking-tight text-slate-900 uppercase">
-                  CarePulse Multispecialty Hospital
+                  VitalSync Multispecialty Hospital
                 </h1>
               </div>
               <p className="text-[11px] text-slate-600 font-medium mt-0.5">

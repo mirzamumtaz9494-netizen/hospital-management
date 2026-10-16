@@ -236,7 +236,7 @@ export default function SettingsPage() {
               onClick={() => {
                 showToast("Generating comprehensive system configuration snapshot (JSON)...");
                 setTimeout(() => {
-                  showToast("Downloaded carepulse-settings-backup.json");
+                  showToast("Downloaded VitalSync-settings-backup.json");
                 }, 1200);
               }}
               className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 rounded-xl text-xs font-bold shadow-2xs transition flex items-center gap-1.5"

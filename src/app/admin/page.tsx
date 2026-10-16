@@ -457,7 +457,7 @@ export default function AdminPage() {
             onExportAuditLog={() => {
               showToast("Exporting immutable SHA-256 audit log ledger (CSV)...");
               setTimeout(() => {
-                showToast("Downloaded carepulse-audit-trail-2026.csv");
+                showToast("Downloaded VitalSync-audit-trail-2026.csv");
               }, 1200);
             }}
             onPrintCertificate={() => setIsAuditCertModalOpen(true)}

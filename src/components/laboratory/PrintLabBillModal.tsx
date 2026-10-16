@@ -49,7 +49,7 @@ export const PrintLabBillModal: React.FC<PrintLabBillModalProps> = ({
           {/* Header */}
           <div className="border-b-2 border-slate-900 pb-3 text-center">
             <h2 className="text-lg font-black uppercase text-slate-900">
-              CarePulse Multispecialty Hospital
+              VitalSync Multispecialty Hospital
             </h2>
             <p className="text-[11px] font-bold text-teal-800 uppercase tracking-wider">
               Diagnostic Laboratory Cash Receipt & Invoice

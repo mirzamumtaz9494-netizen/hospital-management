@@ -61,7 +61,7 @@ export const LockScreenModal: React.FC = () => {
             Terminal Locked
           </h2>
           <p className="text-xs text-slate-400 mt-1 mb-5">
-            CarePulse clinical privacy protection active
+            VitalSync clinical privacy protection active
           </p>
 
           {/* User Profile Card */}

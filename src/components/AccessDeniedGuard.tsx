@@ -35,7 +35,7 @@ export const AccessDeniedGuard: React.FC<AccessDeniedGuardProps> = ({
         </h2>
 
         <p className="text-xs text-slate-500 leading-relaxed mb-6">
-          You are currently viewing CarePulse HMS under the{" "}
+          You are currently viewing VitalSync HMS under the{" "}
           <strong className="text-slate-800">{roleConfig.profile.roleLabel}</strong>{" "}
           profile. Access to the <strong className="text-slate-800">{moduleName}</strong>{" "}
           module is restricted by hospital clinical governance protocols.

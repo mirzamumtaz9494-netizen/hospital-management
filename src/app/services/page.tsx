@@ -179,7 +179,7 @@ export default function ServicesPage() {
               onClick={() => {
                 showToast("Exporting comprehensive hospital services tariff schedule (Excel/CSV)...");
                 setTimeout(() => {
-                  showToast("Downloaded carepulse-services-catalog-2026.csv");
+                  showToast("Downloaded VitalSync-services-catalog-2026.csv");
                 }, 1200);
               }}
               className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 rounded-xl text-xs font-bold shadow-2xs transition flex items-center gap-1.5"

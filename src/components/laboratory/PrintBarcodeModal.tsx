@@ -52,7 +52,7 @@ export const PrintBarcodeModal: React.FC<PrintBarcodeModalProps> = ({
 
           <div className="w-72 bg-white p-3.5 border-2 border-slate-800 rounded-xl shadow-md text-slate-900 font-mono text-[11px] space-y-1.5 print-container">
             <div className="flex items-center justify-between font-bold text-xs border-b border-slate-300 pb-1">
-              <span>CarePulse LAB</span>
+              <span>VitalSync LAB</span>
               <span>{order.orderNo}</span>
             </div>
 

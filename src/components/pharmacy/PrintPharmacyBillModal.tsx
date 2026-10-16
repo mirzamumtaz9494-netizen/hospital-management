@@ -67,7 +67,7 @@ export const PrintPharmacyBillModal: React.FC<PrintPharmacyBillModalProps> = ({
                 </div>
                 <div>
                   <h1 className="text-lg font-black tracking-tight text-slate-900 uppercase">
-                    CarePulse Multispecialty Hospital
+                    VitalSync Multispecialty Hospital
                   </h1>
                   <p className="text-[11px] font-bold text-teal-800 uppercase tracking-wider">
                     Central Clinical &amp; Inpatient Pharmacy • 24/7 Dispensing

@@ -70,7 +70,7 @@ export const PrintLabReportModal: React.FC<PrintLabReportModalProps> = ({
                 </div>
                 <div>
                   <h1 className="text-lg font-black tracking-tight text-slate-900 uppercase">
-                    CarePulse Multispecialty Hospital
+                    VitalSync Multispecialty Hospital
                   </h1>
                   <p className="text-[11px] font-bold text-teal-800 uppercase tracking-wider">
                     Department of Laboratory Medicine & Molecular Diagnostics
@@ -317,9 +317,9 @@ export const PrintLabReportModal: React.FC<PrintLabReportModalProps> = ({
 
           {/* 6. Legal & Quality Disclaimer */}
           <div className="border-t border-slate-100 pt-3 text-center text-[9px] text-slate-400">
-            *** End of Diagnostic Investigation Report • CarePulse Central Clinical Laboratory ***
+            *** End of Diagnostic Investigation Report • VitalSync Central Clinical Laboratory ***
             <br />
-            This report is authenticated electronically and requires no physical ink signature. For queries, contact laboratory@carepulse.hospital
+            This report is authenticated electronically and requires no physical ink signature. For queries, contact laboratory@VitalSync.hospital
           </div>
         </div>
       </div>

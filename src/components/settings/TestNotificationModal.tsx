@@ -98,7 +98,7 @@ export const TestNotificationModal: React.FC<TestNotificationModalProps> = ({
                 type="button"
                 onClick={() => {
                   setChannel("Email");
-                  setRecipient("doctor.desk@carepulse.hms");
+                  setRecipient("doctor.desk@VitalSync.hms");
                 }}
                 className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition ${
                   channel === "Email"
@@ -130,7 +130,7 @@ export const TestNotificationModal: React.FC<TestNotificationModalProps> = ({
               Simulated Message Payload (DLT Template ID: 11071629)
             </div>
             <p className="text-xs text-slate-700 font-mono leading-relaxed">
-              &ldquo;Dear Patient, your OP Token #OP-40125 for Cardiology (Dr. Rajesh Rao) is confirmed for 15-Oct-2026. Please report to Room 204. — CarePulse Hospital&rdquo;
+              &ldquo;Dear Patient, your OP Token #OP-40125 for Cardiology (Dr. Rajesh Rao) is confirmed for 15-Oct-2026. Please report to Room 204. — VitalSync Hospital&rdquo;
             </p>
           </div>
 

@@ -50,7 +50,7 @@ export const MOCK_NOTIFICATIONS: HospitalNotificationItem[] = [
     id: "notif-06",
     timestamp: "5 hours ago",
     title: "Automated Daily Cloud Backup Verified",
-    description: "Disaster recovery database snapshot carepulse_db_snapshot_20261015_1300.enc (1.84 GB) stored in AWS S3.",
+    description: "Disaster recovery database snapshot VitalSync_db_snapshot_20261015_1300.enc (1.84 GB) stored in AWS S3.",
     category: "Clinical",
     unread: false,
     linkHref: "/settings",

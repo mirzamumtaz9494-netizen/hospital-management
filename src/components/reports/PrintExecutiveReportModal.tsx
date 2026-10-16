@@ -77,7 +77,7 @@ export const PrintExecutiveReportModal: React.FC<PrintExecutiveReportModalProps>
                 </div>
                 <div>
                   <h1 className="text-lg font-black tracking-tight text-slate-900 uppercase">
-                    CarePulse Multispecialty Hospital
+                    VitalSync Multispecialty Hospital
                   </h1>
                   <p className="text-[11px] font-bold text-teal-800 uppercase tracking-wider">
                     Office of the Chief Medical Officer &amp; Executive Management Board
@@ -205,7 +205,7 @@ export const PrintExecutiveReportModal: React.FC<PrintExecutiveReportModalProps>
                 Chief Financial Controller
               </div>
               <div className="text-[10px] text-slate-500">
-                CarePulse Hospital Accounts
+                VitalSync Hospital Accounts
               </div>
             </div>
 

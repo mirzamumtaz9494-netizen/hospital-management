@@ -93,7 +93,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       name: "Sneha Mukherjee",
       roleLabel: "Front Desk & Triage Receptionist",
       department: "Outpatient Registration & Reception",
-      email: "sneha.m@carepulse.hms",
+      email: "sneha.m@VitalSync.hms",
       avatar:
         "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=256&auto=format&fit=crop",
       badge: "Receptionist / Front Desk",
@@ -124,7 +124,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       name: "Dr. Priya Nair",
       roleLabel: "Senior Consultant Physician",
       department: "Department of Internal Medicine",
-      email: "priya.nair@carepulse.hms",
+      email: "priya.nair@VitalSync.hms",
       avatar:
         "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=256&auto=format&fit=crop",
       badge: "Consultant Doctor",
@@ -158,7 +158,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       name: "Sister Philomena David",
       roleLabel: "Chief Nursing Superintendent",
       department: "Nursing Administration (ICU & Wards)",
-      email: "philomena.d@carepulse.hms",
+      email: "philomena.d@VitalSync.hms",
       avatar:
         "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=256&auto=format&fit=crop",
       badge: "Head Nurse",
@@ -180,7 +180,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       name: "G. Venkatesh",
       roleLabel: "Senior Pharmacist & In-Charge",
       department: "Central Inpatient & Retail Pharmacy",
-      email: "venkatesh.g@carepulse.hms",
+      email: "venkatesh.g@VitalSync.hms",
       avatar:
         "https://images.unsplash.com/photo-1537368910025-700350fe46c7?q=80&w=256&auto=format&fit=crop",
       badge: "Senior Pharmacist",
@@ -198,7 +198,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       name: "Dr. Kavita Deshmukh",
       roleLabel: "Chief Biochemist & Pathologist",
       department: "Central Diagnostic Laboratory",
-      email: "kavita.d@carepulse.hms",
+      email: "kavita.d@VitalSync.hms",
       avatar:
         "https://images.unsplash.com/photo-1594824813576-47b2b8089476?q=80&w=256&auto=format&fit=crop",
       badge: "Lab Biochemist",
@@ -216,7 +216,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       name: "Ramesh Sharma",
       roleLabel: "Senior Billing Cashier",
       department: "Cash Counter & Patient Accounts",
-      email: "ramesh.sharma@carepulse.hms",
+      email: "ramesh.sharma@VitalSync.hms",
       avatar:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=256&auto=format&fit=crop",
       badge: "Billing Cashier",
@@ -263,11 +263,11 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
   // Load persisted auth and role if any
   useEffect(() => {
     try {
-      const savedRole = localStorage.getItem("carepulse_active_role") as RoleKey;
+      const savedRole = localStorage.getItem("VitalSync_active_role") as RoleKey;
       if (savedRole && ROLES_REGISTRY[savedRole]) {
         setCurrentRole(savedRole);
       }
-      const savedAuth = localStorage.getItem("carepulse_is_auth");
+      const savedAuth = localStorage.getItem("VitalSync_is_auth");
       if (savedAuth === "false") {
         setIsAuthenticated(false);
       } else {
@@ -281,7 +281,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
   const setRole = (role: RoleKey) => {
     setCurrentRole(role);
     try {
-      localStorage.setItem("carepulse_active_role", role);
+      localStorage.setItem("VitalSync_active_role", role);
     } catch {
       // Ignore
     }
@@ -292,10 +292,10 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsAuthenticated(true);
     setIsLocked(false);
     try {
-      localStorage.setItem("carepulse_active_role", role);
-      localStorage.setItem("carepulse_is_auth", "true");
+      localStorage.setItem("VitalSync_active_role", role);
+      localStorage.setItem("VitalSync_is_auth", "true");
       if (customName) {
-        localStorage.setItem("carepulse_user_name", customName);
+        localStorage.setItem("VitalSync_user_name", customName);
       }
     } catch {
       // Ignore
@@ -306,7 +306,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsAuthenticated(false);
     setIsLocked(false);
     try {
-      localStorage.setItem("carepulse_is_auth", "false");
+      localStorage.setItem("VitalSync_is_auth", "false");
     } catch {
       // Ignore
     }

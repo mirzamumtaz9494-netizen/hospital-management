@@ -13,15 +13,15 @@ import {
 /* ========================================================================= */
 
 export const MOCK_HOSPITAL_PROFILE: HospitalProfileSettings = {
-  hospitalName: "CarePulse Multispecialty Hospital & Research Centre",
+  hospitalName: "VitalSync Multispecialty Hospital & Research Centre",
   registrationNo: "CEA-REG-DIST-0145",
   nabhTier: "NABH 5th Edition Accredited (Hospital Category)",
   gstin: "36AAAAA0000A1Z5",
   pan: "AAAAA0000A",
   contactPhone: "+91 40 2345 6789",
   emergencyHotline: "+91 40 2345 9999",
-  officialEmail: "admin@carepulse.hms",
-  website: "https://carepulse.health",
+  officialEmail: "admin@VitalSync.hms",
+  website: "https://VitalSync.health",
   address: "Plot 14, Health City, Metro Bypass Road, Jubilee Enclave",
   city: "Hyderabad",
   state: "Telangana",
@@ -29,8 +29,8 @@ export const MOCK_HOSPITAL_PROFILE: HospitalProfileSettings = {
   currentBranch: "Metro Multispecialty - Main Branch",
   availableBranches: [
     "Metro Multispecialty - Main Branch",
-    "CarePulse North Wing - Day Care",
-    "CarePulse Diagnostic & Specialty Center",
+    "VitalSync North Wing - Day Care",
+    "VitalSync Diagnostic & Specialty Center",
   ],
   currency: "INR (₹)",
   fiscalYear: "April - March (India Standard)",
@@ -66,7 +66,7 @@ export const MOCK_BILLING_TAX_SETTINGS: BillingTaxSettings = {
   roomRentGstExemptionThreshold: 5000,
   medicineGstSlab: 12,
   diagnosticGstExempt: true,
-  upiMerchantId: "carepulse.hospital@icici",
+  upiMerchantId: "VitalSync.hospital@icici",
   cardTerminalProvider: "Pine Labs Android SmartPOS & HDFC Plutus",
   autoSubmitTpaPreauth: true,
   cmoDiscountApprovalLimit: 2000,
@@ -110,7 +110,7 @@ export const MOCK_BACKUP_SNAPSHOTS: DatabaseBackupSnapshot[] = [
   {
     id: "snp-01",
     timestamp: "15 Oct 2026, 01:00 PM",
-    fileName: "carepulse_db_snapshot_20261015_1300.enc",
+    fileName: "VitalSync_db_snapshot_20261015_1300.enc",
     size: "1.84 GB",
     type: "Automated Daily",
     storageTarget: "AWS GovCloud S3 Glacier",
@@ -121,7 +121,7 @@ export const MOCK_BACKUP_SNAPSHOTS: DatabaseBackupSnapshot[] = [
   {
     id: "snp-02",
     timestamp: "14 Oct 2026, 02:00 AM",
-    fileName: "carepulse_db_snapshot_20261014_0200.enc",
+    fileName: "VitalSync_db_snapshot_20261014_0200.enc",
     size: "1.82 GB",
     type: "Automated Daily",
     storageTarget: "AWS GovCloud S3 Glacier",
@@ -132,7 +132,7 @@ export const MOCK_BACKUP_SNAPSHOTS: DatabaseBackupSnapshot[] = [
   {
     id: "snp-03",
     timestamp: "13 Oct 2026, 02:00 AM",
-    fileName: "carepulse_db_snapshot_20261013_0200.enc",
+    fileName: "VitalSync_db_snapshot_20261013_0200.enc",
     size: "1.79 GB",
     type: "Automated Daily",
     storageTarget: "AWS GovCloud S3 Glacier",
@@ -143,7 +143,7 @@ export const MOCK_BACKUP_SNAPSHOTS: DatabaseBackupSnapshot[] = [
   {
     id: "snp-04",
     timestamp: "10 Oct 2026, 11:30 PM",
-    fileName: "carepulse_db_manual_archive_v4.2.enc",
+    fileName: "VitalSync_db_manual_archive_v4.2.enc",
     size: "1.76 GB",
     type: "Manual Snapshot",
     storageTarget: "Offline NAS Cold Vault",

@@ -1,6 +1,6 @@
 {
-  "name": "CarePulse Hospital Management System",
-  "short_name": "CarePulse HMS",
+  "name": "VitalSync Hospital Management System",
+  "short_name": "VitalSync HMS",
   "description": "Next-generation Hospital Management & Clinical Operations Platform",
   "start_url": "/",
   "display": "standalone",

@@ -51,13 +51,13 @@ export const PrintAuditCertificateModal: React.FC<
               </div>
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-slate-900 font-sans">
-                  CAREPULSE MULTISPECIALTY HOSPITAL &amp; RESEARCH CENTRE
+                  VitalSync MULTISPECIALTY HOSPITAL &amp; RESEARCH CENTRE
                 </h1>
                 <p className="text-xs text-slate-600 font-sans mt-0.5">
                   NABH Accredited Tertiary Healthcare Facility • Registration No: CEA-REG-DIST-0145
                 </p>
                 <p className="text-[11px] text-slate-500 font-sans">
-                  Plot 14, Health City, Metro Bypass Road • Tel: +91 40 2345 6789 • compliance@carepulse.hms
+                  Plot 14, Health City, Metro Bypass Road • Tel: +91 40 2345 6789 • compliance@VitalSync.hms
                 </p>
               </div>
             </div>
@@ -85,7 +85,7 @@ export const PrintAuditCertificateModal: React.FC<
           {/* Body Content */}
           <div className="space-y-4 text-xs font-sans leading-relaxed text-slate-800">
             <p>
-              This is to solemnly attest and certify that the Information Technology, Role-Based Access Control (RBAC), and Biomedical Equipment Management Systems at <strong>CarePulse Multispecialty Hospital</strong> have been subjected to periodic administrative and technical audit verification for the period ending <strong>15th October 2026</strong>.
+              This is to solemnly attest and certify that the Information Technology, Role-Based Access Control (RBAC), and Biomedical Equipment Management Systems at <strong>VitalSync Multispecialty Hospital</strong> have been subjected to periodic administrative and technical audit verification for the period ending <strong>15th October 2026</strong>.
             </p>
 
             {/* Audit Checklist Table */}
@@ -145,7 +145,7 @@ export const PrintAuditCertificateModal: React.FC<
                 <div className="w-40 border-b border-slate-400 mx-auto mb-1"></div>
                 <div className="font-bold text-slate-900 text-xs">Vikram Sethi</div>
                 <div className="text-[11px] text-slate-500">Chief Information Security Officer (CISO)</div>
-                <div className="text-[10px] text-slate-400">CarePulse HMS Network Infrastructure</div>
+                <div className="text-[10px] text-slate-400">VitalSync HMS Network Infrastructure</div>
               </div>
 
               <div className="text-center">

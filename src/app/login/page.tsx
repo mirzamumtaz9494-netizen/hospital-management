@@ -123,7 +123,7 @@ export default function LoginPage() {
           </div>
           <div>
             <span className="font-bold text-base sm:text-lg tracking-tight text-white">
-              CarePulse <span className="text-teal-400">HMS</span>
+              VitalSync <span className="text-teal-400">HMS</span>
             </span>
             <span className="hidden sm:inline-block ml-2 text-[10px] text-slate-400 font-mono">
               Terminal v2.4 • NABH Certified
@@ -284,7 +284,7 @@ export default function LoginPage() {
                       type="text"
                       value={staffId}
                       onChange={(e) => setStaffId(e.target.value)}
-                      placeholder="e.g. CP-DOC-401 or dr.priya@carepulse.hms"
+                      placeholder="e.g. CP-DOC-401 or dr.priya@VitalSync.hms"
                       required
                       className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition"
                     />
@@ -419,7 +419,7 @@ export default function LoginPage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800 bg-[#0c1322] px-4 py-3 text-center text-xs text-slate-500">
-        © 2026 CarePulse Health Systems Inc. • ISO 27001 &amp; NABH Accredited Platform • Role-Based Healthcare EHR
+        © 2026 VitalSync Health Systems Inc. • ISO 27001 &amp; NABH Accredited Platform • Role-Based Healthcare EHR
       </footer>
     </div>
   );

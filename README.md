@@ -1,11 +1,11 @@
-# CarePulse HMS — Hospital Management System
+# VitalSync HMS — Hospital Management System
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=flat&logo=tailwindcss)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-Commercial-teal?style=flat)](./LICENSE.md)
 
-**CarePulse HMS** is an enterprise-grade Hospital Management System and Clinical Operations Platform designed for hospitals, polyclinics, and nursing homes. Built with Next.js 14 (App Router), TypeScript, Tailwind CSS, and Lucide Icons.
+**VitalSync HMS** is an enterprise-grade Hospital Management System and Clinical Operations Platform designed for hospitals, polyclinics, and nursing homes. Built with Next.js 14 (App Router), TypeScript, Tailwind CSS, and Lucide Icons.
 
 ---
 
@@ -70,7 +70,7 @@ The application includes 1-click role presets on the [`/login`](http://localhost
 
 ```
 ├── docs/
-│   └── CAREPULSE_CLIENT_DEMO_BLUEPRINT.md  # Step-by-step client presentation & sales pitch script
+│   └── VitalSync_CLIENT_DEMO_BLUEPRINT.md  # Step-by-step client presentation & sales pitch script
 ├── public/
 │   ├── manifest.json                       # Progressive Web App (PWA) configuration
 │   └── favicon.ico

@@ -78,7 +78,7 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [quickPin, setQuickPin] = useState("1234");
-  const [hospitalAuthCode, setHospitalAuthCode] = useState("HOSP-CAREPULSE-2026");
+  const [hospitalAuthCode, setHospitalAuthCode] = useState("HOSP-VitalSync-2026");
   const [agreedToHipaa, setAgreedToHipaa] = useState(true);
 
   // Status
@@ -112,13 +112,13 @@ export default function RegisterPage() {
     setPassword("Hospital@2026");
     setConfirmPassword("Hospital@2026");
     setQuickPin("1234");
-    setHospitalAuthCode("HOSP-CAREPULSE-2026");
+    setHospitalAuthCode("HOSP-VitalSync-2026");
     setAgreedToHipaa(true);
 
     switch (selectedRole) {
       case "doctor":
         setFullName("Dr. Aris Thorne");
-        setEmail("dr.aris@carepulse.hms");
+        setEmail("dr.aris@VitalSync.hms");
         setPhone("+91 98765 43210");
         setNationalId("9481-2831-9012");
         setMciRegNo("NMC-REG-2024-8192");
@@ -129,7 +129,7 @@ export default function RegisterPage() {
         break;
       case "nurse":
         setFullName("Nurse Anita Roy");
-        setEmail("anita.roy@carepulse.hms");
+        setEmail("anita.roy@VitalSync.hms");
         setPhone("+91 98450 12345");
         setNationalId("7482-1928-3819");
         setNursingPin("SNC-RN-92819");
@@ -138,7 +138,7 @@ export default function RegisterPage() {
         break;
       case "receptionist":
         setFullName("Pooja Verma");
-        setEmail("pooja.v@carepulse.hms");
+        setEmail("pooja.v@VitalSync.hms");
         setPhone("+91 91234 56789");
         setNationalId("4918-2940-1092");
         setCounterId("Counter 02 - OPD Triage");
@@ -147,7 +147,7 @@ export default function RegisterPage() {
         break;
       case "pharmacist":
         setFullName("Karthik Subramanian");
-        setEmail("karthik.s@carepulse.hms");
+        setEmail("karthik.s@VitalSync.hms");
         setPhone("+91 94440 98765");
         setNationalId("6281-9102-4829");
         setPharmacyLicense("SPC-REG-58291");
@@ -155,7 +155,7 @@ export default function RegisterPage() {
         break;
       case "lab_tech":
         setFullName("Deepak Chawla");
-        setEmail("deepak.c@carepulse.hms");
+        setEmail("deepak.c@VitalSync.hms");
         setPhone("+91 99887 66554");
         setNationalId("3819-2019-4827");
         setParamedicalReg("PMC-CERT-74819");
@@ -163,7 +163,7 @@ export default function RegisterPage() {
         break;
       case "cashier":
         setFullName("Vikram Sen");
-        setEmail("vikram.sen@carepulse.hms");
+        setEmail("vikram.sen@VitalSync.hms");
         setPhone("+91 97654 32109");
         setNationalId("5920-1829-4720");
         setCashRegisterId("Counter 03 - Discharge Desk");
@@ -171,7 +171,7 @@ export default function RegisterPage() {
         break;
       case "cmo":
         setFullName("Dr. Rajeshwar Rao");
-        setEmail("dr.rajeshwar@carepulse.hms");
+        setEmail("dr.rajeshwar@VitalSync.hms");
         setPhone("+91 98111 22334");
         setNationalId("1029-3847-5610");
         setAdminAuthKey("EXEC-METRO-ROOT-2026");
@@ -233,7 +233,7 @@ export default function RegisterPage() {
           </div>
           <div>
             <span className="font-bold text-base sm:text-lg tracking-tight text-white">
-              CarePulse <span className="text-teal-400">HMS</span>
+              VitalSync <span className="text-teal-400">HMS</span>
             </span>
             <span className="hidden sm:inline-block ml-2 text-[10px] text-slate-400 font-mono">
               Staff Credentialing Portal
@@ -298,7 +298,7 @@ export default function RegisterPage() {
                   Staff Registration Approved &amp; Credentialed!
                 </p>
                 <p className="text-[11px] text-emerald-300/80">
-                  Clinical profile initialized for {fullName}. Redirecting to CarePulse Terminal...
+                  Clinical profile initialized for {fullName}. Redirecting to VitalSync Terminal...
                 </p>
               </div>
             </div>
@@ -342,7 +342,7 @@ export default function RegisterPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="e.g. dr.aris@carepulse.hms"
+                      placeholder="e.g. dr.aris@VitalSync.hms"
                       required
                       className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition"
                     />
@@ -804,7 +804,7 @@ export default function RegisterPage() {
                       type="text"
                       value={hospitalAuthCode}
                       onChange={(e) => setHospitalAuthCode(e.target.value)}
-                      placeholder="HOSP-CAREPULSE-2026"
+                      placeholder="HOSP-VitalSync-2026"
                       className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition"
                     />
                   </div>
@@ -857,7 +857,7 @@ export default function RegisterPage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800 bg-[#0c1322] px-4 py-3 text-center text-xs text-slate-500">
-        CarePulse EHR • NABH Hospital Information System • ISO 27001 Security Standard
+        VitalSync EHR • NABH Hospital Information System • ISO 27001 Security Standard
       </footer>
     </div>
   );

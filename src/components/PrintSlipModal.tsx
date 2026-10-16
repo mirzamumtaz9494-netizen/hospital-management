@@ -55,7 +55,7 @@ export const PrintSlipModal: React.FC<PrintSlipModalProps> = ({
               <div className="flex items-center gap-2">
                 <Activity className="w-6 h-6 text-teal-600" />
                 <h1 className="text-xl font-black tracking-tight text-slate-900 uppercase">
-                  CarePulse Multispecialty Hospital
+                  VitalSync Multispecialty Hospital
                 </h1>
               </div>
               <p className="text-[11px] text-slate-600 font-medium mt-1">
@@ -137,7 +137,7 @@ export const PrintSlipModal: React.FC<PrintSlipModalProps> = ({
           {/* Footer */}
           <div className="border-t border-slate-200 pt-3 flex items-center justify-between text-[10px] text-slate-400">
             <span>Valid for 7 days consultation revisit. Please bring this slip on next visit.</span>
-            <span>Computer Generated Slip • CarePulse HMS</span>
+            <span>Computer Generated Slip • VitalSync HMS</span>
           </div>
         </div>
       </div>

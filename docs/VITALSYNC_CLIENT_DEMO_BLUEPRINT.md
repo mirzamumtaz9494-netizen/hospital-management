@@ -1,4 +1,4 @@
-# CarePulse HMS — Executive Client Pitch & Demonstration Blueprint
+# VitalSync HMS — Executive Client Pitch & Demonstration Blueprint
 **Next-Generation Hospital Management & Clinical Operations Platform**  
 *Comprehensive Sales, Product Demonstration, and System Architecture Guide for Hospital Owners, Chief Medical Officers (CMO), and Clinical Directors.*
 
@@ -6,11 +6,11 @@
 
 ## Executive Summary & Value Proposition
 
-**CarePulse HMS** is an enterprise-grade Hospital Management System designed to eliminate hospital revenue leakage, accelerate patient throughput, and enforce NABH & HIPAA-compliant clinical workflows.
+**VitalSync HMS** is an enterprise-grade Hospital Management System designed to eliminate hospital revenue leakage, accelerate patient throughput, and enforce NABH & HIPAA-compliant clinical workflows.
 
 ### The 3 Core Hospital Pain Points We Solve:
-1. **Revenue Leakage**: Up to 15–20% of pharmacy items, lab tests, and ancillary ward services go unbilled in hospitals due to disconnected departmental systems. CarePulse unites OPD, IPD, Diagnostics, Pharmacy, and the Cash Desk in real time.
-2. **Staff Clutter & Cognitive Overload**: Traditional hospital software overwhelms doctors and nurses with menus they don't need. CarePulse implements **Strict Role-Based Access Control (RBAC)** — each staff member sees only what pertains to their duty.
+1. **Revenue Leakage**: Up to 15–20% of pharmacy items, lab tests, and ancillary ward services go unbilled in hospitals due to disconnected departmental systems. VitalSync unites OPD, IPD, Diagnostics, Pharmacy, and the Cash Desk in real time.
+2. **Staff Clutter & Cognitive Overload**: Traditional hospital software overwhelms doctors and nurses with menus they don't need. VitalSync implements **Strict Role-Based Access Control (RBAC)** — each staff member sees only what pertains to their duty.
 3. **Slow Patient Processing & Long Queues**: Token generation, queue triage, bed allocation, and discharge billing are streamlined down to seconds, with 1-click thermal slip printing and responsive mobile accessibility.
 
 ---
@@ -39,7 +39,7 @@ Structure:
 
 1. **Start Screen**: Main Dashboard (`/`).
 2. **What to Say**:
-   > *"Good morning Dr. [Client Name] / Team. Thank you for your time. Today, I am excited to demonstrate **CarePulse HMS** — built specifically to solve the daily bottlenecks hospital directors face: long waiting queues, unbilled medicine dispensing, uncoordinated bed vacancies, and compliance headaches."*
+   > *"Good morning Dr. [Client Name] / Team. Thank you for your time. Today, I am excited to demonstrate **VitalSync HMS** — built specifically to solve the daily bottlenecks hospital directors face: long waiting queues, unbilled medicine dispensing, uncoordinated bed vacancies, and compliance headaches."*
 3. **What to Show**:
    - Point to the **Top Census Metric Cards**:
      - *Total Active Patients (142)*
@@ -93,7 +93,7 @@ Structure:
    - The **LockScreenModal** instantly covers the workstation screen with a 4-digit PIN lock.
    - Enter `1234` on the numeric keypad to unlock.
 5. **Key Takeaway to State**:
-   > *"Doctors love CarePulse because it's not a billing tool forced onto them. It's an intuitive clinical chamber assistant. When Dr. Priya steps out to examine a patient, one click locks her screen to maintain strict patient HIPAA confidentiality."*
+   > *"Doctors love VitalSync because it's not a billing tool forced onto them. It's an intuitive clinical chamber assistant. When Dr. Priya steps out to examine a patient, one click locks her screen to maintain strict patient HIPAA confidentiality."*
 
 ---
 
@@ -185,13 +185,13 @@ Structure:
    - Trigger the **Shift Handover Logout Modal (`LogoutModal.tsx`)**:
      - Show the shift duration summary (e.g., 4h 15m), active station check, and clinical note commitment safety prompt.
 3. **The Winning Closing Statement**:
-   > *"Dr. [Client Name], CarePulse HMS is not just software — it is an operational standard. It gives you 100% financial leak protection, saves 40% of front-desk time, guarantees total NABH audit compliance, and provides your doctors with an interface they actually enjoy using. We can have your hospital operational with staff trained in under 48 hours. Let's schedule the deployment date."*
+   > *"Dr. [Client Name], VitalSync HMS is not just software — it is an operational standard. It gives you 100% financial leak protection, saves 40% of front-desk time, guarantees total NABH audit compliance, and provides your doctors with an interface they actually enjoy using. We can have your hospital operational with staff trained in under 48 hours. Let's schedule the deployment date."*
 
 ---
 
 ## Part 2: Role-Based Access Control (RBAC) Architecture Matrix
 
-The core security foundation of CarePulse HMS is strict segregation of duties:
+The core security foundation of VitalSync HMS is strict segregation of duties:
 
 | Role Key | Clinical Role | Primary Station | Permitted Routes | Gated / Restricted Modules |
 | :--- | :--- | :--- | :--- | :--- |
@@ -208,23 +208,23 @@ The core security foundation of CarePulse HMS is strict segregation of duties:
 ## Part 3: Handling Tough Client Questions (Doctor & Owner FAQ)
 
 ### Q1: "Can my receptionists see hospital profit, expense vouchers, or doctor consultation revenues?"
-> **Answer**: *"Absolutely not. The Financial Accounts module (`/accounts`) and Day Book are completely blocked and invisible to receptionists. Even if a receptionist attempts to type `/accounts` in the browser URL bar, the CarePulse RBAC engine automatically restricts access."*
+> **Answer**: *"Absolutely not. The Financial Accounts module (`/accounts`) and Day Book are completely blocked and invisible to receptionists. Even if a receptionist attempts to type `/accounts` in the browser URL bar, the VitalSync RBAC engine automatically restricts access."*
 
 ### Q2: "Can doctors accidentally issue patient bills or register new patients?"
 > **Answer**: *"No. Registration buttons such as 'New OP Registration' and 'New IP Admission' are hidden from the Doctor interface. In the OPD queue, the action button displays 'View Notes' rather than 'Bill', maintaining a strict barrier between clinical care and billing."*
 
 ### Q3: "What happens if our hospital internet experiences temporary downtime?"
-> **Answer**: *"CarePulse HMS is engineered as a Progressive Web App (PWA) with client-side state caching. It can be deployed on a local hospital LAN server (e.g. an in-house Intel NUC or mini-server). All terminals continue to function across local WiFi and Ethernet even if the external internet connection drops."*
+> **Answer**: *"VitalSync HMS is engineered as a Progressive Web App (PWA) with client-side state caching. It can be deployed on a local hospital LAN server (e.g. an in-house Intel NUC or mini-server). All terminals continue to function across local WiFi and Ethernet even if the external internet connection drops."*
 
 ### Q4: "What hardware and printers are required?"
-> **Answer**: *"CarePulse HMS works with standard hospital hardware:
+> **Answer**: *"VitalSync HMS works with standard hospital hardware:
 > 1. Any existing PC, laptop, Android tablet, or iPad.
 > 2. Standard 80mm or 58mm Thermal ESC/POS printers for OPD tokens and pharmacy receipts.
 > 3. Standard A4 Laser printers for IPD discharge summaries and NABL lab reports.
 > 4. USB or Bluetooth 1D/2D Barcode scanners for lab tubes and medicine strips."*
 
 ### Q5: "Is the system compliant with NABH and HIPAA healthcare standards?"
-> **Answer**: *"Yes. CarePulse HMS incorporates all mandatory NABH digital requirements:
+> **Answer**: *"Yes. VitalSync HMS incorporates all mandatory NABH digital requirements:
 > - Unique staff logins with role segregation.
 > - Detailed immutable audit trail logging user actions with timestamps.
 > - 4-digit PIN workstation locking to prevent unauthorized access when staff step away.
@@ -245,4 +245,4 @@ The core security foundation of CarePulse HMS is strict segregation of duties:
   - **Option B (On-Premises LAN)**: Private hospital server behind internal firewall for zero internet latency.
 
 ---
-*Document Version: 2.4-Production • CarePulse Health Systems Inc. • Prepared for Live Hospital Pitch & Client Evaluation.*
+*Document Version: 2.4-Production • VitalSync Health Systems Inc. • Prepared for Live Hospital Pitch & Client Evaluation.*

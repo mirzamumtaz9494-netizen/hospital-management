@@ -13,14 +13,14 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "CarePulse HMS | Modern Hospital Management System",
+  title: "VitalSync HMS | Modern Hospital Management System",
   description:
     "Next-generation Hospital Management & Clinical Operations Platform",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "CarePulse HMS",
+    title: "VitalSync HMS",
   },
   formatDetection: {
     telephone: false,

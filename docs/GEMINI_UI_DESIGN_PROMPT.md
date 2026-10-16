@@ -8,7 +8,7 @@
 You are a Principal Product Designer and Lead Frontend Architect specializing in high-end Enterprise Healthcare SaaS and top-selling ThemeForest / Envato dashboard templates.
 
 ### Context:
-I am building a next-generation Hospital Management System (HMS) called "CarePulse HMS" (formerly Expert HMS) using Next.js 14+ (App Router), Tailwind CSS, TypeScript, and Lucide icons.
+I am building a next-generation Hospital Management System (HMS) called "VitalSync HMS" (formerly Expert HMS) using Next.js 14+ (App Router), Tailwind CSS, TypeScript, and Lucide icons.
 The application will be sold as a premium UI template on marketplaces (Envato / CodeCanyon / UI8) and deployed to clinics and multi-specialty hospitals as a leased SaaS platform.
 
 The original legacy system had rich functionality (OP, IP, Bed Management, Laboratory Test Master, Pharmacy Inventory, and Billing), but the visual design looked dated. I want you to completely modernize and elevate it into a sleek, clean, trustworthy 2026 medical enterprise UI (inspired by the aesthetics of Stripe, Linear, and Tailwind UI / Shadcn UI).

@@ -118,7 +118,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
               <input
                 type="email"
                 required
-                placeholder="name@carepulse.hms"
+                placeholder="name@VitalSync.hms"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 font-medium"

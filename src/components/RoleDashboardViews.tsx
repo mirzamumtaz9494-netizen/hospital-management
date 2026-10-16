@@ -272,7 +272,7 @@ export const DoctorDashboardView: React.FC = () => {
       {/* Footer */}
       <div className="p-3 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
         <span className="font-medium">
-          CarePulse Hospital HMS • Electronic Health Record (EHR) Module
+          VitalSync Hospital HMS • Electronic Health Record (EHR) Module
         </span>
         <Link
           href={subView === "op_queue" ? "/opd" : "/ipd"}

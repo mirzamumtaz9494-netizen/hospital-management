@@ -1,13 +1,13 @@
-# CarePulse HMS — Commercial Software License Agreement
+# VitalSync HMS — Commercial Software License Agreement
 **Standard Commercial License & End-User License Agreement (EULA)**
 
-Copyright (c) 2026 CarePulse Health Systems / Author. All rights reserved.
+Copyright (c) 2026 VitalSync Health Systems / Author. All rights reserved.
 
 ---
 
 ### IMPORTANT: PLEASE READ CAREFULLY BEFORE USING OR DEPLOYING THIS SOFTWARE
 
-By purchasing, downloading, accessing, copying, or using **CarePulse Hospital Management System (HMS)** ("the Software"), you ("the Licensee") agree to be bound by the terms and conditions of this Commercial License Agreement. If you do not agree with these terms, do not download, install, or use the Software.
+By purchasing, downloading, accessing, copying, or using **VitalSync Hospital Management System (HMS)** ("the Software"), you ("the Licensee") agree to be bound by the terms and conditions of this Commercial License Agreement. If you do not agree with these terms, do not download, install, or use the Software.
 
 ---
 

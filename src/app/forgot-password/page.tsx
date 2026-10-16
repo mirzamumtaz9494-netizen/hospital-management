@@ -168,7 +168,7 @@ export default function ForgotPasswordPage() {
           </div>
           <div>
             <span className="font-bold text-base sm:text-lg tracking-tight text-white">
-              CarePulse <span className="text-teal-400">HMS</span>
+              VitalSync <span className="text-teal-400">HMS</span>
             </span>
             <span className="hidden sm:inline-block ml-2 text-[10px] text-slate-400 font-mono">
               Terminal Credential Recovery
@@ -240,7 +240,7 @@ export default function ForgotPasswordPage() {
                       type="text"
                       value={identifier}
                       onChange={(e) => setIdentifier(e.target.value)}
-                      placeholder="e.g. CP-DOC-401 or doctor@carepulse.hms"
+                      placeholder="e.g. CP-DOC-401 or doctor@VitalSync.hms"
                       required
                       className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition"
                     />
@@ -518,7 +518,7 @@ export default function ForgotPasswordPage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800 bg-[#0c1322] px-4 py-3 text-center text-xs text-slate-500">
-        CarePulse HMS • Patient Record Privacy &amp; Credential Recovery
+        VitalSync HMS • Patient Record Privacy &amp; Credential Recovery
       </footer>
     </div>
   );

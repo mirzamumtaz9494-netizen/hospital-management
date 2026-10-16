@@ -62,7 +62,7 @@ export const AddBranchModal: React.FC<AddBranchModalProps> = ({
             <input
               type="text"
               required
-              placeholder="e.g. CarePulse East Wing - Specialty Center"
+              placeholder="e.g. VitalSync East Wing - Specialty Center"
               value={branchName}
               onChange={(e) => setBranchName(e.target.value)}
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
