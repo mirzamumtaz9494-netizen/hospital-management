@@ -100,7 +100,7 @@ export const CreateOpModal: React.FC<CreateOpModalProps> = ({
       bloodGroup: formData.bloodGroup,
       department: formData.department,
       attendingDoctor: formData.attendingDoctor,
-      admissionDate: "12 Oct 2026",
+      admissionDate: "Today",
       status: "Active",
       billAmount: formData.consultationFee,
       diagnosis: formData.notes || "Initial Consultation & Clinical Triage",

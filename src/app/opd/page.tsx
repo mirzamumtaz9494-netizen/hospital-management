@@ -134,9 +134,9 @@ export default function OutpatientPage() {
         if (supabase) {
           const { data: cloudPatients } = await supabase
             .from("patients")
-            .select("*")
+            .select("*, opd_tokens(*)")
             .order("created_at", { ascending: false })
-            .limit(20);
+            .limit(30);
 
           if (cloudPatients && cloudPatients.length > 0) {
             cloudPatients.forEach((cp, idx) => {
@@ -150,7 +150,17 @@ export default function OutpatientPage() {
                   .slice(0, 2)
                   .join("")
                   .toUpperCase();
-                const token = `OP-${40200 + idx}`;
+
+                const tokens = (cp.opd_tokens as any[]) || [];
+                const latestToken = tokens.length > 0 ? tokens[tokens.length - 1] : null;
+
+                const doctorName = latestToken?.doctor_name || cp.doctor || "Dr. A. Rao";
+                const department = latestToken?.department || cp.department || "General Medicine";
+                const token = latestToken?.token_number
+                  ? `OP-${latestToken.token_number}`
+                  : `OP-${40180 + idx}`;
+                const billAmt = latestToken?.consultation_fee || 500;
+
                 loadedQueueItems.push({
                   id: cp.id,
                   token: token,
@@ -160,13 +170,13 @@ export default function OutpatientPage() {
                   gender: cp.gender || "M",
                   mrId: cp.mr_id,
                   phone: cp.phone,
-                  department: "General Medicine",
-                  doctor: "Dr. K. Sharma",
+                  department: department,
+                  doctor: doctorName,
                   visitType: "New",
                   checkIn: "Cloud Synced",
                   waitTime: "0 min",
                   status: "Waiting",
-                  billAmount: 500,
+                  billAmount: billAmt,
                 });
 
                 loadedAllRecords.push({
@@ -178,11 +188,11 @@ export default function OutpatientPage() {
                   gender: cp.gender || "M",
                   mrId: cp.mr_id,
                   phone: cp.phone,
-                  department: "General Medicine",
-                  doctor: "Dr. K. Sharma",
+                  department: department,
+                  doctor: doctorName,
                   visitDate: "Today",
                   visitType: "New",
-                  billAmount: 500,
+                  billAmount: billAmt,
                   paymentStatus: "Paid",
                   paymentMode: "UPI",
                 });

@@ -128,14 +128,29 @@ export const OfflineSyncProvider: React.FC<{ children: React.ReactNode }> = ({
             parseInt(String(rawToken).replace(/\D/g, ""), 10) ||
             Math.floor(1000 + Math.random() * 9000);
 
+          // Find patient id by UHID / mr_id to link foreign key in Supabase
+          let patientId = mutation.payload.patientId || mutation.payload.patient_id || null;
+          const targetUhid = mutation.payload.uhid || mutation.payload.mr_id || mutation.payload.mrId;
+          if (!patientId && targetUhid) {
+            const { data: matchedPt } = await supabase
+              .from("patients")
+              .select("id")
+              .eq("mr_id", targetUhid)
+              .maybeSingle();
+            if (matchedPt?.id) {
+              patientId = matchedPt.id;
+            }
+          }
+
           const { error: tokenErr } = await supabase
             .from("opd_tokens")
             .insert({
+              patient_id: patientId,
               token_number: numericToken,
               doctor_name:
                 mutation.payload.doctorName ||
                 mutation.payload.doctor_name ||
-                "Dr. K. Sharma",
+                "Dr. A. Rao",
               department:
                 mutation.payload.department || "General Medicine",
               consultation_fee:

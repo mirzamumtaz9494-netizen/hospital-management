@@ -73,9 +73,9 @@ export default function DashboardPage() {
         if (supabase) {
           const { data: cloud } = await supabase
             .from("patients")
-            .select("*")
+            .select("*, opd_tokens(*)")
             .order("created_at", { ascending: false })
-            .limit(20);
+            .limit(30);
 
           if (cloud) {
             cloud.forEach((cp, idx) => {
@@ -92,11 +92,22 @@ export default function DashboardPage() {
                   .slice(0, 2)
                   .join("")
                   .toUpperCase();
+
+                const tokens = (cp.opd_tokens as any[]) || [];
+                const latestToken = tokens.length > 0 ? tokens[tokens.length - 1] : null;
+
+                const doctorName = latestToken?.doctor_name || cp.attendingDoctor || "Dr. A. Rao";
+                const department = latestToken?.department || cp.department || "General Medicine";
+                const opToken = latestToken?.token_number
+                  ? `OP-${latestToken.token_number}`
+                  : `OP-${40180 + idx}`;
+                const billAmt = latestToken?.consultation_fee || 500;
+
                 loaded.push({
                   id: cp.id,
                   mrId: cp.mr_id,
                   uhid: cp.mr_id,
-                  opIpId: `OP-${40100 + idx}`,
+                  opIpId: opToken,
                   type: "OP",
                   name: cp.name,
                   initials: initials || "PT",
@@ -104,11 +115,11 @@ export default function DashboardPage() {
                   gender: (cp.gender as any) || "M",
                   phone: cp.phone,
                   bloodGroup: cp.blood_group || "O+",
-                  department: "General Medicine",
-                  attendingDoctor: "Dr. K. Sharma",
+                  department: department,
+                  attendingDoctor: doctorName,
                   admissionDate: "Today",
                   status: "Active",
-                  billAmount: 500,
+                  billAmount: billAmt,
                   diagnosis: "Clinical Outpatient Consultation",
                 });
               }
