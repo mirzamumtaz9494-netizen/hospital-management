@@ -16,9 +16,12 @@ import {
   UserCheck,
   FileText,
   Settings,
+  Droplet,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "@/context/RoleContext";
+import { useTenant } from "@/context/TenantContext";
+import { TenantModuleKey } from "@/types";
 
 interface QuickMenuModalProps {
   isOpen: boolean;
@@ -33,6 +36,7 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
 }) => {
   const router = useRouter();
   const { canAccessAction, roleConfig } = useRole();
+  const { isModuleLicensed } = useTenant();
   const [filter, setFilter] = useState("");
 
   // Keyboard shortcut: close on Escape
@@ -82,6 +86,14 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
       icon: Pill,
       color: "text-purple-600 bg-purple-50 border-purple-200",
       href: "/pharmacy",
+    },
+    {
+      id: "blood_bank",
+      title: "Blood Bank & Donors",
+      description: "Blood stock matrix, donor registry & requisitions",
+      icon: Droplet,
+      color: "text-rose-600 bg-rose-50 border-rose-200",
+      href: "/blood-bank",
     },
     {
       id: "other_services",
@@ -149,10 +161,30 @@ export const QuickMenuModal: React.FC<QuickMenuModalProps> = ({
     },
   ];
 
-  // Filter actions allowed for current active role
-  const roleAllowedActions = allActions.filter((act) =>
-    canAccessAction(act.id)
-  );
+  // Map actions to their corresponding tenant module key
+  const actionModuleMap: Record<string, TenantModuleKey> = {
+    create_op: "opd",
+    create_ip: "ipd",
+    emergency_services: "ipd",
+    pharmacy_billing: "pharmacy",
+    lab_billing: "laboratory",
+    blood_bank: "blood_bank",
+    doctor_roster: "doctors",
+    other_services: "services",
+    advance_payment: "accounts",
+    add_expenses: "accounts",
+    bill_settlement: "accounts",
+    mis_reports: "reports",
+    hospital_settings: "admin",
+  };
+
+  // Filter actions allowed for current active role AND current tenant license
+  const roleAllowedActions = allActions.filter((act) => {
+    const roleAllowed = canAccessAction(act.id);
+    const moduleKey = actionModuleMap[act.id];
+    const moduleAllowed = !moduleKey || isModuleLicensed(moduleKey);
+    return roleAllowed && moduleAllowed;
+  });
 
   const filteredActions = roleAllowedActions.filter(
     (act) =>

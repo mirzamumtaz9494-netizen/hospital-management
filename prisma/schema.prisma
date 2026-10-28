@@ -1,0 +1,240 @@
+// This is your Prisma schema file for VitalSync HMS Multi-Tenant SaaS
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 1. TENANT / HOSPITAL MODEL
+// ==========================================
+model Tenant {
+  id            String   @id @default(uuid())
+  tenantCode    String   @unique // e.g. "APEX-01", "METRO-02"
+  name          String   // "Apex Care Hospital"
+  unitName      String   // "Unit 1 (20 Beds)"
+  tagline       String?
+  city          String
+  state         String
+  contactEmail  String
+  contactPhone  String
+  plan          String   @default("standard_hospital") // "starter_clinic", "standard_hospital", "enterprise_multispecialty"
+  planLabel     String   @default("Standard Hospital Care (20 Beds)")
+  bedCapacity   Int      @default(20)
+  status        String   @default("Active") // "Active", "Trial", "Suspended"
+  renewalDate   DateTime
+  monthlyFee    Float    @default(22500)
+  currency      String   @default("INR")
+  logoBadge     String?
+  primaryColor  String   @default("teal")
+
+  // Enabled modules for this hospital tenant (JSON boolean flags)
+  // e.g. { "opd": true, "ipd": true, "blood_bank": false, "pharmacy": true, ... }
+  modules       Json
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Multi-Tenant Relations
+  users         User[]
+  patients      Patient[]
+  opdTokens     OpdToken[]
+  ipdAdmissions IpdAdmission[]
+  bloodUnits    BloodUnit[]
+  bloodDonors   BloodDonor[]
+  bills         BillInvoice[]
+
+  @@map("tenants")
+}
+
+// ==========================================
+// 2. USER / STAFF MODEL (WITH APPROVAL GATE)
+// ==========================================
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  passwordHash      String
+  name              String
+  phone             String?
+  role              String    // "cmo", "receptionist", "doctor", "nurse", "pharmacist", "lab_tech", "cashier"
+  roleLabel         String
+  department        String
+  avatarUrl         String?
+  
+  // Security & Verification Gate
+  // In healthcare, accounts start as "PENDING_APPROVAL" until Hospital MD approves them
+  status            String    @default("PENDING_APPROVAL") // "PENDING_APPROVAL", "ACTIVE", "SUSPENDED"
+  emailVerified     Boolean   @default(false)
+  verificationToken String?
+  approvedBy        String?
+  approvedAt        DateTime?
+
+  // Multi-tenant isolation: Every user belongs to one specific hospital
+  hospitalId        String
+  hospital          Tenant    @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([hospitalId])
+  @@map("users")
+}
+
+// ==========================================
+// 3. PATIENT RECORD (ISOLATED BY TENANT)
+// ==========================================
+model Patient {
+  id            String    @id @default(uuid())
+  mrId          String    // e.g. "MR-10245"
+  name          String
+  phone         String
+  age           Int
+  gender        String
+  bloodGroup    String?
+  address       String?
+  emergencyContact String?
+
+  // Tenant Isolation
+  hospitalId    String
+  hospital      Tenant    @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  opdTokens     OpdToken[]
+  ipdAdmissions IpdAdmission[]
+  bills         BillInvoice[]
+
+  @@unique([hospitalId, mrId])
+  @@index([hospitalId])
+  @@map("patients")
+}
+
+// ==========================================
+// 4. OPD APPOINTMENT / TOKEN QUEUE
+// ==========================================
+model OpdToken {
+  id              String   @id @default(uuid())
+  tokenNumber     Int
+  patientId       String
+  patient         Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorName      String
+  department      String
+  status          String   @default("Waiting") // "Waiting", "In Consultation", "Completed", "Cancelled"
+  consultationFee Float    @default(500)
+  vitalsBp        String?
+  vitalsPulse     Int?
+  vitalsTemp      Float?
+
+  hospitalId      String
+  hospital        Tenant   @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+
+  @@index([hospitalId])
+  @@map("opd_tokens")
+}
+
+// ==========================================
+// 5. IPD INPATIENT ADMISSION & 20-50 BEDS
+// ==========================================
+model IpdAdmission {
+  id              String    @id @default(uuid())
+  ipNo            String    // e.g. "IP-8841"
+  patientId       String
+  patient         Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  wardName        String    // "General Ward", "Semi-Private", "Private", "ICU"
+  bedNumber       String    // "B-01", "B-02", etc.
+  attendingDoctor String
+  diagnosis       String
+  status          String    @default("Admitted") // "Admitted", "Discharged", "Transferred"
+  admittedAt      DateTime  @default(now())
+  dischargedAt    DateTime?
+  advancePaid     Float     @default(0)
+  totalBill       Float     @default(0)
+
+  hospitalId      String
+  hospital        Tenant    @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, ipNo])
+  @@index([hospitalId])
+  @@map("ipd_admissions")
+}
+
+// ==========================================
+// 6. BLOOD BANK INVENTORY & DONORS
+// ==========================================
+model BloodUnit {
+  id              String   @id @default(uuid())
+  bagBarcode      String   // "BB-A1-4091"
+  bloodGroup      String   // "A+", "O-", etc.
+  component       String   // "PRBC", "FFP", "Platelets"
+  volumeMl        Int      @default(350)
+  status          String   @default("Available") // "Available", "Reserved", "Transfused", "Expired"
+  storageLocation String   // "Cold Chain Refrigerator 1"
+  collectionDate  DateTime @default(now())
+  expiryDate      DateTime
+  donorName       String?
+
+  hospitalId      String
+  hospital        Tenant   @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, bagBarcode])
+  @@index([hospitalId])
+  @@map("blood_units")
+}
+
+model BloodDonor {
+  id               String    @id @default(uuid())
+  donorNumber      String    // "DNR-801"
+  name             String
+  phone            String
+  bloodGroup       String
+  age              Int
+  weightKg         Float
+  hemoglobin       Float
+  status           String    @default("Eligible") // "Eligible", "In Cooldown", "Deferred"
+  lastDonation     DateTime?
+  emergencyConsent Boolean   @default(true)
+
+  hospitalId       String
+  hospital         Tenant    @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  createdAt        DateTime  @default(now())
+
+  @@unique([hospitalId, donorNumber])
+  @@index([hospitalId])
+  @@map("blood_donors")
+}
+
+// ==========================================
+// 7. BILLING & FINANCIAL INVOICES
+// ==========================================
+model BillInvoice {
+  id            String   @id @default(uuid())
+  invoiceNumber String   // "INV-2026-001"
+  patientId     String
+  patient       Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  serviceType   String   // "OPD Consultation", "IPD Discharge", "Pharmacy", "Laboratory"
+  subtotal      Float
+  discount      Float    @default(0)
+  tax           Float    @default(0)
+  totalAmount   Float
+  amountPaid    Float
+  paymentStatus String   @default("Paid") // "Paid", "Pending", "Partial"
+  paymentMode   String   @default("Cash") // "Cash", "UPI", "Card", "TPA Insurance"
+
+  hospitalId    String
+  hospital      Tenant   @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+
+  @@unique([hospitalId, invoiceNumber])
+  @@index([hospitalId])
+  @@map("bill_invoices")
+}

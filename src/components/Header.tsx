@@ -36,11 +36,14 @@ import {
   Lock,
   UserPlus,
   LogIn,
+  Droplet,
+  Globe,
 } from "lucide-react";
 import { MOCK_NOTIFICATIONS } from "@/data/notificationsMockData";
-import { HospitalNotificationItem } from "@/types";
+import { HospitalNotificationItem, TenantModuleKey } from "@/types";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useRole, RoleKey } from "@/context/RoleContext";
+import { useTenant } from "@/context/TenantContext";
 import { LogoutModal } from "@/components/auth/LogoutModal";
 import { ChangePasswordModal } from "@/components/auth/ChangePasswordModal";
 import { LockScreenModal } from "@/components/auth/LockScreenModal";
@@ -65,18 +68,22 @@ export const Header: React.FC<HeaderProps> = ({
     lockSession,
   } = useRole();
 
-  const [branchOpen, setBranchOpen] = useState(false);
+  const {
+    currentTenant,
+    allTenants,
+    switchTenant,
+    isModuleLicensed,
+  } = useTenant();
+
   const [profileOpen, setProfileOpen] = useState(false);
   const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
   const [notifications, setNotifications] =
     useState<HospitalNotificationItem[]>(MOCK_NOTIFICATIONS);
-  const [selectedBranch, setSelectedBranch] = useState(
-    "Metro Multispecialty - Main Branch"
-  );
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
@@ -84,17 +91,68 @@ export const Header: React.FC<HeaderProps> = ({
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
   };
 
-  const desktopNavItems = [
-    { label: "OPD", href: "/opd" },
-    { label: "IPD", href: "/ipd" },
-    { label: "Laboratory", href: "/laboratory" },
-    { label: "Pharmacy", href: "/pharmacy" },
-    { label: "Doctors", href: "/doctors" },
-    { label: "Services", href: "/services" },
-    { label: "Accounts", href: "/accounts" },
-    { label: "Reports", href: "/reports" },
-    { label: "Admin", href: "/admin" },
-    { label: "Settings", href: "/settings" },
+  // Primary clinical navigation items (frequently accessed)
+  const primaryNavItems: {
+    label: string;
+    href: string;
+    moduleKey: TenantModuleKey;
+    isBloodBank?: boolean;
+  }[] = [
+    { label: "OPD", href: "/opd", moduleKey: "opd" },
+    { label: "IPD", href: "/ipd", moduleKey: "ipd" },
+    {
+      label: "Blood Bank",
+      href: "/blood-bank",
+      moduleKey: "blood_bank",
+      isBloodBank: true,
+    },
+    { label: "Pharmacy", href: "/pharmacy", moduleKey: "pharmacy" },
+    { label: "Laboratory", href: "/laboratory", moduleKey: "laboratory" },
+    { label: "Doctors", href: "/doctors", moduleKey: "doctors" },
+  ];
+
+  // Secondary management/tariff items
+  const secondaryNavItems: {
+    label: string;
+    href: string;
+    icon: any;
+    desc: string;
+    moduleKey?: TenantModuleKey;
+  }[] = [
+    {
+      label: "Services",
+      href: "/services",
+      icon: Layers,
+      desc: "Hospital Tariff & Diagnostic Catalog",
+      moduleKey: "services",
+    },
+    {
+      label: "Accounts",
+      href: "/accounts",
+      icon: Wallet,
+      desc: "Cash Desk, Billing & Day Book",
+      moduleKey: "accounts",
+    },
+    {
+      label: "Reports",
+      href: "/reports",
+      icon: FileBarChart,
+      desc: "Clinical Analytics & Revenue Exports",
+      moduleKey: "reports",
+    },
+    {
+      label: "Admin",
+      href: "/admin",
+      icon: Shield,
+      desc: "Audit Trail & Hospital Governance",
+      moduleKey: "admin",
+    },
+    {
+      label: "Settings",
+      href: "/settings",
+      icon: Settings,
+      desc: "Clinic Profile, Printers & Tax Config",
+    },
   ];
 
   const fullNavItems = [
@@ -111,27 +169,39 @@ export const Header: React.FC<HeaderProps> = ({
       icon: Stethoscope,
       desc: "Outpatient Clinic & Queue",
       badge: "Active",
+      moduleKey: "opd" as TenantModuleKey,
     },
     {
       label: "IPD",
       href: "/ipd",
       icon: BedDouble,
       desc: "Inpatient Wards & Bed Grid",
-      badge: "88% Beds",
+      badge: currentTenant.bedCapacity > 0 ? `${currentTenant.bedCapacity} Beds` : "No Beds",
+      moduleKey: "ipd" as TenantModuleKey,
+    },
+    {
+      label: "Blood Bank",
+      href: "/blood-bank",
+      icon: Droplet,
+      desc: "Donor Registry, Blood Stock & Crossmatch",
+      badge: "Live Stock",
+      moduleKey: "blood_bank" as TenantModuleKey,
     },
     {
       label: "Laboratory",
       href: "/laboratory",
       icon: FlaskConical,
-      desc: "Specimens & Lab Diagnostic Reports",
+      desc: "Diagnostic Test Orders & Lab Reports",
       badge: "14 Orders",
+      moduleKey: "laboratory" as TenantModuleKey,
     },
     {
       label: "Pharmacy",
       href: "/pharmacy",
       icon: Pill,
-      desc: "Prescription Dispensing & Stock",
+      desc: "Prescription Dispense & Drug Inventory",
       badge: "POS",
+      moduleKey: "pharmacy" as TenantModuleKey,
     },
     {
       label: "Doctors",
@@ -139,6 +209,7 @@ export const Header: React.FC<HeaderProps> = ({
       icon: Users,
       desc: "Specialists Roster & Schedules",
       badge: "18 On Duty",
+      moduleKey: "doctors" as TenantModuleKey,
     },
     {
       label: "Services",
@@ -146,6 +217,7 @@ export const Header: React.FC<HeaderProps> = ({
       icon: Layers,
       desc: "Hospital Tariff & Diagnostic Catalog",
       badge: "86 Items",
+      moduleKey: "services" as TenantModuleKey,
     },
     {
       label: "Accounts",
@@ -153,6 +225,7 @@ export const Header: React.FC<HeaderProps> = ({
       icon: Wallet,
       desc: "Cash Desk, Billing & Day Book",
       badge: "Audited",
+      moduleKey: "accounts" as TenantModuleKey,
     },
     {
       label: "Reports",
@@ -160,6 +233,7 @@ export const Header: React.FC<HeaderProps> = ({
       icon: FileBarChart,
       desc: "Clinical Analytics & Revenue Exports",
       badge: "PDF / CSV",
+      moduleKey: "reports" as TenantModuleKey,
     },
     {
       label: "Admin",
@@ -167,6 +241,7 @@ export const Header: React.FC<HeaderProps> = ({
       icon: Shield,
       desc: "Audit Trail & Hospital Governance",
       badge: "RBAC",
+      moduleKey: "admin" as TenantModuleKey,
     },
     {
       label: "Settings",
@@ -177,77 +252,262 @@ export const Header: React.FC<HeaderProps> = ({
     },
   ];
 
-  // Dynamically filter navigation links based on active role permissions
-  const visibleDesktopNavItems = desktopNavItems.filter((item) =>
-    canAccessRoute(item.href)
+  // Dynamically filter navigation links based on:
+  // 1. User Staff Role Permissions (canAccessRoute)
+  // 2. Hospital Tenant Licensed Modules (isModuleLicensed)
+  const visiblePrimaryNavItems = primaryNavItems.filter(
+    (item) => canAccessRoute(item.href) && isModuleLicensed(item.moduleKey)
   );
 
-  const visibleFullNavItems = fullNavItems.filter((item) =>
-    canAccessRoute(item.href)
+  const visibleSecondaryNavItems = secondaryNavItems.filter(
+    (item) =>
+      canAccessRoute(item.href) &&
+      (!item.moduleKey || isModuleLicensed(item.moduleKey))
+  );
+
+  const visibleFullNavItems = fullNavItems.filter(
+    (item) =>
+      canAccessRoute(item.href) &&
+      (!item.moduleKey || isModuleLicensed(item.moduleKey))
+  );
+
+  const isSecondaryActive = visibleSecondaryNavItems.some(
+    (item) => activeNav === item.label
+  );
+  const activeSecondaryItem = visibleSecondaryNavItems.find(
+    (item) => activeNav === item.label
   );
 
   return (
     <>
+      {/* SaaS Multi-Tenant Demo Simulation Ribbon */}
+      <div className="bg-[#070b14] border-b border-slate-800 text-xs text-slate-300 px-3 sm:px-6 py-1.5 flex items-center justify-between z-50">
+        <div className="flex items-center gap-2 overflow-hidden">
+          <span className="flex h-2 w-2 relative shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span className="text-slate-400 text-[11px] hidden sm:inline">Active Hospital:</span>
+          <span className="font-bold text-white text-[11px] sm:text-xs truncate">
+            {currentTenant.name}
+          </span>
+          <span className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-teal-500/15 text-teal-300 border border-teal-500/30 truncate">
+            {currentTenant.planLabel}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Cloud Database Indicator */}
+          <div className="hidden xl:flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-medium border bg-emerald-950/60 text-emerald-300 border-emerald-500/30">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Supabase Cloud (ap-south-1)</span>
+          </div>
+
+          {/* Quick Hospital Switcher Dropdown */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] text-slate-400 hidden lg:inline">Switch Client:</span>
+            <select
+              value={currentTenant.id}
+              onChange={(e) => switchTenant(e.target.value)}
+              className="bg-slate-900 border border-slate-700/80 text-teal-300 hover:text-white rounded-lg px-2 py-0.5 text-[11px] font-medium focus:outline-none focus:ring-1 focus:ring-teal-400 cursor-pointer"
+              title="Switch Hospital Tenant Workspace"
+            >
+              {allTenants.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name} ({t.bedCapacity > 0 ? `${t.bedCapacity} Beds` : "Day Clinic"})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Super Admin Console Button */}
+          <Link
+            href="/super-admin"
+            className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-500/40 text-amber-300 rounded-lg px-2 sm:px-2.5 py-0.5 text-[11px] font-bold transition shadow-sm active:scale-95"
+            title="Open Platform Super Admin Console (Configure Modules & Pricing)"
+          >
+            <Shield className="w-3 h-3 text-amber-400" />
+            <span className="hidden sm:inline">Super Admin Console</span>
+            <span className="sm:hidden">Super Admin</span>
+          </Link>
+        </div>
+      </div>
+
       <header className="sticky top-0 z-40 w-full bg-[#0c1322] border-b border-slate-800 text-white shadow-md">
-        <div className="max-w-[1680px] mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Left Side: Hamburger (Mobile) + Brand Logo + Role Switcher + Branch Selector + Nav Links */}
-          <div className="flex items-center gap-2 sm:gap-3.5 lg:gap-5">
+        <div className="max-w-[1720px] mx-auto px-3 sm:px-5 lg:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
+          {/* Left Side: Mobile Hamburger + Brand Logo & Dynamic Tenant Identifier */}
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
             {/* Mobile Hamburger Drawer Button */}
             <button
               onClick={() => {
                 setMobileDrawerOpen(true);
                 setProfileOpen(false);
                 setNotificationsOpen(false);
-                setBranchOpen(false);
                 setRoleSwitcherOpen(false);
+                setMoreOpen(false);
               }}
               aria-label="Open Navigation Drawer"
-              className="xl:hidden p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white transition active:scale-95"
+              className="xl:hidden p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white transition active:scale-95 cursor-pointer"
             >
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Logo */}
+            {/* Logo & Multi-Tenant Hospital Indicator */}
             <Link
               href="/"
-              className="flex items-center gap-2 cursor-pointer group shrink-0"
+              className="flex items-center gap-2.5 cursor-pointer group shrink-0"
             >
               <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 shadow-inner group-hover:scale-105 transition-transform">
                 <Activity className="w-5 h-5 text-teal-400 stroke-[2.5]" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-base sm:text-lg tracking-tight text-white flex items-center gap-1">
-                  VitalSync{" "}
-                  <span className="text-teal-400 font-semibold">HMS</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-base sm:text-lg tracking-tight text-white flex items-center gap-1">
+                    VitalSync{" "}
+                    <span className="text-teal-400 font-semibold">HMS</span>
+                  </span>
+                  <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                    {currentTenant.logoBadge || `${currentTenant.unitName}`}
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-400 font-medium hidden sm:block truncate max-w-[200px]">
+                  {currentTenant.name} • {currentTenant.unitName}
                 </span>
               </div>
             </Link>
+          </div>
 
-            {/* Interactive Role Switcher Pill (Tablet & Desktop) */}
-            <div className="relative hidden md:block">
+          {/* Center Navigation: Primary clinical links + More dropdown (Desktop >= xl screens) */}
+          <nav className="hidden xl:flex items-center justify-center gap-1 flex-1 min-w-0 px-2">
+            {/* Primary Clinical Items */}
+            {visiblePrimaryNavItems.map((item) => {
+              const isActive = activeNav === item.label;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1.5 ${
+                    isActive
+                      ? "text-teal-300 bg-teal-500/15 border border-teal-500/30 font-semibold shadow-sm"
+                      : "text-slate-300 hover:text-white hover:bg-slate-800/70 border border-transparent"
+                  }`}
+                >
+                  {item.isBloodBank && (
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shadow-sm shadow-rose-500/50"></span>
+                  )}
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+
+            {/* Direct Secondary Links (visible on large displays >= 2xl) */}
+            <div className="hidden 2xl:flex items-center gap-1">
+              {visibleSecondaryNavItems.map((item) => {
+                const isActive = activeNav === item.label;
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1.5 ${
+                      isActive
+                        ? "text-teal-300 bg-teal-500/15 border border-teal-500/30 font-semibold shadow-sm"
+                        : "text-slate-300 hover:text-white hover:bg-slate-800/70 border border-transparent"
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* "More" Dropdown on xl to 2xl screens (< 1536px) */}
+            {visibleSecondaryNavItems.length > 0 && (
+              <div className="relative 2xl:hidden shrink-0">
+                <button
+                  onClick={() => {
+                    setMoreOpen(!moreOpen);
+                    setProfileOpen(false);
+                    setNotificationsOpen(false);
+                    setRoleSwitcherOpen(false);
+                  }}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                    isSecondaryActive
+                      ? "text-teal-300 bg-teal-500/15 border border-teal-500/30 font-semibold"
+                      : "text-slate-300 hover:text-white hover:bg-slate-800/70 border border-transparent"
+                  }`}
+                >
+                  <span>
+                    {isSecondaryActive ? activeSecondaryItem?.label : "More"}
+                  </span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      moreOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {moreOpen && (
+                  <div className="absolute left-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-1.5 z-50 animate-in zoom-in-95 duration-150">
+                    <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                      Operations &amp; Admin
+                    </div>
+                    {visibleSecondaryNavItems.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeNav === item.label;
+                      return (
+                        <Link
+                          key={item.label}
+                          href={item.href}
+                          onClick={() => setMoreOpen(false)}
+                          className={`flex items-center gap-2.5 px-3 py-2 text-xs transition ${
+                            isActive
+                              ? "bg-teal-500/15 text-teal-300 font-semibold"
+                              : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                          }`}
+                        >
+                          <Icon className="w-4 h-4 text-slate-400 shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <div className="font-medium truncate">{item.label}</div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              {item.desc}
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </nav>
+
+          {/* Right Side: Role Switcher + Quick Menu + Notifications + Dynamic User Profile */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Interactive Role Switcher Pill */}
+            <div className="relative hidden lg:block shrink-0">
               <button
                 onClick={() => {
                   setRoleSwitcherOpen(!roleSwitcherOpen);
-                  setBranchOpen(false);
                   setProfileOpen(false);
                   setNotificationsOpen(false);
+                  setMoreOpen(false);
                 }}
-                className="flex items-center gap-1.5 sm:gap-2 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-teal-500/50 rounded-full px-2.5 sm:px-3 py-1 text-xs font-semibold text-slate-200 transition shadow-sm active:scale-95 cursor-pointer"
+                className="flex items-center gap-1.5 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-teal-500/50 rounded-full px-2.5 sm:px-3 py-1 text-xs font-semibold text-slate-200 transition shadow-sm active:scale-95 cursor-pointer whitespace-nowrap"
                 title="Switch Clinical Role (Live RBAC Simulation)"
               >
-                <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
-                <span className="hidden lg:inline text-[11px] text-slate-400 font-normal">
+                <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse shrink-0"></span>
+                <span className="hidden xl:inline text-[11px] text-slate-400 font-normal">
                   Role:
                 </span>
-                <span className="text-[11px] text-teal-300 font-semibold truncate max-w-[100px] sm:max-w-[130px]">
+                <span className="text-[11px] text-teal-300 font-semibold truncate max-w-[110px]">
                   {roleConfig.profile.badge}
                 </span>
-                <ChevronDown className="w-3 h-3 text-slate-400" />
+                <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
               </button>
 
               {/* Role Switcher Dropdown */}
               {roleSwitcherOpen && (
-                <div className="absolute left-0 mt-2 w-72 sm:w-80 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl py-2 z-50 text-xs animate-in zoom-in-95 duration-150">
+                <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl py-2 z-50 text-xs animate-in zoom-in-95 duration-150">
                   <div className="px-3.5 py-2.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
                     <div>
                       <span className="font-bold text-white text-xs block">
@@ -315,75 +575,10 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </div>
 
-            {/* Branch Dropdown Pill (Desktop) */}
-            <div className="relative hidden 2xl:block">
-              <button
-                onClick={() => {
-                  setBranchOpen(!branchOpen);
-                  setProfileOpen(false);
-                  setNotificationsOpen(false);
-                  setRoleSwitcherOpen(false);
-                }}
-                className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 rounded-full px-3.5 py-1.5 text-xs font-medium text-slate-200 transition-colors"
-              >
-                <Building className="w-3.5 h-3.5 text-teal-400" />
-                <span>{selectedBranch}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              </button>
-
-              {branchOpen && (
-                <div className="absolute left-0 mt-2 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-1 z-50 text-xs">
-                  <div className="px-3 py-2 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                    Select Hospital Branch
-                  </div>
-                  {[
-                    "Metro Multispecialty - Main Branch",
-                    "VitalSync North Wing - Day Care",
-                    "VitalSync Diagnostic & Specialty Center",
-                  ].map((branch) => (
-                    <button
-                      key={branch}
-                      onClick={() => {
-                        setSelectedBranch(branch);
-                        setBranchOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 hover:bg-slate-800 transition flex items-center justify-between ${
-                        selectedBranch === branch
-                          ? "text-teal-400 font-semibold bg-slate-800/50"
-                          : "text-slate-300"
-                      }`}
-                    >
-                      {branch}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Nav Links (Desktop >= 1280px) - Dynamically Filtered */}
-            <nav className="hidden xl:flex items-center gap-0.5 text-sm font-medium">
-              {visibleDesktopNavItems.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    activeNav === item.label
-                      ? "text-teal-400 bg-slate-800 font-semibold"
-                      : "text-slate-300 hover:text-white hover:bg-slate-800/60"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          {/* Right Side: Quick Menu + Notifications + Dynamic User Profile */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
-            {/* Quick Menu Button (Hidden on small mobile phones where bottom nav FAB handles it) */}
+            {/* Quick Menu Button */}
             <button
               onClick={onOpenQuickMenu}
-              className="hidden sm:flex items-center gap-1.5 sm:gap-2 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-teal-500/50 rounded-xl px-2.5 sm:px-3 py-1.5 text-xs font-medium text-slate-200 transition shadow-sm group active:scale-95"
+              className="hidden sm:flex items-center gap-1.5 sm:gap-2 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-teal-500/50 rounded-xl px-2.5 sm:px-3 py-1.5 text-xs font-medium text-slate-200 transition shadow-sm group active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
             >
               <span className="group-hover:text-teal-300 text-[11px] sm:text-xs">
                 Quick Menu
@@ -394,13 +589,13 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {/* Notifications Bell with Interactive Drawer */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 onClick={() => {
                   setNotificationsOpen(!notificationsOpen);
                   setProfileOpen(false);
-                  setBranchOpen(false);
                   setRoleSwitcherOpen(false);
+                  setMoreOpen(false);
                 }}
                 title="Hospital Alerts & Notifications"
                 className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 flex items-center justify-center text-slate-300 hover:text-white transition relative cursor-pointer active:scale-95"
@@ -489,13 +684,13 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Dynamic Active User Profile Info & Dropdown */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 onClick={() => {
                   setProfileOpen(!profileOpen);
                   setNotificationsOpen(false);
-                  setBranchOpen(false);
                   setRoleSwitcherOpen(false);
+                  setMoreOpen(false);
                 }}
                 className="flex items-center gap-2 pl-1.5 sm:pl-2 pr-1 py-1 rounded-xl hover:bg-slate-800/60 transition group cursor-pointer"
               >
@@ -519,7 +714,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <div className="text-xs font-semibold text-white group-hover:text-teal-300 transition">
                     {roleConfig.profile.name}
                   </div>
-                  <div className="text-[10px] text-slate-400 font-medium">
+                  <div className="text-[10px] text-slate-400 font-medium truncate max-w-[110px]">
                     {roleConfig.profile.roleLabel}
                   </div>
                 </div>
@@ -542,81 +737,29 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       {roleConfig.profile.roleLabel}
                     </span>
-                    <p className="text-[10px] text-slate-400 mt-1">
-                      {roleConfig.profile.department}
-                    </p>
+                  </div>
+
+                  <div className="px-4 py-2 border-b border-slate-800 text-[11px] space-y-1">
+                    <div className="flex justify-between text-slate-400">
+                      <span>Hospital Tenant:</span>
+                      <span className="text-teal-400 font-medium">{currentTenant.name}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-400">
+                      <span>Department:</span>
+                      <span className="text-white font-medium truncate max-w-[130px]">
+                        {roleConfig.profile.department}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-slate-400">
+                      <span>Session Status:</span>
+                      <span className="text-emerald-400 font-medium flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Active Shift
+                      </span>
+                    </div>
                   </div>
 
                   <div className="py-1">
-                    {canAccessRoute("/doctors") && (
-                      <Link
-                        href="/doctors"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                      >
-                        <User className="w-3.5 h-3.5 text-teal-400" />
-                        Doctors Profile &amp; Schedule
-                      </Link>
-                    )}
-
-                    {canAccessRoute("/services") && (
-                      <Link
-                        href="/services"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                      >
-                        <Layers className="w-3.5 h-3.5 text-amber-400" />
-                        Services Catalog (86 listed)
-                      </Link>
-                    )}
-
-                    {canAccessRoute("/accounts") && (
-                      <Link
-                        href="/accounts"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                      >
-                        <Wallet className="w-3.5 h-3.5 text-emerald-400" />
-                        Accounts &amp; Day Book
-                      </Link>
-                    )}
-
-                    {canAccessRoute("/settings") && (
-                      <Link
-                        href="/settings"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                      >
-                        <Building className="w-3.5 h-3.5 text-blue-400" />
-                        Hospital Settings
-                      </Link>
-                    )}
-
-                    {canAccessRoute("/admin") && (
-                      <Link
-                        href="/admin"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                      >
-                        <Shield className="w-3.5 h-3.5 text-purple-400" />
-                        Role &amp; Permissions (RBAC)
-                      </Link>
-                    )}
-                  </div>
-
-                  {/* Security & Terminal Actions inside Profile */}
-                  <div className="border-t border-slate-800 py-1 bg-slate-950/40">
-                    <button
-                      onClick={() => {
-                        setProfileOpen(false);
-                        setRoleSwitcherOpen(true);
-                      }}
-                      className="w-full text-left px-4 py-1.5 text-[11px] font-semibold text-teal-400 hover:text-teal-300 hover:bg-slate-800/50 flex items-center justify-between cursor-pointer"
-                    >
-                      <span>Switch Active Role (RBAC)</span>
-                      <ChevronRight className="w-3 h-3" />
-                    </button>
-
                     <button
                       onClick={() => {
                         setProfileOpen(false);
@@ -638,6 +781,15 @@ export const Header: React.FC<HeaderProps> = ({
                       <KeyRound className="w-3.5 h-3.5 text-teal-400" />
                       Change Password
                     </button>
+
+                    <Link
+                      href="/super-admin"
+                      onClick={() => setProfileOpen(false)}
+                      className="w-full text-left flex items-center gap-2.5 px-4 py-1.5 text-amber-300 hover:bg-slate-800 transition text-xs font-semibold"
+                    >
+                      <Shield className="w-3.5 h-3.5 text-amber-400" />
+                      Platform Super Admin
+                    </Link>
 
                     <Link
                       href="/register"
@@ -689,7 +841,9 @@ export const Header: React.FC<HeaderProps> = ({
                   <h3 className="font-bold text-sm text-white">
                     VitalSync <span className="text-teal-400">HMS</span>
                   </h3>
-                  <p className="text-[10px] text-slate-400">Clinical Mobile Portal</p>
+                  <p className="text-[10px] text-slate-400 truncate max-w-[170px]">
+                    {currentTenant.name}
+                  </p>
                 </div>
               </div>
               <button
@@ -698,6 +852,34 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <X className="w-4 h-4" />
               </button>
+            </div>
+
+            {/* Hospital Tenant Switcher inside Mobile Drawer */}
+            <div className="p-3 bg-slate-950 border-b border-slate-800">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Client Hospital
+                </span>
+                <Link
+                  href="/super-admin"
+                  onClick={() => setMobileDrawerOpen(false)}
+                  className="text-[10px] font-bold text-amber-400 hover:underline flex items-center gap-1"
+                >
+                  <Shield className="w-2.5 h-2.5" />
+                  SaaS Admin
+                </Link>
+              </div>
+              <select
+                value={currentTenant.id}
+                onChange={(e) => switchTenant(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-teal-300 font-semibold focus:outline-none focus:ring-1 focus:ring-teal-400"
+              >
+                {allTenants.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} ({t.bedCapacity > 0 ? `${t.bedCapacity} Beds` : "Day Clinic"})
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Role indicator & switcher inside Drawer */}
@@ -745,10 +927,13 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
 
-            {/* Navigation Modules List - Filtered by Role */}
+            {/* Navigation Modules List - Filtered by Tenant License & Role */}
             <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
-              <div className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Permitted Modules ({visibleFullNavItems.length})
+              <div className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                <span>Licensed Modules ({visibleFullNavItems.length})</span>
+                <span className="text-[9px] text-teal-400 font-normal">
+                  {currentTenant.name}
+                </span>
               </div>
               {visibleFullNavItems.map((item) => {
                 const Icon = item.icon;

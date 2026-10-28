@@ -20,13 +20,16 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useRole, RoleKey, ROLES_REGISTRY } from "@/context/RoleContext";
+import { useTenant } from "@/context/TenantContext";
+import { authenticateStaff } from "@/lib/staffService";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useRole();
+  const { switchTenant } = useTenant();
 
   const [selectedRole, setSelectedRole] = useState<RoleKey>("doctor");
-  const [staffId, setStaffId] = useState("CP-DOC-401");
+  const [staffId, setStaffId] = useState("priya.nair@apexcarehospital.com");
   const [password, setPassword] = useState("Hospital@2026");
   const [showPassword, setShowPassword] = useState(false);
   const [terminalStation, setTerminalStation] = useState("OPD Chamber 04 - Internal Medicine");
@@ -44,19 +47,19 @@ export default function LoginPage() {
     // Auto-fill realistic credentials for test simulation
     switch (key) {
       case "cmo":
-        setStaffId("CP-CMO-100");
+        setStaffId("cmo@apexcarehospital.com");
         setTerminalStation("Executive Governance Suite");
         break;
       case "receptionist":
-        setStaffId("CP-REC-204");
+        setStaffId("sneha.m@apexcarehospital.com");
         setTerminalStation("Main Triage & Registration Counter 01");
         break;
       case "doctor":
-        setStaffId("CP-DOC-401");
+        setStaffId("priya.nair@apexcarehospital.com");
         setTerminalStation("OPD Chamber 04 - Internal Medicine");
         break;
       case "nurse":
-        setStaffId("CP-NUR-302");
+        setStaffId("philomena.d@apexcarehospital.com");
         setTerminalStation("Nursing Station - ICU & Ward 3");
         break;
       case "pharmacist":
@@ -75,7 +78,7 @@ export default function LoginPage() {
     setPassword("Hospital@2026");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -91,10 +94,28 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      const auth = await authenticateStaff(staffId, password);
+
+      if (!auth.success) {
+        setIsLoading(false);
+        setError(auth.error || "Authentication failed.");
+        return;
+      }
+
       setIsLoading(false);
       setSuccess(true);
-      login(selectedRole);
+
+      if (auth.user) {
+        if (auth.user.role) {
+          login(auth.user.role as RoleKey, auth.user.name);
+        }
+        if (auth.user.hospital_id) {
+          switchTenant(auth.user.hospital_id);
+        }
+      } else {
+        login(selectedRole);
+      }
 
       setTimeout(() => {
         // Route according to role privileges
@@ -108,7 +129,10 @@ export default function LoginPage() {
           router.push("/");
         }
       }, 700);
-    }, 600);
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err.message || "An unexpected error occurred during login.");
+    }
   };
 
   const activeRoleConfig = ROLES_REGISTRY[selectedRole];

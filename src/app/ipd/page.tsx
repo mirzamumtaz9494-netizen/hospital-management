@@ -30,6 +30,8 @@ import { BedTransferModal } from "@/components/ipd/BedTransferModal";
 import { DischargePatientModal } from "@/components/ipd/DischargePatientModal";
 import { PrintCertificatesModal } from "@/components/ipd/PrintCertificatesModal";
 import { useRole } from "@/context/RoleContext";
+import { useTenant } from "@/context/TenantContext";
+import { UnlicensedModuleGuard } from "@/components/UnlicensedModuleGuard";
 import {
   IpdBed,
   ActiveAdmission,
@@ -50,6 +52,7 @@ import {
 
 export default function InpatientPage() {
   const { canAccessAction, currentRole } = useRole();
+  const { isModuleLicensed } = useTenant();
   const [activeTab, setActiveTab] = useState<
     "Bed Map" | "Admissions" | "Transfers" | "IP Billing"
   >("Bed Map");
@@ -417,6 +420,26 @@ export default function InpatientPage() {
         showToast(`Action selected: ${actionId}`);
     }
   };
+
+  if (!isModuleLicensed("ipd")) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col">
+        <Header
+          activeNav="IPD"
+          onOpenQuickMenu={() => setIsQuickMenuOpen(true)}
+        />
+        <UnlicensedModuleGuard
+          moduleName="Inpatient Wards & 20-50 Beds Tracker (IPD)"
+          moduleKey="ipd"
+        />
+        <QuickMenuModal
+          isOpen={isQuickMenuOpen}
+          onClose={() => setIsQuickMenuOpen(false)}
+          onActionSelect={handleQuickAction}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col selection:bg-teal-500 selection:text-white">

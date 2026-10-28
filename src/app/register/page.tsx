@@ -28,12 +28,19 @@ import {
   HeartPulse,
 } from "lucide-react";
 import { useRole, RoleKey, ROLES_REGISTRY } from "@/context/RoleContext";
+import { useTenant } from "@/context/TenantContext";
+import { registerStaff } from "@/lib/staffService";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { login } = useRole();
+  const { allTenants, currentTenant } = useTenant();
 
   // Basic Details
+  const [selectedHospitalId, setSelectedHospitalId] = useState<string>(
+    currentTenant?.id || "a0000000-0000-0000-0000-000000000001"
+  );
+  const [registeredHospitalName, setRegisteredHospitalName] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -179,7 +186,7 @@ export default function RegisterPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -210,17 +217,43 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    try {
+      const chosenHospital =
+        allTenants.find((t) => t.id === selectedHospitalId) || allTenants[0];
+
+      const res = await registerStaff({
+        email,
+        password,
+        name: fullName,
+        phone,
+        role: selectedRole,
+        role_label: ROLES_REGISTRY[selectedRole]?.profile?.roleLabel || "Clinical Staff",
+        department:
+          selectedRole === "doctor"
+            ? specialization
+            : selectedRole === "nurse"
+            ? assignedWard
+            : selectedRole === "pharmacist"
+            ? pharmacyTier
+            : selectedRole === "lab_tech"
+            ? labSection
+            : "Clinical Administration",
+        hospital_id: chosenHospital?.id || "a0000000-0000-0000-0000-000000000001",
+      });
+
       setIsSubmitting(false);
+
+      if (!res.success) {
+        setError(res.error || "Staff registration failed.");
+        return;
+      }
+
+      setRegisteredHospitalName(chosenHospital?.name || "Apex Care Hospital");
       setSuccess(true);
-
-      // Auto login with new role and custom staff name
-      login(selectedRole, fullName);
-
-      setTimeout(() => {
-        router.push("/");
-      }, 1200);
-    }, 800);
+    } catch (err: any) {
+      setIsSubmitting(false);
+      setError(err.message || "An unexpected error occurred during registration.");
+    }
   };
 
   return (
@@ -288,49 +321,109 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {success && (
-            <div className="mt-5 p-4 bg-emerald-950/50 border border-emerald-800/80 rounded-2xl flex items-center gap-3 text-xs text-emerald-200 animate-in zoom-in-95">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-5 h-5" />
+          {success ? (
+            <div className="mt-6 p-6 sm:p-8 bg-slate-900 border border-teal-500/40 rounded-3xl space-y-6 text-center animate-in zoom-in-95">
+              <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center shadow-lg shadow-amber-500/10">
+                <ShieldCheck className="w-8 h-8" />
               </div>
-              <div>
-                <p className="font-bold text-sm text-emerald-100">
-                  Staff Registration Approved &amp; Credentialed!
+
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                  Status: PENDING ADMINISTRATIVE APPROVAL
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-white">
+                  Credential Submission Recorded in Cloud!
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
+                  Your registration for <strong className="text-white">{fullName}</strong> ({ROLES_REGISTRY[selectedRole]?.profile?.roleLabel || selectedRole}) has been saved to the PostgreSQL cloud database for <strong className="text-teal-300">{registeredHospitalName}</strong>.
                 </p>
-                <p className="text-[11px] text-emerald-300/80">
-                  Clinical profile initialized for {fullName}. Redirecting to VitalSync Terminal...
-                </p>
+              </div>
+
+              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 max-w-md mx-auto text-left text-xs space-y-2.5 text-slate-400">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                  <span>Registered Staff Email:</span>
+                  <span className="font-mono text-white font-bold">{email}</span>
+                </div>
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                  <span>Assigned Hospital:</span>
+                  <span className="text-slate-200">{registeredHospitalName}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Cloud Verification Status:</span>
+                  <span className="text-amber-400 font-bold">Awaiting CMO / Admin Approval</span>
+                </div>
+              </div>
+
+              <div className="p-3.5 bg-amber-950/20 border border-amber-500/30 rounded-xl text-[11px] text-amber-200/90 text-left max-w-md mx-auto">
+                💡 <strong>Hospital Verification Gate:</strong> Under clinical NABH guidelines, unverified accounts cannot view real patient records. The Chief Medical Officer or Super Admin can approve this profile directly from their dashboard.
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <Link
+                  href="/login"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs transition shadow-md shadow-teal-500/20 text-center"
+                >
+                  Go to Staff Login
+                </Link>
+                <Link
+                  href="/super-admin"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-semibold text-xs transition text-center"
+                >
+                  ⚡ Review &amp; Approve in Super Admin Console
+                </Link>
               </div>
             </div>
-          )}
+          ) : (
+            <form onSubmit={handleSubmit} className="mt-6 space-y-8">
+              {/* 1. Basic Staff Identity Section */}
+              <div className="space-y-4">
+                <h3 className="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-md bg-teal-500/20 text-teal-300 flex items-center justify-center text-[10px]">
+                    1
+                  </span>
+                  Personal &amp; Professional Contact Information
+                </h3>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-8">
-            {/* 1. Basic Staff Identity Section */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-2">
-                <span className="w-5 h-5 rounded-md bg-teal-500/20 text-teal-300 flex items-center justify-center text-[10px]">
-                  1
-                </span>
-                Personal &amp; Professional Contact Information
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Full Legal Name *
-                  </label>
-                  <div className="relative">
-                    <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="e.g. Dr. Aris Thorne"
-                      required
-                      className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition"
-                    />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Hospital Client Selection */}
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      Assigned Hospital Facility / Client *
+                    </label>
+                    <div className="relative">
+                      <Building className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <select
+                        value={selectedHospitalId}
+                        onChange={(e) => setSelectedHospitalId(e.target.value)}
+                        required
+                        className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition cursor-pointer"
+                      >
+                        {allTenants.map((t) => (
+                          <option key={t.id} value={t.id}>
+                            {t.name} ({t.city}, {t.state})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      Full Legal Name *
+                    </label>
+                    <div className="relative">
+                      <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="e.g. Dr. Aris Thorne"
+                        required
+                        className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition"
+                      />
+                    </div>
+                  </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
@@ -852,6 +945,7 @@ export default function RegisterPage() {
               </button>
             </div>
           </form>
+          )}
         </div>
       </main>
 

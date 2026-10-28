@@ -5,11 +5,14 @@
   "license": "Commercial",
   "scripts": {
     "dev": "next dev",
+    "dev:3001": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@prisma/client": "^7.10.1",
+    "@supabase/supabase-js": "^2.118.0",
     "@vercel/analytics": "^2.0.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.453.0",
@@ -24,6 +27,7 @@
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
+    "prisma": "^8.0.0-rc.27",
     "tailwindcss": "^3.4.14",
     "typescript": "^5.6.3"
   }

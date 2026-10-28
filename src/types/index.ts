@@ -899,3 +899,127 @@ export interface HospitalNotificationItem {
   linkHref: string;
 }
 
+/* ========================================================================= */
+/* BLOOD BANK & DONOR MANAGEMENT TYPES                                      */
+/* ========================================================================= */
+
+export type BloodGroup = "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
+
+export type BloodComponent =
+  | "Whole Blood"
+  | "Packed Red Blood Cells (PRBC)"
+  | "Fresh Frozen Plasma (FFP)"
+  | "Platelet Concentrate (RDP)"
+  | "Cryoprecipitate";
+
+export interface BloodInventoryUnit {
+  id: string;
+  bagBarcode: string;
+  bloodGroup: BloodGroup;
+  component: BloodComponent;
+  volumeMl: number;
+  collectionDate: string;
+  expiryDate: string;
+  daysRemaining: number;
+  donorId: string;
+  donorName: string;
+  storageLocation: string;
+  status: "Available" | "Reserved" | "Transfused" | "Expired" | "Testing";
+  crossmatchedPatient?: string;
+  crossmatchedIpNo?: string;
+}
+
+export interface BloodDonor {
+  id: string;
+  donorNumber: string;
+  name: string;
+  age: number;
+  gender: "M" | "F" | "Other";
+  bloodGroup: BloodGroup;
+  phone: string;
+  email: string;
+  city: string;
+  weightKg: number;
+  hemoglobin: number;
+  lastDonationDate: string;
+  totalDonations: number;
+  status: "Eligible" | "In Cooldown" | "Deferred (Low Hb)" | "Medical Deferral";
+  emergencyConsent: boolean;
+}
+
+export interface BloodRequisition {
+  id: string;
+  reqNumber: string;
+  patientName: string;
+  mrId: string;
+  ipNo: string;
+  wardBed: string;
+  requestedDoctor: string;
+  bloodGroup: BloodGroup;
+  component: BloodComponent;
+  unitsNeeded: number;
+  indication: string;
+  urgency: "Immediate STAT" | "Within 4 Hours" | "Scheduled OT";
+  status: "Pending Crossmatch" | "Crossmatch Compatible" | "Units Reserved" | "Issued to OT";
+  requestedAt: string;
+  reservedBagBarcode?: string;
+}
+
+// ==========================================
+// MULTI-TENANT & SAAS SUPER ADMIN TYPES
+// ==========================================
+
+export type TenantModuleKey =
+  | "opd"
+  | "ipd"
+  | "pharmacy"
+  | "laboratory"
+  | "blood_bank"
+  | "doctors"
+  | "services"
+  | "accounts"
+  | "reports"
+  | "admin";
+
+export type TenantPlanKey =
+  | "starter_clinic"
+  | "standard_hospital"
+  | "enterprise_multispecialty"
+  | "custom";
+
+export interface TenantModuleMetadata {
+  key: TenantModuleKey;
+  label: string;
+  category: "Clinical" | "Operations" | "Specialty";
+  description: string;
+  route: string;
+  iconName: string;
+  isAddon?: boolean;
+  basePricePerMonth: number;
+}
+
+export interface HospitalTenant {
+  id: string;
+  tenantCode: string;
+  name: string;
+  unitName: string;
+  tagline: string;
+  city: string;
+  state: string;
+  contactEmail: string;
+  contactPhone: string;
+  plan: TenantPlanKey;
+  planLabel: string;
+  bedCapacity: number;
+  status: "Active" | "Trial" | "Suspended";
+  renewalDate: string;
+  monthlyFee: number;
+  currency: string;
+  modules: Record<TenantModuleKey, boolean>;
+  primaryColor?: string;
+  logoBadge?: string;
+  createdAt: string;
+}
+
+
+
