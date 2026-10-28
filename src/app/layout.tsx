@@ -5,6 +5,7 @@ import { OfflineSyncProvider } from "@/context/OfflineSyncContext";
 import { RoleProvider } from "@/context/RoleContext";
 import { OwnerProvider } from "@/context/OwnerContext";
 import { OwnerUnlockModal } from "@/components/superadmin/OwnerUnlockModal";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { Analytics } from "@vercel/analytics/react";
 
 export const viewport: Viewport = {
@@ -45,6 +46,7 @@ export default function RootLayout({
               <OwnerProvider>
                 {children}
                 <OwnerUnlockModal />
+                <ServiceWorkerRegister />
                 <Analytics />
               </OwnerProvider>
             </RoleProvider>
