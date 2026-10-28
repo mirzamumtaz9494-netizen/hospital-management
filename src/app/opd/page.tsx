@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   PhoneCall,
@@ -15,6 +15,8 @@ import { CreateIpModal } from "@/components/CreateIpModal";
 import { PrintSlipModal } from "@/components/PrintSlipModal";
 import { PatientQrCardModal } from "@/components/common/PatientQrCardModal";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
+import { getAllLocalRecords } from "@/lib/offlineStore";
+import { supabase } from "@/lib/supabase";
 import { OpdQueueTab } from "@/components/opd/OpdQueueTab";
 import { OpdAppointmentsTab } from "@/components/opd/OpdAppointmentsTab";
 import { OpdConsultationsTab } from "@/components/opd/OpdConsultationsTab";
@@ -69,6 +71,145 @@ export default function OutpatientPage() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
+
+  // Load newly registered patients from local IndexedDB & Supabase Cloud
+  useEffect(() => {
+    async function loadPatients() {
+      const loadedQueueItems: OpQueueItem[] = [];
+      const loadedAllRecords: AllOpRecord[] = [];
+
+      // 1. From local IndexedDB
+      try {
+        const localPatients = await getAllLocalRecords<any>("patients");
+        localPatients.forEach((p, idx) => {
+          const initials = (p.name || "PT")
+            .split(" ")
+            .map((n: string) => n[0])
+            .slice(0, 2)
+            .join("")
+            .toUpperCase();
+          const token = p.opIpId || `OP-${40100 + idx}`;
+          loadedQueueItems.push({
+            id: p.id || `local-${p.uhid || idx}`,
+            token: token,
+            name: p.name,
+            initials: initials || "PT",
+            age: p.age || 30,
+            gender: p.gender || "M",
+            mrId: p.uhid || p.mrId,
+            phone: p.phone,
+            department: p.department || "General Medicine",
+            doctor: p.attendingDoctor || "Dr. K. Sharma",
+            visitType: "New",
+            checkIn: "Just now",
+            waitTime: "0 min",
+            status: "Waiting",
+            billAmount: p.billAmount || 500,
+          });
+
+          loadedAllRecords.push({
+            id: p.id || `rec-${p.uhid || idx}`,
+            opNo: token,
+            name: p.name,
+            initials: initials || "PT",
+            age: p.age || 30,
+            gender: p.gender || "M",
+            mrId: p.uhid || p.mrId,
+            phone: p.phone,
+            department: p.department || "General Medicine",
+            doctor: p.attendingDoctor || "Dr. K. Sharma",
+            visitDate: "Today",
+            visitType: "New",
+            billAmount: p.billAmount || 500,
+            paymentStatus: "Paid",
+            paymentMode: "UPI",
+          });
+        });
+      } catch (err) {
+        console.warn("Failed to load local patients:", err);
+      }
+
+      // 2. From Supabase Cloud
+      try {
+        if (supabase) {
+          const { data: cloudPatients } = await supabase
+            .from("patients")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(20);
+
+          if (cloudPatients && cloudPatients.length > 0) {
+            cloudPatients.forEach((cp, idx) => {
+              const alreadyInQueue = loadedQueueItems.some(
+                (q) => q.mrId === cp.mr_id || q.name === cp.name
+              );
+              if (!alreadyInQueue) {
+                const initials = (cp.name || "PT")
+                  .split(" ")
+                  .map((n: string) => n[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase();
+                const token = `OP-${40200 + idx}`;
+                loadedQueueItems.push({
+                  id: cp.id,
+                  token: token,
+                  name: cp.name,
+                  initials: initials || "PT",
+                  age: cp.age || 30,
+                  gender: cp.gender || "M",
+                  mrId: cp.mr_id,
+                  phone: cp.phone,
+                  department: "General Medicine",
+                  doctor: "Dr. K. Sharma",
+                  visitType: "New",
+                  checkIn: "Cloud Synced",
+                  waitTime: "0 min",
+                  status: "Waiting",
+                  billAmount: 500,
+                });
+
+                loadedAllRecords.push({
+                  id: cp.id,
+                  opNo: token,
+                  name: cp.name,
+                  initials: initials || "PT",
+                  age: cp.age || 30,
+                  gender: cp.gender || "M",
+                  mrId: cp.mr_id,
+                  phone: cp.phone,
+                  department: "General Medicine",
+                  doctor: "Dr. K. Sharma",
+                  visitDate: "Today",
+                  visitType: "New",
+                  billAmount: 500,
+                  paymentStatus: "Paid",
+                  paymentMode: "UPI",
+                });
+              }
+            });
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to load cloud patients:", err);
+      }
+
+      if (loadedQueueItems.length > 0) {
+        setQueue((prev) => {
+          const existingMrIds = new Set(prev.map((i) => i.mrId));
+          const toAdd = loadedQueueItems.filter((i) => !existingMrIds.has(i.mrId));
+          return [...toAdd, ...prev];
+        });
+        setAllRecords((prev) => {
+          const existingMrIds = new Set(prev.map((i) => i.mrId));
+          const toAdd = loadedAllRecords.filter((i) => !existingMrIds.has(i.mrId));
+          return [...toAdd, ...prev];
+        });
+      }
+    }
+
+    loadPatients();
+  }, []);
 
   // Top action: Call Next Waiting Patient
   const handleCallNext = () => {

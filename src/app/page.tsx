@@ -15,6 +15,8 @@ import { CreateIpModal } from "@/components/CreateIpModal";
 import { MOCK_PATIENTS } from "@/data/mockData";
 import { Patient } from "@/types";
 import { useRole } from "@/context/RoleContext";
+import { getAllLocalRecords } from "@/lib/offlineStore";
+import { supabase } from "@/lib/supabase";
 import {
   DoctorDashboardView,
   NurseDashboardView,
@@ -52,6 +54,82 @@ export default function DashboardPage() {
     setNotification(message);
     setTimeout(() => setNotification(null), 3500);
   };
+
+  // Load patients from local IndexedDB and Supabase Cloud
+  useEffect(() => {
+    async function loadPatients() {
+      const loaded: Patient[] = [];
+
+      // 1. From local IndexedDB
+      try {
+        const local = await getAllLocalRecords<Patient>("patients");
+        if (local && local.length > 0) {
+          loaded.push(...local);
+        }
+      } catch {}
+
+      // 2. From Supabase Cloud
+      try {
+        if (supabase) {
+          const { data: cloud } = await supabase
+            .from("patients")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(20);
+
+          if (cloud) {
+            cloud.forEach((cp, idx) => {
+              const alreadyExists = loaded.some(
+                (p) =>
+                  p.mrId === cp.mr_id ||
+                  p.uhid === cp.mr_id ||
+                  p.name === cp.name
+              );
+              if (!alreadyExists) {
+                const initials = (cp.name || "PT")
+                  .split(" ")
+                  .map((n: string) => n[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase();
+                loaded.push({
+                  id: cp.id,
+                  mrId: cp.mr_id,
+                  uhid: cp.mr_id,
+                  opIpId: `OP-${40100 + idx}`,
+                  type: "OP",
+                  name: cp.name,
+                  initials: initials || "PT",
+                  age: cp.age || 30,
+                  gender: (cp.gender as any) || "M",
+                  phone: cp.phone,
+                  bloodGroup: cp.blood_group || "O+",
+                  department: "General Medicine",
+                  attendingDoctor: "Dr. K. Sharma",
+                  admissionDate: "Today",
+                  status: "Active",
+                  billAmount: 500,
+                  diagnosis: "Clinical Outpatient Consultation",
+                });
+              }
+            });
+          }
+        }
+      } catch {}
+
+      if (loaded.length > 0) {
+        setPatients((prev) => {
+          const existingIds = new Set(prev.map((p) => p.mrId || p.uhid));
+          const toAdd = loaded.filter(
+            (p) => !existingIds.has(p.mrId || p.uhid)
+          );
+          return [...toAdd, ...prev];
+        });
+      }
+    }
+
+    loadPatients();
+  }, []);
 
   const handleQuickAction = (actionId: string) => {
     switch (actionId) {
