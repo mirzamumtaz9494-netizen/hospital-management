@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
-import { X, Printer, Activity } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, Printer, Activity, QrCode } from "lucide-react";
 import { Patient } from "@/types";
+import { generateQrCodeDataUrl, createPatientQrPayload } from "@/lib/qrService";
 
 interface PrintSlipModalProps {
   patient: Patient | null;
@@ -13,6 +14,19 @@ export const PrintSlipModal: React.FC<PrintSlipModalProps> = ({
   patient,
   onClose,
 }) => {
+  const [qrUrl, setQrUrl] = useState<string>("");
+
+  useEffect(() => {
+    if (patient) {
+      const uhid = patient.uhid || patient.mrId;
+      const payload = createPatientQrPayload({
+        uhid: uhid,
+        tenantCode: "APEX",
+      });
+      generateQrCodeDataUrl(payload).then((url) => setQrUrl(url));
+    }
+  }, [patient]);
+
   if (!patient) return null;
 
   const handlePrint = () => {
@@ -65,13 +79,23 @@ export const PrintSlipModal: React.FC<PrintSlipModalProps> = ({
                 Ph: +91 040 2345 6789 • Emergency Helpline: 108 • Reg No: AP/HYD/MED/2026/094
               </p>
             </div>
-            <div className="text-right">
-              <span className="inline-block border border-slate-900 px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider">
-                OPD Slip
-              </span>
-              <p className="font-mono text-xs font-bold text-slate-800 mt-1">
-                {patient.opIpId}
-              </p>
+            <div className="flex items-center gap-3">
+              {qrUrl && (
+                <div className="border border-slate-300 p-1 rounded-lg bg-white shrink-0">
+                  <img src={qrUrl} alt="Patient QR Code" className="w-16 h-16 object-contain" />
+                </div>
+              )}
+              <div className="text-right">
+                <span className="inline-block border border-slate-900 px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider">
+                  OPD Slip
+                </span>
+                <p className="font-mono text-xs font-bold text-slate-800 mt-1">
+                  {patient.opIpId}
+                </p>
+                <p className="font-mono text-[10px] text-slate-500 font-bold">
+                  {patient.uhid || patient.mrId}
+                </p>
+              </div>
             </div>
           </div>
 

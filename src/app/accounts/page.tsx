@@ -19,11 +19,16 @@ import {
   ShieldCheck,
   X,
   FileText,
+  Calculator,
+  AlertTriangle,
+  AlertCircle,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
 import { CreateOpModal } from "@/components/CreateOpModal";
 import { CreateIpModal } from "@/components/CreateIpModal";
+import { ShiftReconciliationModal } from "@/components/accounts/ShiftReconciliationModal";
+import { OutstandingDuesModal } from "@/components/accounts/OutstandingDuesModal";
 import { useRole } from "@/context/RoleContext";
 import { AccessDeniedGuard } from "@/components/AccessDeniedGuard";
 import { MOCK_ACCOUNT_TRANSACTIONS } from "@/data/accountsMockData";
@@ -42,6 +47,8 @@ export default function AccountsPage() {
   const [isNewOpModalOpen, setIsNewOpModalOpen] = useState(false);
   const [isNewIpModalOpen, setIsNewIpModalOpen] = useState(false);
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
+  const [isShiftReconcileOpen, setIsShiftReconcileOpen] = useState(false);
+  const [isOutstandingDuesOpen, setIsOutstandingDuesOpen] = useState(false);
 
   // New Expense Voucher Form State
   const [expenseTitle, setExpenseTitle] = useState("");
@@ -186,6 +193,22 @@ export default function AccountsPage() {
 
           {/* Top Right Action Buttons */}
           <div className="flex items-center gap-2.5 flex-wrap">
+            <button
+              onClick={() => setIsOutstandingDuesOpen(true)}
+              className="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold shadow-2xs transition flex items-center gap-1.5 active:scale-95"
+            >
+              <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+              <span>Patient Dues &amp; Alerts</span>
+            </button>
+
+            <button
+              onClick={() => setIsShiftReconcileOpen(true)}
+              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-2xs transition flex items-center gap-1.5 active:scale-95"
+            >
+              <Calculator className="w-3.5 h-3.5 text-teal-400" />
+              <span>Reconcile Shift (Z-Report)</span>
+            </button>
+
             <button
               onClick={() => {
                 showToast("Exporting official daily accounts book (CSV)...");
@@ -566,6 +589,20 @@ export default function AccountsPage() {
           setIsNewIpModalOpen(false);
           showToast(`IP admission registered for ${patient.name}`);
         }}
+      />
+
+      <ShiftReconciliationModal
+        isOpen={isShiftReconcileOpen}
+        onClose={() => setIsShiftReconcileOpen(false)}
+        transactions={transactions}
+        onShiftReconciled={(report) => {
+          showToast(`Shift Z-Report ${report.shift_id} generated & locked! Variance: ₹${report.cash_variance}`);
+        }}
+      />
+
+      <OutstandingDuesModal
+        isOpen={isOutstandingDuesOpen}
+        onClose={() => setIsOutstandingDuesOpen(false)}
       />
     </div>
   );

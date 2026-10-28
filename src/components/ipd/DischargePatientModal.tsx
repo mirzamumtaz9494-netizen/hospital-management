@@ -27,7 +27,11 @@ export const DischargePatientModal: React.FC<DischargePatientModalProps> = ({
   const [dischargeNotes, setDischargeNotes] = useState(
     "Condition stable at time of discharge. Vitals within normal limits. Advised home rest and oral medications as per discharge summary."
   );
+  const [settlementType, setSettlementType] = useState<"SETTLE_NOW" | "OUTSTANDING_CREDIT">("SETTLE_NOW");
   const [settlementMode, setSettlementMode] = useState("UPI");
+  const [upiUtr, setUpiUtr] = useState("");
+  const [authorizingManager, setAuthorizingManager] = useState("Chief Medical Director");
+  const [promisedDueDate, setPromisedDueDate] = useState("2026-11-05");
 
   if (!isOpen || !admission) return null;
 
@@ -42,7 +46,7 @@ export const DischargePatientModal: React.FC<DischargePatientModalProps> = ({
       outcome,
       dischargeNotes,
       finalBill: totalBill,
-      settlementMode,
+      settlementMode: settlementType === "OUTSTANDING_CREDIT" ? `Credit Balance (Auth: ${authorizingManager})` : settlementMode,
     });
     onClose();
   };
@@ -147,21 +151,90 @@ export const DischargePatientModal: React.FC<DischargePatientModalProps> = ({
             </div>
           </div>
 
-          <div>
-            <label className="block text-slate-600 font-medium mb-1">
-              Settlement Payment Mode
-            </label>
-            <select
-              value={settlementMode}
-              onChange={(e) => setSettlementMode(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium"
-            >
-              <option value="UPI">UPI / Digital QR</option>
-              <option value="Cash">Cash at Counter</option>
-              <option value="Card">Debit / Credit Card</option>
-              <option value="Insurance / TPA">Insurance / TPA Cashless</option>
-            </select>
-          </div>
+          {balanceDue > 0 ? (
+            <div className="space-y-3 bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5">
+              <label className="block text-amber-950 font-bold text-xs">
+                Financial Clearance Strategy:
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSettlementType("SETTLE_NOW")}
+                  className={`py-2 px-3 rounded-xl font-bold border transition text-left text-xs ${
+                    settlementType === "SETTLE_NOW"
+                      ? "bg-emerald-600 border-emerald-700 text-white shadow-xs"
+                      : "bg-white border-amber-200 text-slate-700 hover:bg-amber-100/50"
+                  }`}
+                >
+                  Collect Full Due (₹{balanceDue.toLocaleString()})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSettlementType("OUTSTANDING_CREDIT")}
+                  className={`py-2 px-3 rounded-xl font-bold border transition text-left text-xs ${
+                    settlementType === "OUTSTANDING_CREDIT"
+                      ? "bg-amber-600 border-amber-700 text-white shadow-xs"
+                      : "bg-white border-amber-200 text-slate-700 hover:bg-amber-100/50"
+                  }`}
+                >
+                  Authorize Outstanding Dues
+                </button>
+              </div>
+
+              {settlementType === "SETTLE_NOW" ? (
+                <div>
+                  <label className="block text-slate-600 font-medium mb-1">
+                    Settlement Payment Mode
+                  </label>
+                  <select
+                    value={settlementMode}
+                    onChange={(e) => setSettlementMode(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 font-medium"
+                  >
+                    <option value="UPI">UPI / Digital QR</option>
+                    <option value="Cash">Cash at Counter</option>
+                    <option value="Card">Debit / Credit Card</option>
+                    <option value="Insurance / TPA">Insurance / TPA Cashless</option>
+                  </select>
+                </div>
+              ) : (
+                <div className="space-y-2 pt-1 border-t border-amber-200/80">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-slate-600 mb-0.5">
+                        Authorizing Manager
+                      </label>
+                      <input
+                        type="text"
+                        value={authorizingManager}
+                        onChange={(e) => setAuthorizingManager(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-slate-600 mb-0.5">
+                        Promise Due Date
+                      </label>
+                      <input
+                        type="date"
+                        value={promisedDueDate}
+                        onChange={(e) => setPromisedDueDate(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-medium"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-amber-800 font-medium">
+                    ⚠️ Dues of ₹{balanceDue.toLocaleString()} will be automatically tracked in the Hospital Accounts Ledger and notified to {admission.attendingDoctor}.
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Full Inpatient Balance Already Settled (₹0 Due)</span>
+            </div>
+          )}
 
           {/* Action buttons */}
           <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">

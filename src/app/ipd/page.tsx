@@ -29,6 +29,7 @@ import { IpdBillingTab } from "@/components/ipd/IpdBillingTab";
 import { BedTransferModal } from "@/components/ipd/BedTransferModal";
 import { DischargePatientModal } from "@/components/ipd/DischargePatientModal";
 import { PrintCertificatesModal } from "@/components/ipd/PrintCertificatesModal";
+import { OutstandingDuesModal } from "@/components/accounts/OutstandingDuesModal";
 import { useRole } from "@/context/RoleContext";
 import { useTenant } from "@/context/TenantContext";
 import { UnlicensedModuleGuard } from "@/components/UnlicensedModuleGuard";
@@ -82,6 +83,7 @@ export default function InpatientPage() {
   const [certificatesModalOpen, setCertificatesModalOpen] = useState(false);
   const [selectedCertPatient, setSelectedCertPatient] = useState<ActiveAdmission | DischargedPatient | null>(null);
   const [initialCertType, setInitialCertType] = useState<string>("Discharge Summary");
+  const [isOutstandingDuesOpen, setIsOutstandingDuesOpen] = useState(false);
 
   // Notifications
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -486,6 +488,15 @@ export default function InpatientPage() {
           {/* Top Right Action Buttons */}
           <div className="flex items-center gap-2.5 flex-wrap">
             <button
+              onClick={() => setIsOutstandingDuesOpen(true)}
+              className="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold shadow-2xs transition flex items-center gap-1.5 active:scale-95"
+              title="Track Outstanding Inpatient Dues & Clearances"
+            >
+              <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+              <span>Outstanding Dues</span>
+            </button>
+
+            <button
               onClick={() => {
                 window.print();
               }}
@@ -675,6 +686,11 @@ export default function InpatientPage() {
           setCertificatesModalOpen(false);
           setSelectedCertPatient(null);
         }}
+      />
+
+      <OutstandingDuesModal
+        isOpen={isOutstandingDuesOpen}
+        onClose={() => setIsOutstandingDuesOpen(false)}
       />
     </div>
   );

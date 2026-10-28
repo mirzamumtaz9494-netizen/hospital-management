@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { TenantProvider } from "@/context/TenantContext";
+import { OfflineSyncProvider } from "@/context/OfflineSyncContext";
 import { RoleProvider } from "@/context/RoleContext";
 import { OwnerProvider } from "@/context/OwnerContext";
 import { OwnerUnlockModal } from "@/components/superadmin/OwnerUnlockModal";
@@ -39,13 +40,15 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-screen bg-[#f8fafc] text-slate-800 antialiased">
         <TenantProvider>
-          <RoleProvider>
-            <OwnerProvider>
-              {children}
-              <OwnerUnlockModal />
-              <Analytics />
-            </OwnerProvider>
-          </RoleProvider>
+          <OfflineSyncProvider>
+            <RoleProvider>
+              <OwnerProvider>
+                {children}
+                <OwnerUnlockModal />
+                <Analytics />
+              </OwnerProvider>
+            </RoleProvider>
+          </OfflineSyncProvider>
         </TenantProvider>
       </body>
     </html>

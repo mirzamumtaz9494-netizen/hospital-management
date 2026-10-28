@@ -12,6 +12,9 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Patient } from "@/types";
+import { generateUhid } from "@/lib/qrService";
+import { useTenant } from "@/context/TenantContext";
+import { useOfflineSync } from "@/context/OfflineSyncContext";
 
 interface CreateOpModalProps {
   isOpen: boolean;
@@ -24,6 +27,8 @@ export const CreateOpModal: React.FC<CreateOpModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { currentTenant } = useTenant();
+  const { registerPatientOfflineSafe, createOpdTokenOfflineSafe } = useOfflineSync();
   const [patientType, setPatientType] = useState<"new" | "existing">("new");
   const [formData, setFormData] = useState({
     name: "",
@@ -67,10 +72,10 @@ export const CreateOpModal: React.FC<CreateOpModalProps> = ({
       return;
     }
 
-    // Generate random realistic IDs
-    const randomMrNum = Math.floor(10250 + Math.random() * 900);
+    // Generate collision-safe immutable UHID and OPD Token
+    const uhid = generateUhid(currentTenant.tenantCode || "APEX");
     const randomOpNum = Math.floor(40120 + Math.random() * 900);
-    const mrId = `MR-${randomMrNum}`;
+    const mrId = uhid;
     const opIpId = `OP-${randomOpNum}`;
 
     const initials = formData.name
@@ -84,6 +89,7 @@ export const CreateOpModal: React.FC<CreateOpModalProps> = ({
     const newPatient: Patient = {
       id: String(Date.now()),
       mrId,
+      uhid,
       opIpId,
       type: "OP",
       name: formData.name,
@@ -91,6 +97,7 @@ export const CreateOpModal: React.FC<CreateOpModalProps> = ({
       age: parseInt(formData.age, 10) || 30,
       gender: formData.gender,
       phone: formData.phone,
+      bloodGroup: formData.bloodGroup,
       department: formData.department,
       attendingDoctor: formData.attendingDoctor,
       admissionDate: "12 Oct 2026",
@@ -98,6 +105,18 @@ export const CreateOpModal: React.FC<CreateOpModalProps> = ({
       billAmount: formData.consultationFee,
       diagnosis: formData.notes || "Initial Consultation & Clinical Triage",
     };
+
+    // Commit to Offline Local Engine and Queue for Cloud Sync
+    registerPatientOfflineSafe(newPatient);
+    createOpdTokenOfflineSafe({
+      tokenNumber: opIpId,
+      doctorName: formData.attendingDoctor,
+      department: formData.department,
+      consultationFee: formData.consultationFee,
+      status: "WAITING",
+      date: new Date().toISOString().split("T")[0],
+      uhid: uhid,
+    });
 
     onSuccess(newPatient);
     onClose();

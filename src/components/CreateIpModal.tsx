@@ -11,6 +11,9 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { Patient } from "@/types";
+import { generateUhid } from "@/lib/qrService";
+import { useTenant } from "@/context/TenantContext";
+import { useOfflineSync } from "@/context/OfflineSyncContext";
 
 interface CreateIpModalProps {
   isOpen: boolean;
@@ -25,6 +28,8 @@ export const CreateIpModal: React.FC<CreateIpModalProps> = ({
   onSuccess,
   initialPatient,
 }) => {
+  const { currentTenant } = useTenant();
+  const { registerPatientOfflineSafe } = useOfflineSync();
   const [formData, setFormData] = useState({
     name: initialPatient?.name || "",
     age: initialPatient ? String(initialPatient.age) : "45",
@@ -67,9 +72,7 @@ export const CreateIpModal: React.FC<CreateIpModalProps> = ({
       return;
     }
 
-    const randomMrNum = initialPatient?.mrId
-      ? initialPatient.mrId
-      : `MR-${Math.floor(10260 + Math.random() * 800)}`;
+    const uhid = initialPatient?.uhid || generateUhid(currentTenant.tenantCode || "APEX");
     const ipId = `IP-${Math.floor(22045 + Math.random() * 800)}`;
 
     const initials = formData.name
@@ -82,7 +85,8 @@ export const CreateIpModal: React.FC<CreateIpModalProps> = ({
 
     const admittedPatient: Patient = {
       id: initialPatient ? initialPatient.id : String(Date.now()),
-      mrId: randomMrNum,
+      mrId: uhid,
+      uhid: uhid,
       opIpId: ipId,
       type: "IP",
       name: formData.name,
@@ -100,6 +104,9 @@ export const CreateIpModal: React.FC<CreateIpModalProps> = ({
       billAmount: formData.advancePaid + 15000,
       advancePaid: formData.advancePaid,
     };
+
+    // Commit to Offline Local Engine and Queue for Cloud Sync
+    registerPatientOfflineSafe(admittedPatient);
 
     onSuccess(admittedPatient);
     onClose();

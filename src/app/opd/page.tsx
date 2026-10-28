@@ -6,11 +6,14 @@ import {
   PhoneCall,
   Plus,
   ArrowLeft,
+  QrCode,
+  Scan,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { CreateOpModal } from "@/components/CreateOpModal";
 import { CreateIpModal } from "@/components/CreateIpModal";
 import { PrintSlipModal } from "@/components/PrintSlipModal";
+import { PatientQrCardModal } from "@/components/common/PatientQrCardModal";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
 import { OpdQueueTab } from "@/components/opd/OpdQueueTab";
 import { OpdAppointmentsTab } from "@/components/opd/OpdAppointmentsTab";
@@ -56,6 +59,7 @@ export default function OutpatientPage() {
   const [isIpModalOpen, setIsIpModalOpen] = useState(false);
   const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
   const [printPatient, setPrintPatient] = useState<Patient | null>(null);
+  const [qrPatient, setQrPatient] = useState<Patient | null>(null);
   const [prescriptionToPrint, setPrescriptionToPrint] = useState<ConsultationEncounter | null>(null);
   const [billToPrint, setBillToPrint] = useState<OpBillItem | null>(null);
   const [ipInitialPatient, setIpInitialPatient] = useState<Patient | null>(null);
@@ -228,6 +232,37 @@ export default function OutpatientPage() {
           {/* Top Actions */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
+              onClick={() => {
+                const sample = queue[0];
+                const pt: Patient = {
+                  id: sample?.id || "sample-1",
+                  mrId: sample?.mrId || "UHID-APEX-2026-102910",
+                  uhid: sample?.mrId || "UHID-APEX-2026-102910",
+                  opIpId: sample?.token || "OP-40192",
+                  type: "OP",
+                  name: sample?.name || "Rajesh Kumar",
+                  initials: sample?.initials || "RK",
+                  age: sample?.age || 38,
+                  gender: (sample?.gender as any) || "M",
+                  phone: sample?.phone || "9849012345",
+                  bloodGroup: "O+",
+                  department: sample?.department || "General Medicine",
+                  attendingDoctor: sample?.doctor || "Dr. K. Sharma",
+                  admissionDate: "12 Oct 2026",
+                  status: "Active",
+                  billAmount: 500,
+                };
+                setQrPatient(pt);
+              }}
+              className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition shadow-2xs hover:shadow active:scale-95"
+              title="Generate Unique Patient QR Card, Thermal Slip, or Scan Hardware 2D Barcode"
+            >
+              <QrCode className="w-4 h-4 text-teal-400" />
+              <span className="hidden sm:inline">Patient QR &amp; Scan</span>
+              <span className="sm:hidden">QR</span>
+            </button>
+
+            <button
               onClick={handleCallNext}
               className="flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-teal-800 rounded-xl text-xs font-bold transition shadow-2xs hover:shadow active:scale-95"
             >
@@ -397,6 +432,15 @@ export default function OutpatientPage() {
       <PrintSlipModal
         patient={printPatient}
         onClose={() => setPrintPatient(null)}
+      />
+
+      <PatientQrCardModal
+        isOpen={Boolean(qrPatient)}
+        onClose={() => setQrPatient(null)}
+        patient={qrPatient}
+        onSelectPatient={(uhid) => {
+          showToast(`Patient with UHID ${uhid} loaded from QR code!`);
+        }}
       />
 
       <PrintPrescriptionModal

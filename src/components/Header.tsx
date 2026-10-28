@@ -38,6 +38,10 @@ import {
   LogIn,
   Droplet,
   Globe,
+  Wifi,
+  WifiOff,
+  RefreshCw,
+  HardDrive,
 } from "lucide-react";
 import { MOCK_NOTIFICATIONS } from "@/data/notificationsMockData";
 import { HospitalNotificationItem, TenantModuleKey } from "@/types";
@@ -45,6 +49,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useRole, RoleKey } from "@/context/RoleContext";
 import { useTenant } from "@/context/TenantContext";
 import { useOwner } from "@/context/OwnerContext";
+import { useOfflineSync } from "@/context/OfflineSyncContext";
 import { LogoutModal } from "@/components/auth/LogoutModal";
 import { ChangePasswordModal } from "@/components/auth/ChangePasswordModal";
 import { LockScreenModal } from "@/components/auth/LockScreenModal";
@@ -77,12 +82,14 @@ export const Header: React.FC<HeaderProps> = ({
   } = useTenant();
 
   const { isOwner, lockOwner } = useOwner();
+  const { isOnline, syncState, pendingCount, lastSyncTime, triggerSyncNow } = useOfflineSync();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [syncHudOpen, setSyncHudOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
   const [notifications, setNotifications] =
@@ -499,6 +506,114 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right Side: Role Switcher + Quick Menu + Notifications + Dynamic User Profile */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Offline Local Storage & Transactional Cloud Sync HUD Pill */}
+            <div className="relative shrink-0">
+              <button
+                onClick={() => {
+                  setSyncHudOpen(!syncHudOpen);
+                  setProfileOpen(false);
+                  setNotificationsOpen(false);
+                  setRoleSwitcherOpen(false);
+                  setMoreOpen(false);
+                }}
+                className={`flex items-center gap-1.5 rounded-full px-2.5 sm:px-3 py-1 text-xs font-semibold transition shadow-sm active:scale-95 cursor-pointer whitespace-nowrap border ${
+                  syncState === "ONLINE_SYNCED"
+                    ? "bg-emerald-950/50 hover:bg-emerald-900/60 border-emerald-500/40 text-emerald-300"
+                    : syncState === "SYNCING"
+                    ? "bg-sky-950/50 hover:bg-sky-900/60 border-sky-500/40 text-sky-300"
+                    : syncState === "OFFLINE_ACTIVE"
+                    ? "bg-amber-950/60 hover:bg-amber-900/70 border-amber-500/50 text-amber-300"
+                    : "bg-rose-950/50 hover:bg-rose-900/60 border-rose-500/40 text-rose-300"
+                }`}
+                title="Local Storage & Cloud Sync Status"
+              >
+                {syncState === "SYNCING" ? (
+                  <RefreshCw className="w-3.5 h-3.5 text-sky-400 animate-spin" />
+                ) : syncState === "OFFLINE_ACTIVE" ? (
+                  <WifiOff className="w-3.5 h-3.5 text-amber-400" />
+                ) : syncState === "ONLINE_SYNCED" ? (
+                  <Wifi className="w-3.5 h-3.5 text-emerald-400" />
+                ) : (
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+                )}
+
+                <span className="hidden md:inline text-[11px] font-bold">
+                  {syncState === "ONLINE_SYNCED"
+                    ? "Cloud Synced"
+                    : syncState === "SYNCING"
+                    ? "Syncing..."
+                    : syncState === "OFFLINE_ACTIVE"
+                    ? "Offline Mode"
+                    : "Sync Alert"}
+                </span>
+
+                {pendingCount > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono font-black bg-amber-400 text-slate-950 animate-pulse">
+                    {pendingCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Sync Details Dropdown Modal/Card */}
+              {syncHudOpen && (
+                <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-4 z-50 text-xs text-white animate-in zoom-in-95 duration-150 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <HardDrive className="w-4 h-4 text-teal-400" />
+                      <span className="font-bold text-white text-xs">
+                        Offline Engine &amp; Sync Outbox
+                      </span>
+                    </div>
+                    <span
+                      className={`text-[9px] font-mono px-2 py-0.5 rounded-full font-bold border ${
+                        isOnline
+                          ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                          : "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                      }`}
+                    >
+                      {isOnline ? "ONLINE" : "OFFLINE"}
+                    </span>
+                  </div>
+
+                  <div className="bg-slate-950/60 rounded-xl p-3 border border-slate-800/80 space-y-2 text-[11px]">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Local Hard-Drive Storage:</span>
+                      <span className="text-teal-300 font-bold font-mono">
+                        IndexedDB Active
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Outbox Queue Pending:</span>
+                      <span className="font-mono font-bold text-amber-400">
+                        {pendingCount} records
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Last Successful Sync:</span>
+                      <span className="font-mono text-slate-300">
+                        {lastSyncTime || "Just now"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    Zero Data Loss Guarantee: Patient registrations, OPD visits, and bills are automatically committed to your local browser storage and queue up for automatic two-way cloud sync whenever connectivity resumes.
+                  </p>
+
+                  <button
+                    onClick={async () => {
+                      await triggerSyncNow();
+                      setSyncHudOpen(false);
+                    }}
+                    className="w-full py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    Sync Outbox Queue Now
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Interactive Role Switcher Pill */}
             <div className="relative hidden lg:block shrink-0">
               <button

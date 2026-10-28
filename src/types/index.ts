@@ -3,6 +3,7 @@ export type PatientStatus = "Active" | "Critical" | "Pending" | "Discharged";
 export interface Patient {
   id: string;
   mrId: string;
+  uhid?: string;
   opIpId: string;
   type: "OP" | "IP";
   name: string;
@@ -10,6 +11,7 @@ export interface Patient {
   age: number;
   gender: "M" | "F" | "Other";
   phone: string;
+  bloodGroup?: string;
   department: string;
   attendingDoctor: string;
   admissionDate: string;
