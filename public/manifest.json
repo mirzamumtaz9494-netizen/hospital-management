@@ -1,17 +1,33 @@
 {
-  "name": "VitalSync Hospital Management System",
-  "short_name": "VitalSync HMS",
-  "description": "Next-generation Hospital Management & Clinical Operations Platform",
+  "name": "VitalSync Enterprise HMS",
+  "short_name": "VitalSync",
+  "description": "Hospital Management & Clinical Operations Platform with Offline Local Storage",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0c1322",
   "theme_color": "#0c1322",
   "orientation": "any",
+  "categories": ["medical", "business", "productivity"],
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

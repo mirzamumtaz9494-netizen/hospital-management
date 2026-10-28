@@ -6,6 +6,7 @@ import { RoleProvider } from "@/context/RoleContext";
 import { OwnerProvider } from "@/context/OwnerContext";
 import { OwnerUnlockModal } from "@/components/superadmin/OwnerUnlockModal";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { InstallPwaPrompt } from "@/components/InstallPwaPrompt";
 import { Analytics } from "@vercel/analytics/react";
 
 export const viewport: Viewport = {
@@ -47,6 +48,7 @@ export default function RootLayout({
                 {children}
                 <OwnerUnlockModal />
                 <ServiceWorkerRegister />
+                <InstallPwaPrompt />
                 <Analytics />
               </OwnerProvider>
             </RoleProvider>
