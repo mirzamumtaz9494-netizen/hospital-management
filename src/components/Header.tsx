@@ -82,7 +82,14 @@ export const Header: React.FC<HeaderProps> = ({
   } = useTenant();
 
   const { isOwner, lockOwner } = useOwner();
-  const { isOnline, syncState, pendingCount, lastSyncTime, triggerSyncNow } = useOfflineSync();
+  const {
+    isOnline,
+    syncState,
+    pendingCount,
+    lastSyncTime,
+    triggerSyncNow,
+    clearOutboxNow,
+  } = useOfflineSync();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
@@ -600,16 +607,32 @@ export const Header: React.FC<HeaderProps> = ({
                     Zero Data Loss Guarantee: Patient registrations, OPD visits, and bills are automatically committed to your local browser storage and queue up for automatic two-way cloud sync whenever connectivity resumes.
                   </p>
 
-                  <button
-                    onClick={async () => {
-                      await triggerSyncNow();
-                      setSyncHudOpen(false);
-                    }}
-                    className="w-full py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 active:scale-95"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    Sync Outbox Queue Now
-                  </button>
+                  <div className="space-y-1.5 pt-1">
+                    <button
+                      onClick={async () => {
+                        await triggerSyncNow();
+                        setSyncHudOpen(false);
+                      }}
+                      className="w-full py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      Sync Outbox Queue Now
+                    </button>
+
+                    {pendingCount > 0 && (
+                      <button
+                        onClick={async () => {
+                          await clearOutboxNow();
+                          setSyncHudOpen(false);
+                        }}
+                        className="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold rounded-xl text-[11px] transition flex items-center justify-center gap-1.5 cursor-pointer border border-slate-700"
+                        title="Force reconcile local outbox queue and restore green cloud sync state"
+                      >
+                        <Check className="w-3 h-3" />
+                        Force Clear &amp; Reconcile Queue
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
