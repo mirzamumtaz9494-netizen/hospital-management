@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { TenantProvider } from "@/context/TenantContext";
 import { RoleProvider } from "@/context/RoleContext";
+import { OwnerProvider } from "@/context/OwnerContext";
+import { OwnerUnlockModal } from "@/components/superadmin/OwnerUnlockModal";
 import { Analytics } from "@vercel/analytics/react";
 
 export const viewport: Viewport = {
@@ -38,8 +40,11 @@ export default function RootLayout({
       <body className="min-h-screen bg-[#f8fafc] text-slate-800 antialiased">
         <TenantProvider>
           <RoleProvider>
-            {children}
-            <Analytics />
+            <OwnerProvider>
+              {children}
+              <OwnerUnlockModal />
+              <Analytics />
+            </OwnerProvider>
           </RoleProvider>
         </TenantProvider>
       </body>

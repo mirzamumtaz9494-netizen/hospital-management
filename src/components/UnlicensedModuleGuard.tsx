@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { ShieldAlert, ArrowLeft, Layers, Shield, Sparkles } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
+import { useOwner } from "@/context/OwnerContext";
 import { TenantModuleKey } from "@/types";
 
 interface UnlicensedModuleGuardProps {
@@ -16,6 +17,7 @@ export const UnlicensedModuleGuard: React.FC<UnlicensedModuleGuardProps> = ({
   moduleKey,
 }) => {
   const { currentTenant, switchTenant, toggleModule } = useTenant();
+  const { isOwner } = useOwner();
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
@@ -65,25 +67,29 @@ export const UnlicensedModuleGuard: React.FC<UnlicensedModuleGuardProps> = ({
 
         {/* Quick Activation Action for Demo */}
         <div className="space-y-2">
-          <button
-            onClick={() => toggleModule(currentTenant.id, moduleKey, true)}
-            className="w-full py-2.5 px-4 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl text-xs font-bold shadow-md shadow-teal-600/20 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>Enable {moduleName} for This Hospital (1-Click Demo)</span>
-          </button>
+          {isOwner && (
+            <>
+              <button
+                onClick={() => toggleModule(currentTenant.id, moduleKey, true)}
+                className="w-full py-2.5 px-4 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl text-xs font-bold shadow-md shadow-teal-600/20 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Enable {moduleName} for This Hospital (Owner 1-Click)</span>
+              </button>
 
-          <Link
-            href="/super-admin"
-            className="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition active:scale-95 flex items-center justify-center gap-2"
-          >
-            <Shield className="w-4 h-4 text-amber-400" />
-            <span>Open Platform Super Admin Console</span>
-          </Link>
+              <Link
+                href="/super-admin"
+                className="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition active:scale-95 flex items-center justify-center gap-2"
+              >
+                <Shield className="w-4 h-4 text-amber-400" />
+                <span>Open Platform Super Admin Console</span>
+              </Link>
+            </>
+          )}
 
           <Link
             href="/"
-            className="w-full py-2 px-4 text-slate-600 hover:text-slate-900 text-xs font-medium transition flex items-center justify-center gap-1.5"
+            className="w-full py-2.5 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md shadow-teal-600/20"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Hospital Home</span>

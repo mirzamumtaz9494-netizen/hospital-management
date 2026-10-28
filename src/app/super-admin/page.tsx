@@ -32,8 +32,12 @@ import {
   Loader2,
   Clock,
   UserPlus,
+  Lock,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
+import { useOwner } from "@/context/OwnerContext";
 import { TenantModuleKey, HospitalTenant } from "@/types";
 import { ALL_TENANT_MODULES } from "@/data/tenantMockData";
 import { AddHospitalModal } from "@/components/superadmin/AddHospitalModal";
@@ -58,6 +62,20 @@ export default function SuperAdminPage() {
     isSyncing,
     refreshFromCloud,
   } = useTenant();
+
+  const { isOwner, unlockOwner, lockOwner } = useOwner();
+  const [passkeyInput, setPasskeyInput] = useState("");
+  const [passkeyError, setPasskeyError] = useState<string | null>(null);
+  const [showPasskey, setShowPasskey] = useState(false);
+
+  const handleUnlockSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasskeyError(null);
+    const ok = unlockOwner(passkeyInput);
+    if (!ok) {
+      setPasskeyError("Invalid Passkey. Access is restricted strictly to the SaaS Platform Software Owner.");
+    }
+  };
 
   const [activeTab, setActiveTab] = useState<
     "Switchboard" | "Quote Generator" | "Subscriptions" | "Staff Verifications"
@@ -170,6 +188,91 @@ _Contact us to schedule your personalized live demo or begin onboarding._`;
     showToast("Proposal text copied to clipboard! Ready to paste into WhatsApp.");
   };
 
+  // Restrict Super Admin Console to Owner Only
+  if (!isOwner) {
+    return (
+      <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col items-center justify-center p-4 selection:bg-amber-500 selection:text-white">
+        <div className="w-full max-w-md bg-[#0c1322] border border-amber-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-amber-500/10 space-y-6 animate-in zoom-in-95">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/10 shrink-0">
+              <Shield className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="font-extrabold text-base sm:text-lg text-white">
+                  Platform Owner Access
+                </h1>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  Restricted
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                SaaS Tenant Provisioning &amp; Master Feature Entitlements
+              </p>
+            </div>
+          </div>
+
+          <div className="p-3.5 bg-amber-950/20 border border-amber-500/30 rounded-xl text-xs text-amber-200/90 leading-relaxed">
+            🔒 This console is restricted strictly to the SaaS Platform Software Owner. Hospital clients and public users cannot view or modify these controls.
+          </div>
+
+          <form onSubmit={handleUnlockSubmit} className="space-y-4">
+            {passkeyError && (
+              <div className="p-3 bg-rose-950/50 border border-rose-800/80 rounded-xl text-xs text-rose-300 animate-in fade-in">
+                {passkeyError}
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Master Owner Passkey
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type={showPasskey ? "text" : "password"}
+                  value={passkeyInput}
+                  onChange={(e) => setPasskeyInput(e.target.value)}
+                  placeholder="Enter Owner Passkey"
+                  autoFocus
+                  required
+                  className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasskey(!showPasskey)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                >
+                  {showPasskey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1.5">
+                Default Master Passkey: <code className="text-amber-400 font-mono">Owner@2026</code>
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            >
+              <span>Unlock Super Admin Console</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+
+          <div className="pt-2 text-center">
+            <Link
+              href="/"
+              className="text-xs text-slate-500 hover:text-slate-300 transition"
+            >
+              ← Return to Hospital Client Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#070b14] text-slate-100 font-sans flex flex-col selection:bg-teal-500 selection:text-white">
       {/* Toast Notification */}
@@ -226,6 +329,16 @@ _Contact us to schedule your personalized live demo or begin onboarding._`;
             <span>Hospital Workspace</span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
           </Link>
+
+          {/* Lock & Exit Owner Mode */}
+          <button
+            onClick={lockOwner}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-rose-500/20 hover:text-rose-300 text-slate-400 rounded-xl text-xs font-semibold border border-slate-800 transition cursor-pointer"
+            title="Lock Owner Mode on this browser"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span>Lock Console</span>
+          </button>
         </div>
       </header>
 
