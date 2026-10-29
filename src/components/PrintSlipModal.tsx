@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X, Printer, Activity, QrCode } from "lucide-react";
 import { Patient } from "@/types";
-import { generateQrCodeDataUrl, createPatientQrPayload } from "@/lib/qrService";
+import { generateQrCodeDataUrl, createOpdSlipQrUrl } from "@/lib/qrService";
 import { printElement } from "@/lib/printService";
 
 interface PrintSlipModalProps {
@@ -20,11 +20,21 @@ export const PrintSlipModal: React.FC<PrintSlipModalProps> = ({
   useEffect(() => {
     if (patient) {
       const uhid = patient.uhid || patient.mrId;
-      const payload = createPatientQrPayload({
-        uhid: uhid,
-        tenantCode: "APEX",
+      const opdQrUrl = createOpdSlipQrUrl({
+        uhid,
+        opId: patient.opIpId,
+        patientName: patient.name,
+        age: patient.age,
+        gender: patient.gender,
+        phone: patient.phone,
+        department: patient.department,
+        attendingDoctor: patient.attendingDoctor,
+        admissionDate: patient.admissionDate,
+        billAmount: patient.billAmount,
       });
-      generateQrCodeDataUrl(payload).then((url) => setQrUrl(url));
+      generateQrCodeDataUrl(opdQrUrl)
+        .then((url) => setQrUrl(url))
+        .catch(() => {});
     }
   }, [patient]);
 
