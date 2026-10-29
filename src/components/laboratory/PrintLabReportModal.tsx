@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import {
   X,
   Printer,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { LabOrder, LabParameterResult } from "@/types";
 import { MOCK_LAB_CATALOG } from "@/data/labMockData";
+import { printElement } from "@/lib/printService";
 
 interface PrintLabReportModalProps {
   order: LabOrder | null;
@@ -24,10 +25,19 @@ export const PrintLabReportModal: React.FC<PrintLabReportModalProps> = ({
   order,
   onClose,
 }) => {
+  const printRef = useRef<HTMLDivElement>(null);
+
   if (!order) return null;
 
   const handlePrint = () => {
-    window.print();
+    if (!printRef.current) {
+      window.print();
+      return;
+    }
+    printElement(
+      printRef.current,
+      `Lab_Report_${order.orderNo || "LAB"}_${(order.patientName || "Patient").replace(/\s+/g, "_")}`
+    );
   };
 
   return (
@@ -60,7 +70,10 @@ export const PrintLabReportModal: React.FC<PrintLabReportModalProps> = ({
         </div>
 
         {/* Printable Report Sheet */}
-        <div className="print-container overflow-y-auto p-8 sm:p-10 font-sans text-slate-900 bg-white space-y-6">
+        <div
+          ref={printRef}
+          className="print-container overflow-y-auto p-8 sm:p-10 font-sans text-slate-900 bg-white space-y-6"
+        >
           {/* 1. Hospital & Diagnostic Laboratory Header */}
           <div className="border-b-2 border-slate-900 pb-4 flex items-start justify-between">
             <div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import {
   X,
   Printer,
@@ -11,6 +11,7 @@ import {
   QrCode,
 } from "lucide-react";
 import { PharmacyOrder } from "@/types";
+import { printElement } from "@/lib/printService";
 
 interface PrintPharmacyBillModalProps {
   order: PharmacyOrder | null;
@@ -21,10 +22,19 @@ export const PrintPharmacyBillModal: React.FC<PrintPharmacyBillModalProps> = ({
   order,
   onClose,
 }) => {
+  const printRef = useRef<HTMLDivElement>(null);
+
   if (!order) return null;
 
   const handlePrint = () => {
-    window.print();
+    if (!printRef.current) {
+      window.print();
+      return;
+    }
+    printElement(
+      printRef.current,
+      `Pharmacy_Tax_Invoice_${order.billNumber || "PHB"}`
+    );
   };
 
   return (
@@ -42,14 +52,14 @@ export const PrintPharmacyBillModal: React.FC<PrintPharmacyBillModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-4 py-1.5 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-xs transition"
+              className="flex items-center gap-1.5 px-4 py-1.5 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               Print Invoice
             </button>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800"
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -57,7 +67,10 @@ export const PrintPharmacyBillModal: React.FC<PrintPharmacyBillModalProps> = ({
         </div>
 
         {/* Printable Sheet */}
-        <div className="print-container overflow-y-auto p-8 sm:p-10 font-sans text-slate-900 bg-white space-y-5">
+        <div
+          ref={printRef}
+          className="print-container overflow-y-auto p-8 sm:p-10 font-sans text-slate-900 bg-white space-y-5"
+        >
           {/* 1. Hospital Pharmacy Letterhead */}
           <div className="border-b-2 border-slate-900 pb-4 flex items-start justify-between">
             <div>

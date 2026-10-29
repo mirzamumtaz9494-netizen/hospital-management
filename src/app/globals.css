@@ -41,18 +41,70 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+
+  @page {
+    size: auto;
+    margin: 8mm 10mm;
+  }
+
   html,
   body {
     height: auto !important;
     min-height: 100% !important;
     overflow: visible !important;
-    background: white !important;
+    background: #ffffff !important;
     color: #0f172a !important;
     margin: 0 !important;
     padding: 0 !important;
   }
+
+  /* Completely hide standard non-printable controls, navbars, and headers */
   .no-print,
-  .no-print * {
+  .no-print *,
+  header,
+  nav,
+  aside,
+  footer {
     display: none !important;
+  }
+
+  /* When printing from a page with an active modal or print container, hide background app content */
+  body:has(.print-container) > *:not(:has(.print-container)) {
+    display: none !important;
+  }
+
+  /* Neutralize dark modal overlays, backdrops, and blur effects */
+  div:has(> .print-container),
+  div:has(> * > .print-container),
+  div:has(> * > * > .print-container),
+  .fixed,
+  [class*="backdrop-blur"] {
+    position: static !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Ensure the printable slip canvas renders cleanly without borders or shadows */
+  .print-container {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
+    page-break-inside: avoid !important;
   }
 }

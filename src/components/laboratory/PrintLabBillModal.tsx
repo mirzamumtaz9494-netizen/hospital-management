@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import { X, Printer, Activity, Receipt, IndianRupee } from "lucide-react";
 import { LabBillItem } from "@/types";
+import { printElement } from "@/lib/printService";
 
 interface PrintLabBillModalProps {
   bill: LabBillItem | null;
@@ -13,7 +14,17 @@ export const PrintLabBillModal: React.FC<PrintLabBillModalProps> = ({
   bill,
   onClose,
 }) => {
+  const printRef = useRef<HTMLDivElement>(null);
+
   if (!bill) return null;
+
+  const handlePrint = () => {
+    if (!printRef.current) {
+      window.print();
+      return;
+    }
+    printElement(printRef.current, `Lab_Receipt_${bill.billNo || "LAB"}`);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
@@ -29,15 +40,15 @@ export const PrintLabBillModal: React.FC<PrintLabBillModalProps> = ({
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => window.print()}
-              className="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-2xs"
+              onClick={handlePrint}
+              className="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               Print Receipt
             </button>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500"
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -45,7 +56,10 @@ export const PrintLabBillModal: React.FC<PrintLabBillModalProps> = ({
         </div>
 
         {/* Printable Receipt Sheet */}
-        <div className="print-container overflow-y-auto p-8 font-sans text-slate-900 bg-white space-y-5">
+        <div
+          ref={printRef}
+          className="print-container overflow-y-auto p-8 font-sans text-slate-900 bg-white space-y-5"
+        >
           {/* Header */}
           <div className="border-b-2 border-slate-900 pb-3 text-center">
             <h2 className="text-lg font-black uppercase text-slate-900">

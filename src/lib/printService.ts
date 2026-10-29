@@ -120,7 +120,9 @@ export function printElement(
             </div>
           </div>
           <div class="document-canvas">
-            ${contentHtml}
+            <div class="${element.className || ''}" style="overflow: visible !important; max-height: none !important; box-shadow: none !important; border: none !important; background: transparent !important;">
+              ${contentHtml}
+            </div>
           </div>
         </body>
       </html>
@@ -218,7 +220,9 @@ export function printElement(
       </head>
       <body>
         <div class="print-sheet">
-          ${contentHtml}
+          <div class="${element.className || ''}" style="overflow: visible !important; max-height: none !important; box-shadow: none !important; border: none !important; background: transparent !important;">
+            ${contentHtml}
+          </div>
         </div>
       </body>
     </html>
