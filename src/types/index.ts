@@ -1336,6 +1336,97 @@ export interface DoctorSettlementStatement {
   itemizedEncounters: DoctorSettlementEncounter[];
 }
 
+// ==========================================
+// Phase 3: Unified Staff Payroll & Corporate Bank Payouts
+// ==========================================
+
+export interface StaffPayrollProfile {
+  id: string;
+  employeeCode: string; // e.g. "CP-NUR-104"
+  name: string;
+  designation: string;
+  department: string;
+  dateOfJoining: string;
+  uan: string; // EPF UAN
+  esiNumber?: string;
+  panNumber: string;
+  bankAccountNumber: string;
+  bankIfsc: string;
+  bankName: string;
+  beneficiaryEmail: string;
+  basicPay: number;
+  hra: number;
+  medicalAllowance: number;
+  specialAllowance: number;
+  isEsiEligible: boolean; // Applicable if gross <= ₹21,000
+  isEpfEligible: boolean;
+  active: boolean;
+}
+
+export interface StaffSalarySlip {
+  id: string;
+  slipNumber: string; // e.g. "PAY-2026-10-04"
+  employeeCode: string;
+  employeeName: string;
+  designation: string;
+  department: string;
+  monthYear: string; // e.g. "October 2026"
+  disbursementDate: string; // e.g. "2026-10-31"
+  
+  // Attendance
+  totalDays: number;
+  paidDays: number;
+  lopDays: number;
+  overtimeHours: number;
+  
+  // Earnings
+  basicPay: number;
+  hra: number;
+  medicalAllowance: number;
+  specialAllowance: number;
+  overtimePay: number;
+  performanceBonus: number;
+  grossEarnings: number;
+  
+  // Deductions
+  epfDeduction: number; // 12% of Basic
+  esiDeduction: number; // 0.75% of Gross
+  professionalTax: number; // ₹200
+  tdsDeduction: number;
+  advanceDeduction: number;
+  lopDeduction: number;
+  totalDeductions: number;
+  
+  // Net Payable
+  netSalary: number;
+  netSalaryWords?: string;
+  
+  // Bank Details
+  bankAccountNumber: string;
+  bankIfsc: string;
+  bankName: string;
+  panNumber: string;
+  uan: string;
+  esiNumber?: string;
+  beneficiaryEmail: string;
+  paymentMode: "NEFT / RTGS" | "Direct Bank Transfer" | "Cheque";
+  paymentStatus: "Draft" | "Approved" | "Bank Batch Queued" | "Disbursed";
+  transactionRef?: string;
+  remarks?: string;
+}
+
+export interface CorporateBankBatchRecord {
+  transactionType: "NEFT" | "RTGS";
+  beneficiaryName: string;
+  beneficiaryAccountNumber: string;
+  ifscCode: string;
+  amount: number;
+  narration: string;
+  beneficiaryEmail: string;
+  valueDate: string;
+}
+
+
 
 
 

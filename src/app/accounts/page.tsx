@@ -23,6 +23,7 @@ import {
   AlertTriangle,
   AlertCircle,
   Stethoscope,
+  Users,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
@@ -33,6 +34,9 @@ import { OutstandingDuesModal } from "@/components/accounts/OutstandingDuesModal
 import { DoctorSettlementsTab } from "@/components/accounts/DoctorSettlementsTab";
 import { GenerateDoctorSettlementModal } from "@/components/accounts/GenerateDoctorSettlementModal";
 import { PrintDoctorSettlementModal } from "@/components/accounts/PrintDoctorSettlementModal";
+import { StaffPayrollTab } from "@/components/accounts/StaffPayrollTab";
+import { GenerateStaffSalarySlipModal } from "@/components/accounts/GenerateStaffSalarySlipModal";
+import { PrintStaffSalarySlipModal } from "@/components/accounts/PrintStaffSalarySlipModal";
 import { useRole } from "@/context/RoleContext";
 import { AccessDeniedGuard } from "@/components/AccessDeniedGuard";
 import { MOCK_ACCOUNT_TRANSACTIONS } from "@/data/accountsMockData";
@@ -41,9 +45,15 @@ import {
   MOCK_DOCTOR_SETTLEMENT_STATEMENTS,
 } from "@/data/doctorSettlementsMockData";
 import {
+  MOCK_STAFF_PAYROLL_PROFILES,
+  MOCK_STAFF_SALARY_SLIPS,
+} from "@/data/staffPayrollMockData";
+import {
   HospitalAccountTransaction,
   DoctorSettlementRule,
   DoctorSettlementStatement,
+  StaffPayrollProfile,
+  StaffSalarySlip,
 } from "@/types";
 import {
   isCleanProductionMode,
@@ -53,7 +63,7 @@ import {
 export default function AccountsPage() {
   const { canAccessRoute, canAccessAction } = useRole();
   const [accountsMainTab, setAccountsMainTab] = useState<
-    "DAY_BOOK" | "DOCTOR_SETTLEMENTS"
+    "DAY_BOOK" | "DOCTOR_SETTLEMENTS" | "STAFF_PAYROLL"
   >("DAY_BOOK");
 
   const [transactions, setTransactions] = useState<
@@ -66,6 +76,12 @@ export default function AccountsPage() {
     DoctorSettlementStatement[]
   >([]);
 
+  // Staff Payroll State
+  const [staffProfiles, setStaffProfiles] = useState<StaffPayrollProfile[]>(
+    MOCK_STAFF_PAYROLL_PROFILES
+  );
+  const [salarySlips, setSalarySlips] = useState<StaffSalarySlip[]>([]);
+
   // Modals for Doctor Settlements
   const [isGenerateDoctorSettleOpen, setIsGenerateDoctorSettleOpen] =
     useState(false);
@@ -73,15 +89,23 @@ export default function AccountsPage() {
   const [selectedDoctorSettleForPrint, setSelectedDoctorSettleForPrint] =
     useState<DoctorSettlementStatement | null>(null);
 
+  // Modals for Staff Payroll
+  const [isGenerateSalarySlipOpen, setIsGenerateSalarySlipOpen] = useState(false);
+  const [isPrintSalarySlipOpen, setIsPrintSalarySlipOpen] = useState(false);
+  const [selectedSalarySlipForPrint, setSelectedSalarySlipForPrint] =
+    useState<StaffSalarySlip | null>(null);
+
   useEffect(() => {
     const sync = () => {
       const isClean = isCleanProductionMode();
       if (isClean) {
         setTransactions([]);
         setDoctorSettlements([]);
+        setSalarySlips([]);
       } else {
         setTransactions(MOCK_ACCOUNT_TRANSACTIONS);
         setDoctorSettlements(MOCK_DOCTOR_SETTLEMENT_STATEMENTS);
+        setSalarySlips(MOCK_STAFF_SALARY_SLIPS);
       }
     };
     sync();
@@ -180,6 +204,38 @@ export default function AccountsPage() {
   ) => {
     setSelectedDoctorSettleForPrint(statement);
     setIsPrintDoctorSettleOpen(true);
+  };
+
+  // Staff Payroll Handlers
+  const handleSaveSalarySlip = (newSlip: StaffSalarySlip) => {
+    setSalarySlips((prev) => [newSlip, ...prev]);
+    showToast(
+      `Salary Slip ${newSlip.slipNumber} for ${newSlip.employeeName} (₹${newSlip.netSalary.toLocaleString("en-IN")}) generated!`
+    );
+  };
+
+  const handleUpdateSalarySlipStatus = (
+    id: string,
+    newStatus: StaffSalarySlip["paymentStatus"],
+    txRef?: string
+  ) => {
+    setSalarySlips((prev) =>
+      prev.map((s) =>
+        s.id === id
+          ? {
+              ...s,
+              paymentStatus: newStatus,
+              ...(txRef ? { transactionRef: txRef } : {}),
+            }
+          : s
+      )
+    );
+    showToast(`Salary slip status updated to ${newStatus}`);
+  };
+
+  const handlePrintSalarySlip = (slip: StaffSalarySlip) => {
+    setSelectedSalarySlipForPrint(slip);
+    setIsPrintSalarySlipOpen(true);
   };
 
   const filteredTxns = transactions.filter((t) => {
@@ -350,9 +406,24 @@ export default function AccountsPage() {
               {doctorSettlements.length} Vouchers
             </span>
           </button>
+
+          <button
+            onClick={() => setAccountsMainTab("STAFF_PAYROLL")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+              accountsMainTab === "STAFF_PAYROLL"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "bg-white hover:bg-slate-50 text-slate-600 border border-slate-200/80"
+            }`}
+          >
+            <Users className="w-4 h-4 text-teal-400" />
+            <span>Staff Payroll &amp; Bank Payouts</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-700 font-mono font-bold">
+              {salarySlips.length} Slips
+            </span>
+          </button>
         </div>
 
-        {accountsMainTab === "DAY_BOOK" ? (
+        {accountsMainTab === "DAY_BOOK" && (
           <>
             {/* Metric Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -574,13 +645,25 @@ export default function AccountsPage() {
           </div>
         </div>
       </>
-    ) : (
+    )}
+
+    {accountsMainTab === "DOCTOR_SETTLEMENTS" && (
       <DoctorSettlementsTab
         statements={doctorSettlements}
         rules={doctorSettlementRules}
         onOpenGenerateModal={() => setIsGenerateDoctorSettleOpen(true)}
         onPrintStatement={handlePrintDoctorSettlement}
         onUpdateStatementStatus={handleUpdateDoctorSettlementStatus}
+      />
+    )}
+
+    {accountsMainTab === "STAFF_PAYROLL" && (
+      <StaffPayrollTab
+        slips={salarySlips}
+        profiles={staffProfiles}
+        onOpenGenerateModal={() => setIsGenerateSalarySlipOpen(true)}
+        onPrintSlip={handlePrintSalarySlip}
+        onUpdateSlipStatus={handleUpdateSalarySlipStatus}
       />
     )}
   </main>
@@ -751,6 +834,24 @@ export default function AccountsPage() {
           setSelectedDoctorSettleForPrint(null);
         }}
         settlement={selectedDoctorSettleForPrint}
+      />
+
+      {/* Generate Staff Salary Slip Modal */}
+      <GenerateStaffSalarySlipModal
+        isOpen={isGenerateSalarySlipOpen}
+        onClose={() => setIsGenerateSalarySlipOpen(false)}
+        profiles={staffProfiles}
+        onSave={handleSaveSalarySlip}
+      />
+
+      {/* Print Official Staff Salary Slip Modal */}
+      <PrintStaffSalarySlipModal
+        isOpen={isPrintSalarySlipOpen}
+        onClose={() => {
+          setIsPrintSalarySlipOpen(false);
+          setSelectedSalarySlipForPrint(null);
+        }}
+        slip={selectedSalarySlipForPrint}
       />
     </div>
   );
