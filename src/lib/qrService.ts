@@ -54,6 +54,51 @@ export function createPatientQrPayload(patient: {
 }
 
 /**
+ * Generates human-readable, mobile-scanner friendly plain text for diagnostic vouchers.
+ * Instantly displays all patient demographics and test details when scanned by
+ * any smartphone camera, Google Lens, or barcode reader.
+ */
+export function createDiagnosticVoucherQrText(data: {
+  hospitalName?: string;
+  patientName: string;
+  uhid: string;
+  patientAge: number;
+  patientGender: string;
+  patientPhone?: string;
+  voucherNumber: string;
+  referralDate: string;
+  destinationCenterName: string;
+  referringDoctor: string;
+  department: string;
+  tests: { testName: string; testCode: string }[];
+  urgency?: string;
+}): string {
+  const testList = data.tests
+    .map((t) => `• ${t.testName} (${t.testCode})`)
+    .join("\n");
+
+  return `🏥 ${data.hospitalName || "APEX CARE HOSPITAL"}
+DIAGNOSTIC REFERRAL VOUCHER
+━━━━━━━━━━━━━━━━━━━━
+PATIENT DETAILS:
+Name: ${data.patientName}
+UHID: ${data.uhid}
+Age / Sex: ${data.patientAge} Y / ${data.patientGender === "M" ? "Male" : data.patientGender === "F" ? "Female" : "Other"}
+Phone: ${data.patientPhone || "N/A"}
+Voucher No: ${data.voucherNumber}
+Date: ${data.referralDate} | Priority: ${data.urgency || "Routine"}
+━━━━━━━━━━━━━━━━━━━━
+OUTSOURCED FACILITY:
+Partner: ${data.destinationCenterName}
+Doctor: ${data.referringDoctor} (${data.department})
+━━━━━━━━━━━━━━━━━━━━
+REQUISITIONED TESTS:
+${testList}
+━━━━━━━━━━━━━━━━━━━━
+NABH & NMC COMPLIANT OFFICIAL REFERRAL`;
+}
+
+/**
  * Generates a high-contrast base64 Data URL for thermal or A4 printing
  */
 export async function generateQrCodeDataUrl(payload: string): Promise<string> {

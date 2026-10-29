@@ -35,15 +35,15 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
     key: "cmo",
     profile: {
       name: "Dr. Bhargav",
-      roleLabel: "Chief Medical Officer (CMO)",
+      roleLabel: "Chief Medical Officer & CMD",
       department: "Clinical Executive & Governance",
       email: "dr.bhargav@metrocaredemo.com",
       avatar:
         "https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=256&auto=format&fit=crop",
-      badge: "Super Admin / CMO",
-      badgeColor: "bg-teal-500/20 text-teal-300 border border-teal-500/40",
+      badge: "Super Admin / CMD",
+      badgeColor: "bg-teal-500/25 text-teal-200 border border-teal-400/60 shadow-xs",
       description:
-        "Full root privileges across clinical, diagnostic, pharmacy, financial, and system admin tools.",
+        "Full root privileges across clinical, diagnostic, pharmacy, financial clearinghouse, and system admin tools.",
     },
     allowedRoutes: [
       "/",
@@ -102,7 +102,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       avatar:
         "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=256&auto=format&fit=crop",
       badge: "Receptionist / Front Desk",
-      badgeColor: "bg-amber-500/20 text-amber-300 border border-amber-500/40",
+      badgeColor: "bg-amber-500/25 text-amber-200 border border-amber-400/60 shadow-xs",
       description:
         "Patient registration, OPD token queue, inpatient bed admission, and doctor schedule lookup.",
     },
@@ -135,7 +135,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       avatar:
         "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=256&auto=format&fit=crop",
       badge: "Consultant Doctor",
-      badgeColor: "bg-blue-500/20 text-blue-300 border border-blue-500/40",
+      badgeColor: "bg-blue-500/25 text-blue-200 border border-blue-400/60 shadow-xs",
       description:
         "Consultation chamber, inpatient bed rounds, clinical notes, prescription orders, and lab reports.",
     },
@@ -173,7 +173,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       avatar:
         "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=256&auto=format&fit=crop",
       badge: "Head Nurse",
-      badgeColor: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40",
+      badgeColor: "bg-emerald-500/25 text-emerald-200 border border-emerald-400/60 shadow-xs",
       description:
         "Ward bed grid, vitals logging, nursing indents, triage queue, and patient clinical records.",
     },
@@ -196,7 +196,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       avatar:
         "https://images.unsplash.com/photo-1537368910025-700350fe46c7?q=80&w=256&auto=format&fit=crop",
       badge: "Senior Pharmacist",
-      badgeColor: "bg-purple-500/20 text-purple-300 border border-purple-500/40",
+      badgeColor: "bg-purple-500/25 text-purple-200 border border-purple-400/60 shadow-xs",
       description:
         "Medication dispensing, prescription POS, formulary inventory, and narcotic control register.",
     },
@@ -214,7 +214,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       avatar:
         "https://images.unsplash.com/photo-1594824813576-47b2b8089476?q=80&w=256&auto=format&fit=crop",
       badge: "Lab Biochemist",
-      badgeColor: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40",
+      badgeColor: "bg-cyan-500/25 text-cyan-200 border border-cyan-400/60 shadow-xs",
       description:
         "Phlebotomy sample accessioning, analyzer test results entry, and NABL diagnostic sign-offs.",
     },
@@ -226,15 +226,15 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
     key: "cashier",
     profile: {
       name: "Ramesh Sharma",
-      roleLabel: "Senior Billing Cashier",
-      department: "Cash Counter & Patient Accounts",
+      roleLabel: "Hospital Accountant & Cashier",
+      department: "Finance, Billing & Accounts Desk",
       email: "ramesh.sharma@VitalSync.hms",
       avatar:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=256&auto=format&fit=crop",
-      badge: "Billing Cashier",
-      badgeColor: "bg-rose-500/20 text-rose-300 border border-rose-500/40",
+      badge: "Hospital Accountant",
+      badgeColor: "bg-rose-500/25 text-rose-200 border border-rose-400/60 shadow-xs",
       description:
-        "Day book cash register, advance deposits, IP discharge bill settlement, and expense vouchers.",
+        "Day book cash register, B2B diagnostic clearinghouse, advance deposits, IP discharge bill settlement, and expense vouchers.",
     },
     allowedRoutes: ["/", "/accounts", "/services", "/opd", "/ipd", "/referrals"],
     allowedModules: ["accounts", "services", "opd", "ipd"],

@@ -621,7 +621,7 @@ export const MOCK_DIAGNOSTIC_SETTLEMENTS: DiagnosticSettlement[] = [
     transactionReference: "HDFC002910492817",
     settlementDate: "2026-10-05",
     status: "Settled",
-    verifiedBy: "Ramesh Sharma (Billing Cashier)",
+    verifiedBy: "Ramesh Sharma (Hospital Accountant)",
   },
   {
     id: "set-02",
@@ -638,6 +638,6 @@ export const MOCK_DIAGNOSTIC_SETTLEMENTS: DiagnosticSettlement[] = [
     transactionReference: "SBIN904819284192",
     settlementDate: "2026-10-08",
     status: "Settled",
-    verifiedBy: "Ramesh Sharma (Billing Cashier)",
+    verifiedBy: "Ramesh Sharma (Hospital Accountant)",
   },
 ];

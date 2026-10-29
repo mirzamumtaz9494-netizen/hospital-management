@@ -19,7 +19,7 @@ import {
 import { ExternalDiagnosticOrder, ExternalDiagnosticCenter } from "@/types";
 import { useTenant } from "@/context/TenantContext";
 import { MOCK_EXTERNAL_DIAGNOSTIC_CENTRES } from "@/data/referralsMockData";
-import { generateQrCodeDataUrl } from "@/lib/qrService";
+import { generateQrCodeDataUrl, createDiagnosticVoucherQrText } from "@/lib/qrService";
 import { printElement } from "@/lib/printService";
 
 interface PrintExternalVoucherModalProps {
@@ -70,19 +70,29 @@ export const PrintExternalVoucherModal: React.FC<PrintExternalVoucherModalProps>
 
   useEffect(() => {
     if (order) {
-      const qrPayload = JSON.stringify({
-        vch: order.voucherNumber,
+      const qrText = createDiagnosticVoucherQrText({
+        hospitalName: currentTenant.name || "APEX CARE HOSPITAL",
+        patientName: order.patientName,
         uhid: order.uhid,
-        pt: order.patientName,
-        ctr: order.destinationCenterName,
-        dt: order.referralDate,
-        tests: order.selectedTests.map((t) => t.testCode).join(","),
+        patientAge: order.patientAge,
+        patientGender: order.patientGender,
+        patientPhone: order.patientPhone,
+        voucherNumber: order.voucherNumber,
+        referralDate: order.referralDate,
+        destinationCenterName: order.destinationCenterName,
+        referringDoctor: order.referringDoctor,
+        department: order.department,
+        tests: order.selectedTests.map((t) => ({
+          testName: t.testName,
+          testCode: t.testCode,
+        })),
+        urgency: order.urgency,
       });
-      generateQrCodeDataUrl(qrPayload)
+      generateQrCodeDataUrl(qrText)
         .then((url) => setQrUrl(url))
         .catch(() => {});
     }
-  }, [order]);
+  }, [order, currentTenant]);
 
   if (!isOpen || !order) return null;
 

@@ -205,30 +205,30 @@ export default function LoginPage() {
                       key={rKey}
                       type="button"
                       onClick={() => handleSelectRolePreset(rKey)}
-                      className={`w-full flex items-center gap-3 p-2.5 rounded-2xl border text-left transition cursor-pointer ${
+                      className={`w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition cursor-pointer ${
                         isSelected
-                          ? "bg-teal-950/40 border-teal-500/60 shadow-lg shadow-teal-500/10 ring-1 ring-teal-500/50"
-                          : "bg-slate-900/60 border-slate-800 hover:bg-slate-800/80 hover:border-slate-700"
+                          ? "bg-teal-950/70 border-teal-400 shadow-lg shadow-teal-500/20 ring-1 ring-teal-400"
+                          : "bg-slate-900/80 border-slate-800 hover:bg-slate-800 hover:border-slate-700"
                       }`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={role.profile.avatar}
                         alt={role.profile.name}
-                        className="w-9 h-9 rounded-xl object-cover shrink-0 ring-1 ring-slate-700"
+                        className="w-10 h-10 rounded-xl object-cover shrink-0 ring-1 ring-slate-700"
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-white truncate">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs sm:text-sm font-bold text-white truncate">
                             {role.profile.name}
                           </span>
                           <span
-                            className={`text-[8px] px-1.5 py-0.5 rounded font-mono font-bold ${role.profile.badgeColor}`}
+                            className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-md font-semibold tracking-wide shrink-0 ${role.profile.badgeColor}`}
                           >
                             {role.profile.badge}
                           </span>
                         </div>
-                        <p className="text-[10px] text-slate-400 truncate">
+                        <p className="text-[11px] text-slate-300 truncate font-medium mt-0.5">
                           {role.profile.department}
                         </p>
                       </div>
@@ -264,7 +264,7 @@ export default function LoginPage() {
                       {activeRoleConfig.profile.name}
                     </span>
                     <span
-                      className={`text-[9px] px-2 py-0.5 rounded font-mono font-bold ${activeRoleConfig.profile.badgeColor}`}
+                      className={`text-xs px-2.5 py-0.5 rounded-md font-semibold tracking-wide ${activeRoleConfig.profile.badgeColor}`}
                     >
                       {activeRoleConfig.profile.badge}
                     </span>
