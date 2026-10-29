@@ -22,6 +22,7 @@ import {
   Calculator,
   AlertTriangle,
   AlertCircle,
+  Stethoscope,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
@@ -29,10 +30,21 @@ import { CreateOpModal } from "@/components/CreateOpModal";
 import { CreateIpModal } from "@/components/CreateIpModal";
 import { ShiftReconciliationModal } from "@/components/accounts/ShiftReconciliationModal";
 import { OutstandingDuesModal } from "@/components/accounts/OutstandingDuesModal";
+import { DoctorSettlementsTab } from "@/components/accounts/DoctorSettlementsTab";
+import { GenerateDoctorSettlementModal } from "@/components/accounts/GenerateDoctorSettlementModal";
+import { PrintDoctorSettlementModal } from "@/components/accounts/PrintDoctorSettlementModal";
 import { useRole } from "@/context/RoleContext";
 import { AccessDeniedGuard } from "@/components/AccessDeniedGuard";
 import { MOCK_ACCOUNT_TRANSACTIONS } from "@/data/accountsMockData";
-import { HospitalAccountTransaction } from "@/types";
+import {
+  MOCK_DOCTOR_SETTLEMENT_RULES,
+  MOCK_DOCTOR_SETTLEMENT_STATEMENTS,
+} from "@/data/doctorSettlementsMockData";
+import {
+  HospitalAccountTransaction,
+  DoctorSettlementRule,
+  DoctorSettlementStatement,
+} from "@/types";
 import {
   isCleanProductionMode,
   EVENT_NAME_DATABASE_RESET,
@@ -40,17 +52,36 @@ import {
 
 export default function AccountsPage() {
   const { canAccessRoute, canAccessAction } = useRole();
+  const [accountsMainTab, setAccountsMainTab] = useState<
+    "DAY_BOOK" | "DOCTOR_SETTLEMENTS"
+  >("DAY_BOOK");
+
   const [transactions, setTransactions] = useState<
     HospitalAccountTransaction[]
   >([]);
+  const [doctorSettlementRules, setDoctorSettlementRules] = useState<
+    DoctorSettlementRule[]
+  >(MOCK_DOCTOR_SETTLEMENT_RULES);
+  const [doctorSettlements, setDoctorSettlements] = useState<
+    DoctorSettlementStatement[]
+  >([]);
+
+  // Modals for Doctor Settlements
+  const [isGenerateDoctorSettleOpen, setIsGenerateDoctorSettleOpen] =
+    useState(false);
+  const [isPrintDoctorSettleOpen, setIsPrintDoctorSettleOpen] = useState(false);
+  const [selectedDoctorSettleForPrint, setSelectedDoctorSettleForPrint] =
+    useState<DoctorSettlementStatement | null>(null);
 
   useEffect(() => {
     const sync = () => {
       const isClean = isCleanProductionMode();
       if (isClean) {
         setTransactions([]);
+        setDoctorSettlements([]);
       } else {
         setTransactions(MOCK_ACCOUNT_TRANSACTIONS);
+        setDoctorSettlements(MOCK_DOCTOR_SETTLEMENT_STATEMENTS);
       }
     };
     sync();
@@ -113,6 +144,42 @@ export default function AccountsPage() {
     setExpenseTitle("");
     setExpenseAmount(1500);
     setExpenseNotes("");
+  };
+
+  // Doctor Settlement Handlers
+  const handleSaveDoctorSettlement = (
+    newStatement: DoctorSettlementStatement
+  ) => {
+    setDoctorSettlements((prev) => [newStatement, ...prev]);
+    showToast(
+      `Doctor Settlement ${newStatement.settlementNumber} for ${newStatement.doctorName} (₹${newStatement.netPayable.toLocaleString("en-IN")}) committed!`
+    );
+  };
+
+  const handleUpdateDoctorSettlementStatus = (
+    id: string,
+    newStatus: DoctorSettlementStatement["paymentStatus"],
+    txRef?: string
+  ) => {
+    setDoctorSettlements((prev) =>
+      prev.map((s) =>
+        s.id === id
+          ? {
+              ...s,
+              paymentStatus: newStatus,
+              ...(txRef ? { transactionRef: txRef } : {}),
+            }
+          : s
+      )
+    );
+    showToast(`Settlement status updated to ${newStatus}`);
+  };
+
+  const handlePrintDoctorSettlement = (
+    statement: DoctorSettlementStatement
+  ) => {
+    setSelectedDoctorSettleForPrint(statement);
+    setIsPrintDoctorSettleOpen(true);
   };
 
   const filteredTxns = transactions.filter((t) => {
@@ -252,8 +319,43 @@ export default function AccountsPage() {
           </div>
         </div>
 
-        {/* Metric Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {/* Accounts Main Tab Navigation Bar */}
+        <div className="flex items-center gap-2 border-b border-slate-200/80 pb-3 mb-6 overflow-x-auto no-scrollbar">
+          <button
+            onClick={() => setAccountsMainTab("DAY_BOOK")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+              accountsMainTab === "DAY_BOOK"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "bg-white hover:bg-slate-50 text-slate-600 border border-slate-200/80"
+            }`}
+          >
+            <Receipt className="w-4 h-4 text-teal-400" />
+            <span>Day Book &amp; Cash Counters</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-800 text-slate-200 font-mono">
+              {transactions.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setAccountsMainTab("DOCTOR_SETTLEMENTS")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+              accountsMainTab === "DOCTOR_SETTLEMENTS"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "bg-white hover:bg-slate-50 text-slate-600 border border-slate-200/80"
+            }`}
+          >
+            <Stethoscope className="w-4 h-4 text-teal-400" />
+            <span>Doctor Settlements &amp; Fee Sharing</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-teal-500/20 text-teal-700 font-mono font-bold">
+              {doctorSettlements.length} Vouchers
+            </span>
+          </button>
+        </div>
+
+        {accountsMainTab === "DAY_BOOK" ? (
+          <>
+            {/* Metric Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -471,7 +573,17 @@ export default function AccountsPage() {
             </table>
           </div>
         </div>
-      </main>
+      </>
+    ) : (
+      <DoctorSettlementsTab
+        statements={doctorSettlements}
+        rules={doctorSettlementRules}
+        onOpenGenerateModal={() => setIsGenerateDoctorSettleOpen(true)}
+        onPrintStatement={handlePrintDoctorSettlement}
+        onUpdateStatementStatus={handleUpdateDoctorSettlementStatus}
+      />
+    )}
+  </main>
 
       {/* Add Expense Voucher Modal */}
       {isAddExpenseModalOpen && (
@@ -621,6 +733,24 @@ export default function AccountsPage() {
       <OutstandingDuesModal
         isOpen={isOutstandingDuesOpen}
         onClose={() => setIsOutstandingDuesOpen(false)}
+      />
+
+      {/* Generate Doctor Settlement Modal */}
+      <GenerateDoctorSettlementModal
+        isOpen={isGenerateDoctorSettleOpen}
+        onClose={() => setIsGenerateDoctorSettleOpen(false)}
+        rules={doctorSettlementRules}
+        onSave={handleSaveDoctorSettlement}
+      />
+
+      {/* Print Official Doctor Settlement Modal */}
+      <PrintDoctorSettlementModal
+        isOpen={isPrintDoctorSettleOpen}
+        onClose={() => {
+          setIsPrintDoctorSettleOpen(false);
+          setSelectedDoctorSettleForPrint(null);
+        }}
+        settlement={selectedDoctorSettleForPrint}
       />
     </div>
   );

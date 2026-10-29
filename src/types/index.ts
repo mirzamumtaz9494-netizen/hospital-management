@@ -1264,6 +1264,79 @@ export interface DiagnosticSettlement {
   verifiedBy: string;
 }
 
+// ==========================================
+// Phase 3: Doctor Settlement Rules & Clearinghouse
+// ==========================================
+
+export type DoctorContractType =
+  | "Salaried Full-Time"
+  | "Visiting Consultant"
+  | "On-Call Surgeon";
+
+export interface DoctorSettlementRule {
+  id: string;
+  doctorId: string;
+  doctorName: string;
+  department: string;
+  contractType: DoctorContractType;
+  monthlyBaseSalary?: number; // for Salaried Full-Time
+  opdSharePercent?: number; // e.g. 70% to doctor (Visiting)
+  hospitalOpdSharePercent?: number; // e.g. 30% to hospital
+  ipdSurgeonSharePercent?: number; // e.g. 60% of OT surgery package
+  fixedSurgeonFeePerOt?: number; // e.g. ₹30,000 fixed
+  tdsPercent: number; // default 10% u/s 194J
+  bankAccountNumber: string;
+  bankIfsc: string;
+  bankName: string;
+  panNumber: string;
+  active: boolean;
+}
+
+export interface DoctorSettlementEncounter {
+  id: string;
+  date: string;
+  patientName: string;
+  uhid: string;
+  caseType: "OPD Consultation" | "IPD Surgical Procedure" | "Emergency Call";
+  procedureName?: string;
+  totalCharged: number;
+  doctorShare: number;
+  hospitalShare: number;
+}
+
+export interface DoctorSettlementStatement {
+  id: string;
+  settlementNumber: string; // e.g. "DOC-SETTLE-2026-10-01"
+  doctorId: string;
+  doctorName: string;
+  department: string;
+  period: string; // e.g. "October 2026"
+  settlementDate: string;
+  contractType: DoctorContractType;
+  totalOpdConsultations: number;
+  grossOpdCollections: number;
+  doctorOpdEarnings: number;
+  totalSurgeries: number;
+  grossSurgeryCollections: number;
+  doctorSurgeryEarnings: number;
+  baseSalaryOrRetainer: number;
+  grossEarnings: number;
+  hospitalShareRetained: number;
+  tdsDeduction: number; // Section 194J (10%)
+  otherDeductions: number;
+  netPayable: number;
+  paymentStatus: "Pending Approval" | "Approved" | "Bank Queued" | "Disbursed";
+  paymentMode: "NEFT / RTGS" | "Cheque" | "Direct Bank Transfer";
+  transactionRef?: string; // UTR Number when disbursed
+  bankAccountNumber: string;
+  bankIfsc: string;
+  bankName: string;
+  panNumber: string;
+  remarks?: string;
+  itemizedEncounters: DoctorSettlementEncounter[];
+}
+
+
 
 
 
