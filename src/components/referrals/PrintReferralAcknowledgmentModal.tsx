@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { InboundReferral } from "@/types";
 import { useTenant } from "@/context/TenantContext";
+import { printElement } from "@/lib/printService";
 
 interface PrintReferralAcknowledgmentModalProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export const PrintReferralAcknowledgmentModal: React.FC<PrintReferralAcknowledgm
   if (!isOpen || !referral) return null;
 
   const handlePrint = () => {
-    window.print();
+    printElement(printRef.current, `REF-ACK-${referral.id.slice(-4)} - Clinical Referral Acknowledgment`);
   };
 
   return (

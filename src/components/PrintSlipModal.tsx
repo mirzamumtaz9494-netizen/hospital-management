@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X, Printer, Activity, QrCode } from "lucide-react";
 import { Patient } from "@/types";
 import { generateQrCodeDataUrl, createPatientQrPayload } from "@/lib/qrService";
+import { printElement } from "@/lib/printService";
 
 interface PrintSlipModalProps {
   patient: Patient | null;
@@ -27,10 +28,12 @@ export const PrintSlipModal: React.FC<PrintSlipModalProps> = ({
     }
   }, [patient]);
 
+  const printRef = useRef<HTMLDivElement>(null);
+
   if (!patient) return null;
 
   const handlePrint = () => {
-    window.print();
+    printElement(printRef.current, `${patient.opIpId || patient.uhid || "Patient"} - OPD Slip`);
   };
 
   return (
@@ -62,7 +65,7 @@ export const PrintSlipModal: React.FC<PrintSlipModalProps> = ({
         </div>
 
         {/* Printable Sheet (print-container) */}
-        <div className="print-container p-8 sm:p-10 font-sans text-slate-900 bg-white">
+        <div ref={printRef} className="print-container p-8 sm:p-10 font-sans text-slate-900 bg-white">
           {/* Hospital Header */}
           <div className="border-b-2 border-slate-900 pb-4 mb-6 flex items-start justify-between">
             <div>

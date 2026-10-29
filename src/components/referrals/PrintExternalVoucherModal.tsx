@@ -20,6 +20,7 @@ import { ExternalDiagnosticOrder, ExternalDiagnosticCenter } from "@/types";
 import { useTenant } from "@/context/TenantContext";
 import { MOCK_EXTERNAL_DIAGNOSTIC_CENTRES } from "@/data/referralsMockData";
 import { generateQrCodeDataUrl } from "@/lib/qrService";
+import { printElement } from "@/lib/printService";
 
 interface PrintExternalVoucherModalProps {
   isOpen: boolean;
@@ -86,7 +87,7 @@ export const PrintExternalVoucherModal: React.FC<PrintExternalVoucherModalProps>
   if (!isOpen || !order) return null;
 
   const handlePrint = () => {
-    window.print();
+    printElement(printRef.current, `${order.voucherNumber} - External Diagnostic Voucher`);
   };
 
   return (
