@@ -5,12 +5,20 @@
  */
 
 const DB_NAME = "vitalsync_hms_local_store_v1";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export interface OutboxMutation {
   idempotency_key: string;
   tenant_id: string;
-  entity_type: "patient" | "opd_token" | "ipd_admission" | "billing" | "shift_report";
+  entity_type:
+    | "patient"
+    | "opd_token"
+    | "ipd_admission"
+    | "billing"
+    | "shift_report"
+    | "inbound_referral"
+    | "external_diagnostic_order"
+    | "diagnostic_settlement";
   operation: "INSERT" | "UPDATE" | "DELETE";
   payload: any;
   sync_status: "PENDING" | "SYNCING" | "COMMITTED" | "CONFLICT";
@@ -70,6 +78,36 @@ function openDatabase(): Promise<IDBDatabase> {
       // 6. Cashier Shift Reconciliations (Z-Reports)
       if (!db.objectStoreNames.contains("cashier_shifts")) {
         db.createObjectStore("cashier_shifts", { keyPath: "shift_id" });
+      }
+
+      // 7. Phase 2: Inbound Patient Referrals
+      if (!db.objectStoreNames.contains("inbound_referrals")) {
+        const store = db.createObjectStore("inbound_referrals", { keyPath: "id" });
+        store.createIndex("uhid", "uhid", { unique: false });
+        store.createIndex("referralStatus", "referralStatus", { unique: false });
+        store.createIndex("referralDate", "referralDate", { unique: false });
+      }
+
+      // 8. Phase 2: External Diagnostic Centers
+      if (!db.objectStoreNames.contains("external_diagnostic_centers")) {
+        const store = db.createObjectStore("external_diagnostic_centers", { keyPath: "id" });
+        store.createIndex("activeStatus", "activeStatus", { unique: false });
+      }
+
+      // 9. Phase 2: External Diagnostic Orders / Vouchers
+      if (!db.objectStoreNames.contains("external_diagnostic_orders")) {
+        const store = db.createObjectStore("external_diagnostic_orders", { keyPath: "id" });
+        store.createIndex("voucherNumber", "voucherNumber", { unique: true });
+        store.createIndex("uhid", "uhid", { unique: false });
+        store.createIndex("status", "status", { unique: false });
+        store.createIndex("destinationCenterId", "destinationCenterId", { unique: false });
+      }
+
+      // 10. Phase 2: B2B Diagnostic Settlements
+      if (!db.objectStoreNames.contains("diagnostic_settlements")) {
+        const store = db.createObjectStore("diagnostic_settlements", { keyPath: "id" });
+        store.createIndex("centerId", "centerId", { unique: false });
+        store.createIndex("settlementNumber", "settlementNumber", { unique: true });
       }
     };
 

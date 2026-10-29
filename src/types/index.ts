@@ -981,7 +981,8 @@ export type TenantModuleKey =
   | "services"
   | "accounts"
   | "reports"
-  | "admin";
+  | "admin"
+  | "referrals";
 
 export type TenantPlanKey =
   | "starter_clinic"
@@ -1022,6 +1023,165 @@ export interface HospitalTenant {
   logoBadge?: string;
   createdAt: string;
 }
+
+/* =========================================================================
+   PHASE 2: REFERRAL TRACKING & EXTERNAL DIAGNOSTIC MANAGEMENT TYPES
+   ========================================================================= */
+
+export type InboundReferralSource =
+  | "External Doctor"
+  | "Hospital / Nursing Home"
+  | "Clinic / Polyclinic"
+  | "Community Health Worker (ASHA)"
+  | "Corporate / TPA"
+  | "Self / Walk-in";
+
+export type InboundReferralStatus =
+  | "Received"
+  | "Consulted"
+  | "Admitted"
+  | "Discharged"
+  | "Follow-up Sent";
+
+export type ReferralPriority = "Routine" | "Urgent" | "Emergency";
+
+export interface ReferralAuditEntry {
+  id: string;
+  timestamp: string;
+  action: string;
+  performedBy: string;
+  notes?: string;
+}
+
+export interface InboundReferral {
+  id: string;
+  patientId?: string;
+  uhid: string;
+  patientName: string;
+  patientAge: number;
+  patientGender: "M" | "F" | "Other";
+  patientPhone: string;
+  referringEntity: InboundReferralSource;
+  referrerName: string;
+  referrerContact: string;
+  referrerRegNo?: string; // Medical Council Registration No.
+  referralDate: string;
+  destinationDepartment: string;
+  intendedService: string;
+  referralPriority: ReferralPriority;
+  referralStatus: InboundReferralStatus;
+  clinicalNotes: string;
+  treatingDoctor: string;
+  acknowledgementSent: boolean;
+  auditTrail: ReferralAuditEntry[];
+  createdAt: string;
+}
+
+export interface ExternalDiagnosticTestItem {
+  testCode: string;
+  testName: string;
+  modality: "MRI" | "CT Scan" | "Ultrasound" | "PET-CT" | "Special Lab" | "Biopsy" | "Mammography" | "ECHO/TMT";
+  standardMrp: number;
+  hospitalAgreedRate: number;
+  hospitalShare: number;
+  preparationInstructions: string;
+}
+
+export interface ExternalDiagnosticCenter {
+  id: string;
+  centerName: string;
+  branch: string;
+  centerType: "Radiology & Imaging" | "Advanced Pathology" | "Comprehensive Diagnostic Centre" | "Nuclear Medicine & PET";
+  contactPerson: string;
+  phone: string;
+  email: string;
+  address: string;
+  googleMapsUrl?: string;
+  accreditations: string[]; // e.g. ["NABL", "NABH"]
+  partnershipTerms: {
+    model: "Percentage Revenue Share" | "Fixed Institutional Concession" | "Direct Patient Discount";
+    sharePercentage: number;
+    concessionNotes: string;
+    effectiveFrom: string;
+    effectiveTo: string;
+    settlementFrequency: "Weekly" | "Fortnightly" | "Monthly";
+    bankDetails: {
+      bankName: string;
+      accountNumber: string;
+      ifscCode: string;
+      accountHolder: string;
+    };
+  };
+  activeStatus: "Active" | "Under Review" | "Terminated";
+  serviceCatalog: ExternalDiagnosticTestItem[];
+}
+
+export type ExternalOrderStatus =
+  | "Voucher Issued"
+  | "Appointment Booked"
+  | "Test Completed"
+  | "Report Received"
+  | "Reconciled";
+
+export type ExternalPaymentSettlementStatus =
+  | "Pending Center Invoice"
+  | "Verified"
+  | "Settled"
+  | "Disputed";
+
+export interface ExternalDiagnosticOrder {
+  id: string;
+  voucherNumber: string;
+  patientId?: string;
+  uhid: string;
+  patientName: string;
+  patientAge: number;
+  patientGender: "M" | "F" | "Other";
+  patientPhone: string;
+  referringDoctor: string;
+  department: string;
+  destinationCenterId: string;
+  destinationCenterName: string;
+  selectedTests: {
+    testCode: string;
+    testName: string;
+    modality: string;
+    mrp: number;
+    hospitalAgreedRate: number;
+    hospitalShare: number;
+  }[];
+  totalMrp: number;
+  hospitalPayable: number;
+  hospitalReceivableShare: number;
+  referralDate: string;
+  clinicalIndication: string;
+  urgency: "Routine" | "Urgent" | "Stat Emergency";
+  status: ExternalOrderStatus;
+  paymentStatus: ExternalPaymentSettlementStatus;
+  reportAttachmentUrl?: string;
+  reportSummaryNotes?: string;
+  settlementReference?: string;
+  createdAt: string;
+}
+
+export interface DiagnosticSettlement {
+  id: string;
+  settlementNumber: string;
+  centerId: string;
+  centerName: string;
+  period: string; // e.g. "October 2026"
+  totalOrdersCount: number;
+  grossBilledAmount: number;
+  hospitalShareCalculated: number;
+  centerInvoiceNumber: string;
+  amountPaidOrReceived: number;
+  paymentMode: "NEFT / RTGS" | "Cheque" | "UPI";
+  transactionReference: string; // UTR Number
+  settlementDate: string;
+  status: "Settled" | "Pending Approval" | "Under Audit";
+  verifiedBy: string;
+}
+
 
 
 

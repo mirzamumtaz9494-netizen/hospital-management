@@ -98,6 +98,15 @@ export const ALL_TENANT_MODULES: TenantModuleMetadata[] = [
     iconName: "Shield",
     basePricePerMonth: 4000,
   },
+  {
+    key: "referrals",
+    label: "Referrals & External Diagnostics",
+    category: "Operations",
+    description: "Inbound doctor referrals, external MRI/CT tie-ups & B2B revenue sharing",
+    route: "/referrals",
+    iconName: "Share2",
+    basePricePerMonth: 4500,
+  },
 ];
 
 export const INITIAL_HOSPITAL_TENANTS: HospitalTenant[] = [
@@ -132,6 +141,7 @@ export const INITIAL_HOSPITAL_TENANTS: HospitalTenant[] = [
       accounts: false,   // Not licensed in Hospital 1
       reports: false,    // Not licensed in Hospital 1
       admin: false,      // Super Admin only
+      referrals: true,   // Phase 2 Enabled
     },
   },
   {
@@ -165,6 +175,7 @@ export const INITIAL_HOSPITAL_TENANTS: HospitalTenant[] = [
       accounts: true,   // Enabled
       reports: true,    // Enabled
       admin: true,      // Enabled
+      referrals: true,  // Enabled
     },
   },
   {
@@ -198,6 +209,7 @@ export const INITIAL_HOSPITAL_TENANTS: HospitalTenant[] = [
       accounts: false,
       reports: false,
       admin: false,
+      referrals: true,
     },
   },
 ];

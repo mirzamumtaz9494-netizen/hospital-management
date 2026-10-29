@@ -24,6 +24,8 @@ interface OfflineSyncContextValue {
   registerPatientOfflineSafe: (patient: any) => Promise<any>;
   createOpdTokenOfflineSafe: (token: any) => Promise<any>;
   recordBillingOfflineSafe: (billing: any) => Promise<any>;
+  saveInboundReferralOfflineSafe: (referral: any) => Promise<any>;
+  saveExternalDiagnosticOrderOfflineSafe: (order: any) => Promise<any>;
 }
 
 const OfflineSyncContext = createContext<OfflineSyncContextValue | undefined>(undefined);
@@ -280,6 +282,42 @@ export const OfflineSyncProvider: React.FC<{ children: React.ReactNode }> = ({
     return billingData;
   };
 
+  // Phase 2: Offline-Safe Inbound Referral Registration
+  const saveInboundReferralOfflineSafe = async (referralData: any) => {
+    const tenantId = currentTenant?.id || "a0000000-0000-0000-0000-000000000001";
+    await saveRecordLocallyAndQueue(
+      "inbound_referrals",
+      referralData,
+      "inbound_referral",
+      tenantId,
+      "INSERT"
+    );
+    refreshPendingCounter();
+
+    if (navigator.onLine) {
+      triggerSyncNow();
+    }
+    return referralData;
+  };
+
+  // Phase 2: Offline-Safe External Diagnostic Order
+  const saveExternalDiagnosticOrderOfflineSafe = async (orderData: any) => {
+    const tenantId = currentTenant?.id || "a0000000-0000-0000-0000-000000000001";
+    await saveRecordLocallyAndQueue(
+      "external_diagnostic_orders",
+      orderData,
+      "external_diagnostic_order",
+      tenantId,
+      "INSERT"
+    );
+    refreshPendingCounter();
+
+    if (navigator.onLine) {
+      triggerSyncNow();
+    }
+    return orderData;
+  };
+
   // Clear/Flush Outbox manually if needed
   const clearOutboxNow = useCallback(async () => {
     try {
@@ -312,6 +350,8 @@ export const OfflineSyncProvider: React.FC<{ children: React.ReactNode }> = ({
         registerPatientOfflineSafe,
         createOpdTokenOfflineSafe,
         recordBillingOfflineSafe,
+        saveInboundReferralOfflineSafe,
+        saveExternalDiagnosticOrderOfflineSafe,
       }}
     >
       {children}

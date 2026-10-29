@@ -29,7 +29,7 @@ export const ServiceWorkerRegister = () => {
 
       // Warm up offline cache for key routes in background when online
       if (navigator.onLine) {
-        const warmRoutes = ["/", "/opd", "/ipd", "/accounts"];
+        const warmRoutes = ["/", "/opd", "/ipd", "/accounts", "/referrals"];
         warmRoutes.forEach((route) => {
           fetch(route, { cache: "force-cache" }).catch(() => {});
         });

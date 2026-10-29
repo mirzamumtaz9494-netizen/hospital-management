@@ -28,7 +28,11 @@ export const CreateOpModal: React.FC<CreateOpModalProps> = ({
   onSuccess,
 }) => {
   const { currentTenant } = useTenant();
-  const { registerPatientOfflineSafe, createOpdTokenOfflineSafe } = useOfflineSync();
+  const {
+    registerPatientOfflineSafe,
+    createOpdTokenOfflineSafe,
+    saveInboundReferralOfflineSafe,
+  } = useOfflineSync();
   const [patientType, setPatientType] = useState<"new" | "existing">("new");
   const [formData, setFormData] = useState({
     name: "",
@@ -42,6 +46,8 @@ export const CreateOpModal: React.FC<CreateOpModalProps> = ({
     consultationFee: 500,
     paymentMode: "UPI",
     notes: "",
+    referralSource: "Direct / Self" as "Direct / Self" | "External Doctor / Clinic",
+    referrerName: "",
   });
 
   if (!isOpen) return null;
@@ -117,6 +123,41 @@ export const CreateOpModal: React.FC<CreateOpModalProps> = ({
       date: new Date().toISOString().split("T")[0],
       uhid: uhid,
     });
+
+    // If referred by external practitioner, record inbound referral
+    if (formData.referralSource === "External Doctor / Clinic" && formData.referrerName.trim()) {
+      saveInboundReferralOfflineSafe({
+        id: `inb-${Date.now()}`,
+        uhid: uhid,
+        patientName: formData.name.trim(),
+        patientAge: parseInt(formData.age, 10) || 30,
+        patientGender: formData.gender,
+        patientPhone: formData.phone.trim(),
+        referringEntity: "External Doctor",
+        referrerName: formData.referrerName.trim(),
+        referrerContact: "+91 90000 00000",
+        referralDate: new Date().toISOString().split("T")[0],
+        destinationDepartment: formData.department,
+        intendedService: "Outpatient Consultation",
+        referralPriority: "Routine",
+        referralStatus: "Received",
+        clinicalNotes: formData.notes || "Registered via OPD Desk",
+        treatingDoctor: formData.attendingDoctor,
+        acknowledgementSent: false,
+        createdAt: new Date().toISOString(),
+        auditTrail: [
+          {
+            id: `aud-${Date.now()}`,
+            timestamp: new Date().toLocaleString("en-IN", {
+              dateStyle: "short",
+              timeStyle: "short",
+            }),
+            action: "Inbound Referral Registered via OP Desk",
+            performedBy: "Front Desk Cashier",
+          },
+        ],
+      });
+    }
 
     onSuccess(newPatient);
     onClose();
@@ -263,6 +304,44 @@ export const CreateOpModal: React.FC<CreateOpModalProps> = ({
                   <option value="AB-">AB-</option>
                 </select>
               </div>
+            </div>
+
+            {/* Inbound Referral Source */}
+            <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-slate-600 font-medium mb-1">
+                  Referral Intake Channel
+                </label>
+                <select
+                  value={formData.referralSource}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      referralSource: e.target.value as any,
+                    })
+                  }
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                >
+                  <option value="Direct / Self">Direct / Walk-in Patient</option>
+                  <option value="External Doctor / Clinic">External Doctor / Clinic Referral</option>
+                </select>
+              </div>
+
+              {formData.referralSource === "External Doctor / Clinic" && (
+                <div>
+                  <label className="block text-slate-600 font-medium mb-1">
+                    Referring Doctor / Clinic Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.referrerName}
+                    onChange={(e) => setFormData({ ...formData, referrerName: e.target.value })}
+                    placeholder="e.g. Dr. M. K. Murthy"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                  />
+                </div>
+              )}
             </div>
           </div>
 

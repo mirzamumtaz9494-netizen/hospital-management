@@ -134,6 +134,7 @@ export default function SuperAdminPage() {
     accounts: false,
     reports: false,
     admin: false,
+    referrals: true,
   });
 
   const showToast = (msg: string) => {

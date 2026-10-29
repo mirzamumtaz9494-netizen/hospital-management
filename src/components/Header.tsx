@@ -42,6 +42,7 @@ import {
   WifiOff,
   RefreshCw,
   HardDrive,
+  Share2,
 } from "lucide-react";
 import { MOCK_NOTIFICATIONS } from "@/data/notificationsMockData";
 import { HospitalNotificationItem, TenantModuleKey } from "@/types";
@@ -165,6 +166,13 @@ export const Header: React.FC<HeaderProps> = ({
       moduleKey: "admin",
     },
     {
+      label: "Referrals",
+      href: "/referrals",
+      icon: Share2,
+      desc: "Doctor Referrals & Partner Diagnostics",
+      moduleKey: "referrals",
+    },
+    {
       label: "Settings",
       href: "/settings",
       icon: Settings,
@@ -172,7 +180,14 @@ export const Header: React.FC<HeaderProps> = ({
     },
   ];
 
-  const fullNavItems = [
+  const fullNavItems: {
+    label: string;
+    href: string;
+    icon: any;
+    desc: string;
+    badge?: string;
+    moduleKey?: TenantModuleKey;
+  }[] = [
     {
       label: "Dashboard",
       href: "/",
@@ -259,6 +274,13 @@ export const Header: React.FC<HeaderProps> = ({
       desc: "Audit Trail & Hospital Governance",
       badge: "RBAC",
       moduleKey: "admin" as TenantModuleKey,
+    },
+    {
+      label: "Referrals",
+      href: "/referrals",
+      icon: Share2,
+      desc: "Doctor Referrals & Partner Diagnostics",
+      moduleKey: "referrals",
     },
     {
       label: "Settings",

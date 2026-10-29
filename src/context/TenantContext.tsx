@@ -67,6 +67,7 @@ function mapDbTenant(row: any): HospitalTenant {
       accounts: false,
       reports: false,
       admin: false,
+      referrals: true,
     },
     primaryColor: row.primary_color || "teal",
     logoBadge:

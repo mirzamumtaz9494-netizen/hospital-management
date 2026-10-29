@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   QrCode,
   Scan,
+  Share2,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { CreateOpModal } from "@/components/CreateOpModal";
@@ -412,6 +413,16 @@ export default function OutpatientPage() {
               <span className="hidden sm:inline">Patient QR &amp; Scan</span>
               <span className="sm:hidden">QR</span>
             </button>
+
+            <Link
+              href="/referrals"
+              className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition shadow-2xs hover:shadow active:scale-95"
+              title="Refer Patient to External Diagnostic / Lab or Track Inbound Referrals"
+            >
+              <Share2 className="w-4 h-4 text-teal-600" />
+              <span className="hidden sm:inline">Referrals &amp; Labs</span>
+              <span className="sm:hidden">Referrals</span>
+            </Link>
 
             <button
               onClick={handleCallNext}

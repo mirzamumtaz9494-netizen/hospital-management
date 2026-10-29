@@ -59,6 +59,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       "/reports",
       "/admin",
       "/settings",
+      "/referrals",
     ],
     allowedModules: [
       "patients",
@@ -105,7 +106,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       description:
         "Patient registration, OPD token queue, inpatient bed admission, and doctor schedule lookup.",
     },
-    allowedRoutes: ["/", "/opd", "/ipd", "/blood-bank", "/doctors", "/services"],
+    allowedRoutes: ["/", "/opd", "/ipd", "/blood-bank", "/doctors", "/services", "/referrals"],
     allowedModules: [
       "patients",
       "opd",
@@ -145,6 +146,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       "/blood-bank",
       "/doctors",
       "/reports",
+      "/referrals",
     ],
     allowedModules: [
       "opd",
@@ -175,7 +177,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       description:
         "Ward bed grid, vitals logging, nursing indents, triage queue, and patient clinical records.",
     },
-    allowedRoutes: ["/", "/opd", "/ipd", "/blood-bank", "/doctors", "/services"],
+    allowedRoutes: ["/", "/opd", "/ipd", "/blood-bank", "/doctors", "/services", "/referrals"],
     allowedModules: ["opd", "ipd", "blood_bank", "wards", "doctors", "services"],
     allowedQuickActions: [
       "emergency_services",
@@ -216,7 +218,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       description:
         "Phlebotomy sample accessioning, analyzer test results entry, and NABL diagnostic sign-offs.",
     },
-    allowedRoutes: ["/", "/laboratory", "/blood-bank", "/services"],
+    allowedRoutes: ["/", "/laboratory", "/blood-bank", "/services", "/referrals"],
     allowedModules: ["lab", "blood_bank", "services"],
     allowedQuickActions: ["lab_billing", "blood_bank", "other_services"],
   },
@@ -234,7 +236,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       description:
         "Day book cash register, advance deposits, IP discharge bill settlement, and expense vouchers.",
     },
-    allowedRoutes: ["/", "/accounts", "/services", "/opd", "/ipd"],
+    allowedRoutes: ["/", "/accounts", "/services", "/opd", "/ipd", "/referrals"],
     allowedModules: ["accounts", "services", "opd", "ipd"],
     allowedQuickActions: [
       "add_expenses",

@@ -36,6 +36,7 @@ export const AddHospitalModal: React.FC<AddHospitalModalProps> = ({
     accounts: false,
     reports: false,
     admin: false,
+    referrals: true,
   });
 
   if (!isOpen) return null;
@@ -68,6 +69,7 @@ export const AddHospitalModal: React.FC<AddHospitalModalProps> = ({
         accounts: false,
         reports: false,
         admin: false,
+        referrals: false,
       });
     } else if (newPlan === "standard_hospital") {
       setBedCapacity(20);
@@ -82,6 +84,7 @@ export const AddHospitalModal: React.FC<AddHospitalModalProps> = ({
         accounts: false,
         reports: false,
         admin: false,
+        referrals: true,
       });
     } else if (newPlan === "enterprise_multispecialty") {
       setBedCapacity(50);
@@ -96,6 +99,7 @@ export const AddHospitalModal: React.FC<AddHospitalModalProps> = ({
         accounts: true,
         reports: true,
         admin: true,
+        referrals: true,
       });
     }
   };
