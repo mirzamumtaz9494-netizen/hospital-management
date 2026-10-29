@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Bed,
@@ -50,6 +50,10 @@ import {
   MOCK_BED_TRANSFERS,
   MOCK_IP_BILLS,
 } from "@/data/ipdMockData";
+import {
+  isCleanProductionMode,
+  EVENT_NAME_DATABASE_RESET,
+} from "@/lib/databaseResetService";
 
 export default function InpatientPage() {
   const { canAccessAction, currentRole } = useRole();
@@ -59,11 +63,44 @@ export default function InpatientPage() {
   >("Bed Map");
 
   // State for all data
-  const [beds, setBeds] = useState<IpdBed[]>(MOCK_IPD_BEDS);
-  const [admissions, setAdmissions] = useState<ActiveAdmission[]>(MOCK_ACTIVE_ADMISSIONS);
-  const [discharged, setDischarged] = useState<DischargedPatient[]>(MOCK_DISCHARGED_PATIENTS);
-  const [transfers, setTransfers] = useState<BedTransferRecord[]>(MOCK_BED_TRANSFERS);
-  const [bills, setBills] = useState<IpBillDetail[]>(MOCK_IP_BILLS);
+  const [beds, setBeds] = useState<IpdBed[]>([]);
+  const [admissions, setAdmissions] = useState<ActiveAdmission[]>([]);
+  const [discharged, setDischarged] = useState<DischargedPatient[]>([]);
+  const [transfers, setTransfers] = useState<BedTransferRecord[]>([]);
+  const [bills, setBills] = useState<IpBillDetail[]>([]);
+
+  useEffect(() => {
+    const syncData = () => {
+      const isClean = isCleanProductionMode();
+      if (isClean) {
+        setAdmissions([]);
+        setDischarged([]);
+        setTransfers([]);
+        setBills([]);
+        // Mark all beds as Vacant in clean slate
+        setBeds(
+          MOCK_IPD_BEDS.map((b) => ({
+            ...b,
+            status: "Vacant",
+            patientName: undefined,
+            uhid: undefined,
+            admissionDate: undefined,
+            diagnosis: undefined,
+          }))
+        );
+      } else {
+        setBeds(MOCK_IPD_BEDS);
+        setAdmissions(MOCK_ACTIVE_ADMISSIONS);
+        setDischarged(MOCK_DISCHARGED_PATIENTS);
+        setTransfers(MOCK_BED_TRANSFERS);
+        setBills(MOCK_IP_BILLS);
+      }
+    };
+
+    syncData();
+    window.addEventListener(EVENT_NAME_DATABASE_RESET, syncData);
+    return () => window.removeEventListener(EVENT_NAME_DATABASE_RESET, syncData);
+  }, []);
 
   // Modals state
   const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);

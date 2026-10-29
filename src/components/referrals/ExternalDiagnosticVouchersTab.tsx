@@ -190,8 +190,22 @@ export const ExternalDiagnosticVouchersTab: React.FC<ExternalDiagnosticVouchersT
             <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
-                    No diagnostic vouchers found matching your filter criteria.
+                  <td colSpan={8} className="py-12 text-center">
+                    <div className="max-w-md mx-auto space-y-2">
+                      <div className="w-10 h-10 rounded-2xl bg-teal-50 text-teal-600 border border-teal-200 flex items-center justify-center mx-auto">
+                        <Barcode className="w-5 h-5" />
+                      </div>
+                      <div className="text-sm font-bold text-slate-800">
+                        {orders.length === 0
+                          ? "Clean Diagnostic Orders Ledger"
+                          : "No diagnostic vouchers match your filters"}
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        {orders.length === 0
+                          ? "No external scan vouchers issued yet. Click 'Issue Diagnostic Voucher' to refer patients to Vijaya, Lucid, Lal PathLabs, or Medall."
+                          : "Try adjusting your search query or center filter."}
+                      </p>
+                    </div>
                   </td>
                 </tr>
               ) : (

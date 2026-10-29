@@ -18,6 +18,7 @@ import {
   UserCheck,
   ArrowRight,
   Eye,
+  Share2,
 } from "lucide-react";
 import { InboundReferral, InboundReferralStatus, ReferralPriority } from "@/types";
 
@@ -192,8 +193,22 @@ export const InboundReferralsTab: React.FC<InboundReferralsTabProps> = ({
             <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
-                    No inbound referrals match your active filters.
+                  <td colSpan={7} className="py-12 text-center">
+                    <div className="max-w-md mx-auto space-y-2">
+                      <div className="w-10 h-10 rounded-2xl bg-teal-50 text-teal-600 border border-teal-200 flex items-center justify-center mx-auto">
+                        <Share2 className="w-5 h-5" />
+                      </div>
+                      <div className="text-sm font-bold text-slate-800">
+                        {referrals.length === 0
+                          ? "Clean Inbound Referral Ledger"
+                          : "No referrals match your filters"}
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        {referrals.length === 0
+                          ? "No patient referrals logged yet. Click 'Log Inbound Referral' above to register a doctor intake."
+                          : "Try adjusting your search term or status filters."}
+                      </p>
+                    </div>
                   </td>
                 </tr>
               ) : (

@@ -18,6 +18,10 @@ import { useRole } from "@/context/RoleContext";
 import { getAllLocalRecords } from "@/lib/offlineStore";
 import { supabase } from "@/lib/supabase";
 import {
+  isCleanProductionMode,
+  EVENT_NAME_DATABASE_RESET,
+} from "@/lib/databaseResetService";
+import {
   DoctorDashboardView,
   NurseDashboardView,
   CashierDashboardView,
@@ -28,7 +32,7 @@ import {
 export default function DashboardPage() {
   const { roleConfig, currentRole, canAccessModule, lockSession } =
     useRole();
-  const [patients, setPatients] = useState<Patient[]>(MOCK_PATIENTS);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [printPatient, setPrintPatient] = useState<Patient | null>(null);
@@ -58,6 +62,7 @@ export default function DashboardPage() {
   // Load patients from local IndexedDB and Supabase Cloud
   useEffect(() => {
     async function loadPatients() {
+      const isClean = isCleanProductionMode();
       const loaded: Patient[] = [];
 
       // 1. From local IndexedDB
@@ -128,18 +133,26 @@ export default function DashboardPage() {
         }
       } catch {}
 
-      if (loaded.length > 0) {
-        setPatients((prev) => {
-          const existingIds = new Set(prev.map((p) => p.mrId || p.uhid));
-          const toAdd = loaded.filter(
-            (p) => !existingIds.has(p.mrId || p.uhid)
-          );
-          return [...toAdd, ...prev];
-        });
+      if (isClean) {
+        // Clean production slate: only show real patients entered by staff
+        setPatients(loaded);
+      } else {
+        // Demo sandbox mode: combine mock patients with any local records
+        const base = [...MOCK_PATIENTS];
+        const existingIds = new Set(base.map((p) => p.mrId || p.uhid));
+        const toAdd = loaded.filter((p) => !existingIds.has(p.mrId || p.uhid));
+        setPatients([...toAdd, ...base]);
       }
     }
 
     loadPatients();
+
+    const handleReset = () => {
+      loadPatients();
+    };
+
+    window.addEventListener(EVENT_NAME_DATABASE_RESET, handleReset);
+    return () => window.removeEventListener(EVENT_NAME_DATABASE_RESET, handleReset);
   }, []);
 
   const handleQuickAction = (actionId: string) => {

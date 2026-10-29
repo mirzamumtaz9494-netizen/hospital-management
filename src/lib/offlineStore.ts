@@ -261,3 +261,48 @@ export async function purgeOldCommittedOutbox(): Promise<void> {
     };
   } catch {}
 }
+
+/**
+ * Counts records in a specific IndexedDB store safely
+ */
+export async function countLocalRecords(storeName: string): Promise<number> {
+  try {
+    const db = await openDatabase();
+    return new Promise((resolve, reject) => {
+      if (!db.objectStoreNames.contains(storeName)) {
+        resolve(0);
+        return;
+      }
+      const tx = db.transaction(storeName, "readonly");
+      const store = tx.objectStore(storeName);
+      const req = store.count();
+      req.onsuccess = () => resolve(req.result || 0);
+      req.onerror = () => reject(req.error);
+    });
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Empties all records from a specific IndexedDB object store
+ */
+export async function clearLocalStore(storeName: string): Promise<number> {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    if (!db.objectStoreNames.contains(storeName)) {
+      resolve(0);
+      return;
+    }
+    const tx = db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+    const countReq = store.count();
+    let count = 0;
+    countReq.onsuccess = () => {
+      count = countReq.result || 0;
+      store.clear();
+    };
+    tx.oncomplete = () => resolve(count);
+    tx.onerror = () => reject(tx.error);
+  });
+}

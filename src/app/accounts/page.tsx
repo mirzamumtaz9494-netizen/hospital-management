@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Wallet,
@@ -33,12 +33,30 @@ import { useRole } from "@/context/RoleContext";
 import { AccessDeniedGuard } from "@/components/AccessDeniedGuard";
 import { MOCK_ACCOUNT_TRANSACTIONS } from "@/data/accountsMockData";
 import { HospitalAccountTransaction } from "@/types";
+import {
+  isCleanProductionMode,
+  EVENT_NAME_DATABASE_RESET,
+} from "@/lib/databaseResetService";
 
 export default function AccountsPage() {
   const { canAccessRoute, canAccessAction } = useRole();
   const [transactions, setTransactions] = useState<
     HospitalAccountTransaction[]
-  >(MOCK_ACCOUNT_TRANSACTIONS);
+  >([]);
+
+  useEffect(() => {
+    const sync = () => {
+      const isClean = isCleanProductionMode();
+      if (isClean) {
+        setTransactions([]);
+      } else {
+        setTransactions(MOCK_ACCOUNT_TRANSACTIONS);
+      }
+    };
+    sync();
+    window.addEventListener(EVENT_NAME_DATABASE_RESET, sync);
+    return () => window.removeEventListener(EVENT_NAME_DATABASE_RESET, sync);
+  }, []);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTypeFilter, setSelectedTypeFilter] = useState("All");
 

@@ -212,8 +212,22 @@ export const PatientRegistryTable: React.FC<PatientRegistryTableProps> = ({
           <tbody className="divide-y divide-slate-100 text-xs">
             {filteredPatients.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-slate-500">
-                  No patient records found matching your filters.
+                <td colSpan={8} className="py-14 text-center">
+                  <div className="max-w-md mx-auto space-y-2">
+                    <div className="w-10 h-10 rounded-2xl bg-teal-50 text-teal-600 border border-teal-200 flex items-center justify-center mx-auto">
+                      <UserCheck className="w-5 h-5" />
+                    </div>
+                    <div className="text-sm font-bold text-slate-800">
+                      {patients.length === 0
+                        ? "Clean Production Slate — Ready for Live Admissions"
+                        : "No patient records match your filter"}
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      {patients.length === 0
+                        ? "Test data has been purged. Click 'Register OP' or 'Register IP' above to register your first real hospital patient."
+                        : "Try adjusting your search query or switching tabs."}
+                    </p>
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -374,8 +388,8 @@ export const PatientRegistryTable: React.FC<PatientRegistryTableProps> = ({
       {/* Table Pagination Footer */}
       <div className="p-4 sm:px-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
         <div>
-          Showing <span className="font-semibold text-slate-700">1-{filteredPatients.length}</span> of{" "}
-          <span className="font-semibold text-slate-700">248</span>
+          Showing <span className="font-semibold text-slate-700">{filteredPatients.length > 0 ? `1-${filteredPatients.length}` : "0"}</span> of{" "}
+          <span className="font-semibold text-slate-700">{patients.length}</span> patients
         </div>
 
         <div className="flex items-center gap-1">

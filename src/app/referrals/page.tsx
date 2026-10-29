@@ -46,6 +46,10 @@ import {
 } from "@/data/referralsMockData";
 import { getAllLocalRecords } from "@/lib/offlineStore";
 import { supabase } from "@/lib/supabase";
+import {
+  isCleanProductionMode,
+  EVENT_NAME_DATABASE_RESET,
+} from "@/lib/databaseResetService";
 
 export default function ReferralsPage() {
   const { canAccessRoute } = useRole();
@@ -59,10 +63,10 @@ export default function ReferralsPage() {
   >("Inbound Referrals");
 
   // Core Data States
-  const [inboundReferrals, setInboundReferrals] = useState<InboundReferral[]>(MOCK_INBOUND_REFERRALS);
+  const [inboundReferrals, setInboundReferrals] = useState<InboundReferral[]>([]);
   const [externalCenters, setExternalCenters] = useState<ExternalDiagnosticCenter[]>(MOCK_EXTERNAL_DIAGNOSTIC_CENTRES);
-  const [externalOrders, setExternalOrders] = useState<ExternalDiagnosticOrder[]>(MOCK_EXTERNAL_DIAGNOSTIC_ORDERS);
-  const [settlements, setSettlements] = useState<DiagnosticSettlement[]>(MOCK_DIAGNOSTIC_SETTLEMENTS);
+  const [externalOrders, setExternalOrders] = useState<ExternalDiagnosticOrder[]>([]);
+  const [settlements, setSettlements] = useState<DiagnosticSettlement[]>([]);
   const [activePatients, setActivePatients] = useState<Patient[]>([]);
 
   // Navigation Modals
@@ -120,31 +124,50 @@ export default function ReferralsPage() {
       if (pts.length > 0) setActivePatients(pts);
 
       // 2. Load offline referrals if any
+      let localReferrals: InboundReferral[] = [];
       try {
-        const localReferrals = await getAllLocalRecords<InboundReferral>("inbound_referrals");
-        if (localReferrals && localReferrals.length > 0) {
-          setInboundReferrals((prev) => {
-            const existingIds = new Set(prev.map((r) => r.id));
-            const toAdd = localReferrals.filter((r) => !existingIds.has(r.id));
-            return [...toAdd, ...prev];
-          });
-        }
+        const lr = await getAllLocalRecords<InboundReferral>("inbound_referrals");
+        if (lr && lr.length > 0) localReferrals = lr;
       } catch {}
 
       // 3. Load offline external orders if any
+      let localOrders: ExternalDiagnosticOrder[] = [];
       try {
-        const localOrders = await getAllLocalRecords<ExternalDiagnosticOrder>("external_diagnostic_orders");
-        if (localOrders && localOrders.length > 0) {
-          setExternalOrders((prev) => {
-            const existingIds = new Set(prev.map((o) => o.id));
-            const toAdd = localOrders.filter((o) => !existingIds.has(o.id));
-            return [...toAdd, ...prev];
-          });
-        }
+        const lo = await getAllLocalRecords<ExternalDiagnosticOrder>("external_diagnostic_orders");
+        if (lo && lo.length > 0) localOrders = lo;
       } catch {}
+
+      const isClean = isCleanProductionMode();
+
+      if (isClean) {
+        // Clean production mode: only show real records
+        setInboundReferrals(localReferrals);
+        setExternalOrders(localOrders);
+        setSettlements([]);
+      } else {
+        // Demo sandbox mode: combine mock templates with local records
+        const baseReferrals = [...MOCK_INBOUND_REFERRALS];
+        const existingRefIds = new Set(baseReferrals.map((r) => r.id));
+        const refToAdd = localReferrals.filter((r) => !existingRefIds.has(r.id));
+        setInboundReferrals([...refToAdd, ...baseReferrals]);
+
+        const baseOrders = [...MOCK_EXTERNAL_DIAGNOSTIC_ORDERS];
+        const existingOrdIds = new Set(baseOrders.map((o) => o.id));
+        const ordToAdd = localOrders.filter((o) => !existingOrdIds.has(o.id));
+        setExternalOrders([...ordToAdd, ...baseOrders]);
+
+        setSettlements(MOCK_DIAGNOSTIC_SETTLEMENTS);
+      }
     }
 
     hydrate();
+
+    const handleReset = () => {
+      hydrate();
+    };
+
+    window.addEventListener(EVENT_NAME_DATABASE_RESET, handleReset);
+    return () => window.removeEventListener(EVENT_NAME_DATABASE_RESET, handleReset);
   }, []);
 
   // Update inbound status

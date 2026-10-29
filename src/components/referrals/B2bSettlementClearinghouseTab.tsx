@@ -225,7 +225,24 @@ export const B2bSettlementClearinghouseTab: React.FC<B2bSettlementClearinghouseT
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {settlements.map((s) => (
+              {settlements.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="py-12 text-center">
+                    <div className="max-w-md mx-auto space-y-2">
+                      <div className="w-10 h-10 rounded-2xl bg-teal-50 text-teal-600 border border-teal-200 flex items-center justify-center mx-auto">
+                        <DollarSign className="w-5 h-5" />
+                      </div>
+                      <div className="text-sm font-bold text-slate-800">
+                        Clean B2B Settlement Ledger
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        No settlements recorded yet. Once diagnostic centers invoice monthly outsourced scans, record their NEFT/RTGS bank settlements here.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                settlements.map((s) => (
                 <tr key={s.id} className="hover:bg-slate-50/60 transition">
                   <td className="py-3.5 px-4 whitespace-nowrap">
                     <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
@@ -273,7 +290,7 @@ export const B2bSettlementClearinghouseTab: React.FC<B2bSettlementClearinghouseT
                     </span>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

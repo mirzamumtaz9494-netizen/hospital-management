@@ -18,6 +18,10 @@ import { PatientQrCardModal } from "@/components/common/PatientQrCardModal";
 import { QuickMenuModal } from "@/components/QuickMenuModal";
 import { getAllLocalRecords } from "@/lib/offlineStore";
 import { supabase } from "@/lib/supabase";
+import {
+  isCleanProductionMode,
+  EVENT_NAME_DATABASE_RESET,
+} from "@/lib/databaseResetService";
 import { OpdQueueTab } from "@/components/opd/OpdQueueTab";
 import { OpdAppointmentsTab } from "@/components/opd/OpdAppointmentsTab";
 import { OpdConsultationsTab } from "@/components/opd/OpdConsultationsTab";
@@ -51,11 +55,11 @@ export default function OutpatientPage() {
   >("Queue");
 
   // State for all tabs
-  const [queue, setQueue] = useState<OpQueueItem[]>(MOCK_OP_QUEUE);
-  const [allRecords, setAllRecords] = useState<AllOpRecord[]>(MOCK_ALL_OP_RECORDS);
-  const [appointments, setAppointments] = useState<AppointmentItem[]>(MOCK_APPOINTMENTS);
-  const [followUps, setFollowUps] = useState<FollowUpItem[]>(MOCK_FOLLOW_UPS);
-  const [bills, setBills] = useState<OpBillItem[]>(MOCK_OP_BILLS);
+  const [queue, setQueue] = useState<OpQueueItem[]>([]);
+  const [allRecords, setAllRecords] = useState<AllOpRecord[]>([]);
+  const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
+  const [followUps, setFollowUps] = useState<FollowUpItem[]>([]);
+  const [bills, setBills] = useState<OpBillItem[]>([]);
 
   // Modals & previews
   const [isOpModalOpen, setIsOpModalOpen] = useState(false);
@@ -205,21 +209,39 @@ export default function OutpatientPage() {
         console.warn("Failed to load cloud patients:", err);
       }
 
-      if (loadedQueueItems.length > 0) {
-        setQueue((prev) => {
-          const existingMrIds = new Set(prev.map((i) => i.mrId));
-          const toAdd = loadedQueueItems.filter((i) => !existingMrIds.has(i.mrId));
-          return [...toAdd, ...prev];
-        });
-        setAllRecords((prev) => {
-          const existingMrIds = new Set(prev.map((i) => i.mrId));
-          const toAdd = loadedAllRecords.filter((i) => !existingMrIds.has(i.mrId));
-          return [...toAdd, ...prev];
-        });
+      const isClean = isCleanProductionMode();
+
+      if (isClean) {
+        setQueue(loadedQueueItems);
+        setAllRecords(loadedAllRecords);
+        setAppointments([]);
+        setFollowUps([]);
+        setBills([]);
+      } else {
+        const baseQueue = [...MOCK_OP_QUEUE];
+        const existingQMrIds = new Set(baseQueue.map((i) => i.mrId));
+        const qToAdd = loadedQueueItems.filter((i) => !existingQMrIds.has(i.mrId));
+        setQueue([...qToAdd, ...baseQueue]);
+
+        const baseRecords = [...MOCK_ALL_OP_RECORDS];
+        const existingRMrIds = new Set(baseRecords.map((i) => i.mrId));
+        const rToAdd = loadedAllRecords.filter((i) => !existingRMrIds.has(i.mrId));
+        setAllRecords([...rToAdd, ...baseRecords]);
+
+        setAppointments(MOCK_APPOINTMENTS);
+        setFollowUps(MOCK_FOLLOW_UPS);
+        setBills(MOCK_OP_BILLS);
       }
     }
 
     loadPatients();
+
+    const handleReset = () => {
+      loadPatients();
+    };
+
+    window.addEventListener(EVENT_NAME_DATABASE_RESET, handleReset);
+    return () => window.removeEventListener(EVENT_NAME_DATABASE_RESET, handleReset);
   }, []);
 
   // Top action: Call Next Waiting Patient

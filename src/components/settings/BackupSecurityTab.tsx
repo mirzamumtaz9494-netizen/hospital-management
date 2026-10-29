@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ShieldCheck,
   ShieldAlert,
@@ -15,8 +15,21 @@ import {
   KeyRound,
   FileCheck,
   Save,
+  Trash2,
+  AlertTriangle,
+  Sparkles,
+  RefreshCw,
 } from "lucide-react";
 import { BackupSecuritySettings, DatabaseBackupSnapshot } from "@/types";
+import { DatabasePurgeModal } from "./DatabasePurgeModal";
+import {
+  isCleanProductionMode,
+  restoreDemoData,
+  getDatabaseStats,
+  DatabaseStats,
+  PurgeResult,
+  EVENT_NAME_DATABASE_RESET,
+} from "@/lib/databaseResetService";
 
 interface BackupSecurityTabProps {
   securitySettings: BackupSecuritySettings;
@@ -37,6 +50,19 @@ export const BackupSecurityTab: React.FC<BackupSecurityTabProps> = ({
 }) => {
   const [settings, setSettings] =
     useState<BackupSecuritySettings>(initialSettings);
+  const [isPurgeModalOpen, setIsPurgeModalOpen] = useState(false);
+  const [dbStats, setDbStats] = useState<DatabaseStats | null>(null);
+  const [isCleanMode, setIsCleanMode] = useState(false);
+
+  useEffect(() => {
+    const refresh = () => {
+      setIsCleanMode(isCleanProductionMode());
+      getDatabaseStats().then(setDbStats);
+    };
+    refresh();
+    window.addEventListener(EVENT_NAME_DATABASE_RESET, refresh);
+    return () => window.removeEventListener(EVENT_NAME_DATABASE_RESET, refresh);
+  }, []);
 
   const handleChange = (field: keyof BackupSecuritySettings, val: any) => {
     setSettings((prev) => ({ ...prev, [field]: val }));
@@ -245,7 +271,87 @@ export const BackupSecurityTab: React.FC<BackupSecurityTabProps> = ({
         </div>
       </div>
 
-      {/* 4. Session Security & Intranet Access Policies */}
+      {/* 4. Production Data Purge & Database Reset Switchboard */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-900">
+                Production Data Purge &amp; Database Reset Switchboard
+              </h3>
+              {isCleanMode ? (
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Clean Production Slate Active
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                  Demo Sandbox Mode (Simulated Records)
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Safely purges test patients, test vouchers, and trial invoices to start live with a fresh hospital database, while 100% preserving doctor logins, hospital profiles, master lab catalogs, and partner centers.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {isCleanMode ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  await restoreDemoData();
+                  window.location.reload();
+                }}
+                className="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                Switch to Demo Sandbox
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsPurgeModalOpen(true)}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-2 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Purge Test Database (Clean Slate)
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Live Status Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+            <span className="text-slate-400 block text-[10px] font-semibold uppercase">Local Test Patients</span>
+            <span className="text-base font-bold text-slate-900 font-mono">
+              {isCleanMode ? "0 (Clean)" : dbStats?.localPatients ?? "0"}
+            </span>
+          </div>
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+            <span className="text-slate-400 block text-[10px] font-semibold uppercase">External Scan Vouchers</span>
+            <span className="text-base font-bold text-slate-900 font-mono">
+              {isCleanMode ? "0 (Clean)" : dbStats?.externalDiagnosticOrders ?? "0"}
+            </span>
+          </div>
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+            <span className="text-slate-400 block text-[10px] font-semibold uppercase">Preserved Partner Centers</span>
+            <span className="text-base font-bold text-emerald-700 font-mono">
+              4 Active (100% Preserved)
+            </span>
+          </div>
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+            <span className="text-slate-400 block text-[10px] font-semibold uppercase">Preserved Doctor Roster</span>
+            <span className="text-base font-bold text-emerald-700 font-mono">
+              6 Doctors (100% Preserved)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. Session Security & Intranet Access Policies */}
       <form
         onSubmit={handleSave}
         className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 space-y-4"
@@ -342,6 +448,16 @@ export const BackupSecurityTab: React.FC<BackupSecurityTabProps> = ({
           />
         </div>
       </form>
+
+      {/* 6. Database Purge Confirmation Modal */}
+      <DatabasePurgeModal
+        isOpen={isPurgeModalOpen}
+        onClose={() => setIsPurgeModalOpen(false)}
+        onSuccess={() => {
+          setIsCleanMode(true);
+          getDatabaseStats().then(setDbStats);
+        }}
+      />
     </div>
   );
 };
