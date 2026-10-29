@@ -545,15 +545,97 @@ export interface WardIndent {
   status: "Pending Review" | "Issued & Dispatched" | "Delivered";
 }
 
+export interface PharmacyVendor {
+  id: string;
+  name: string;
+  dlNumber: string; // Drug License Number e.g. 20B/21B-TS/HYD/48192
+  gstin: string; // GST Identification Number
+  contactPerson: string;
+  phone: string;
+  email: string;
+  address: string;
+  creditDays: number;
+  paymentTerms: string;
+  bankDetails?: {
+    bankName: string;
+    accountNumber: string;
+    ifscCode: string;
+  };
+  activeStatus: "Active" | "Inactive";
+}
+
+export interface PoLineItem {
+  id: string;
+  medicineId: string;
+  medicineName: string;
+  genericName?: string;
+  packSize: string; // e.g. Strip of 10, Vial, Bottle 100ml
+  orderedQuantity: number;
+  unitCost: number; // Agreed Purchase Rate
+  gstPercent: number; // 5%, 12%, 18%
+  totalAmount: number;
+  receivedQuantity?: number;
+}
+
+export interface GrnLineItem {
+  id: string;
+  medicineId: string;
+  medicineName: string;
+  orderedQty: number;
+  receivedQty: number;
+  freeBonusQty: number; // Scheme free goods (e.g. 10 + 1 free)
+  rejectedQty: number; // Broken/damaged/cold-chain failure
+  acceptedQty: number; // Net increment to hospital inventory
+  manufacturerBatchNo: string;
+  expiryDate: string; // MM/YYYY
+  purchaseRate: number; // Actual invoice rate per unit
+  agreedPoRate: number; // Expected rate from PO
+  mrp: number; // Maximum Retail Price
+  gstPercent: number;
+  totalCost: number;
+  hasPriceVariance?: boolean;
+}
+
+export interface GrnReceipt {
+  id: string;
+  grnNumber: string; // e.g. GRN-2026-0542
+  poId: string;
+  poNumber: string;
+  vendorId: string;
+  supplierName: string;
+  vendorInvoiceNo: string;
+  vendorInvoiceDate: string;
+  deliveryChallanNo: string;
+  receivedDate: string;
+  receivedBy: string; // Pharmacist In-Charge
+  items: GrnLineItem[];
+  invoiceTotal: number;
+  isVarianceDetected: boolean;
+  varianceNotes?: string;
+  qcStatus: "Verified & Accepted" | "Partial Discrepancy" | "Rejected";
+  stockUpdated: boolean;
+  createdAt: string;
+}
+
 export interface PharmacyPurchaseOrder {
   id: string;
   poNumber: string;
+  vendorId?: string;
   supplierName: string;
+  vendorGstin?: string;
+  vendorDlNumber?: string;
   orderDate: string;
   expectedDate: string;
+  items?: PoLineItem[];
   itemsCount: number;
+  subtotal?: number;
+  taxAmount?: number;
   totalAmount: number;
-  status: "Order Placed" | "Goods Received (GRN)" | "Payment Settled";
+  paymentTerms?: string;
+  notes?: string;
+  status: "Draft" | "Order Placed" | "Partially Received" | "Goods Received (GRN)" | "Payment Settled";
+  grnId?: string;
+  grnNumber?: string;
 }
 
 /* ========================================================================= */

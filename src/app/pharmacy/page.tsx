@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Pill,
@@ -31,18 +31,30 @@ import { PrintPharmacyBillModal } from "@/components/pharmacy/PrintPharmacyBillM
 import { AddMedicineModal } from "@/components/pharmacy/AddMedicineModal";
 import { StockAdjustmentModal } from "@/components/pharmacy/StockAdjustmentModal";
 import { PrintWardIndentSlipModal } from "@/components/pharmacy/PrintWardIndentSlipModal";
+import { NewPurchaseOrderModal } from "@/components/pharmacy/NewPurchaseOrderModal";
+import { RecordGrnModal } from "@/components/pharmacy/RecordGrnModal";
+import { PrintPurchaseOrderModal } from "@/components/pharmacy/PrintPurchaseOrderModal";
+import { PrintGrnModal } from "@/components/pharmacy/PrintGrnModal";
 import {
   PharmacyOrder,
   MedicineItem,
   WardIndent,
   PharmacyPurchaseOrder,
+  GrnReceipt,
+  PharmacyVendor,
 } from "@/types";
 import {
   MOCK_PHARMACY_ORDERS,
   MOCK_MEDICINES,
   MOCK_WARD_INDENTS,
   MOCK_PURCHASE_ORDERS,
+  MOCK_PHARMACY_VENDORS,
+  MOCK_GRN_RECEIPTS,
 } from "@/data/pharmacyMockData";
+import {
+  isCleanProductionMode,
+  EVENT_NAME_DATABASE_RESET,
+} from "@/lib/databaseResetService";
 
 export default function PharmacyPage() {
   const { canAccessRoute } = useRole();
@@ -61,6 +73,8 @@ export default function PharmacyPage() {
   const [purchaseOrders, setPurchaseOrders] = useState<PharmacyPurchaseOrder[]>(
     MOCK_PURCHASE_ORDERS
   );
+  const [grnReceipts, setGrnReceipts] = useState<GrnReceipt[]>(MOCK_GRN_RECEIPTS);
+  const [vendors, setVendors] = useState<PharmacyVendor[]>(MOCK_PHARMACY_VENDORS);
 
   // Modals state
   const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
@@ -85,6 +99,37 @@ export default function PharmacyPage() {
   // Print Ward Indent Slip Modal
   const [printIndentModalOpen, setPrintIndentModalOpen] = useState(false);
   const [indentToPrint, setIndentToPrint] = useState<WardIndent | null>(null);
+
+  // PO & GRN Modals
+  const [isNewPoModalOpen, setIsNewPoModalOpen] = useState(false);
+  const [isGrnModalOpen, setIsGrnModalOpen] = useState(false);
+  const [selectedPoForGrn, setSelectedPoForGrn] = useState<PharmacyPurchaseOrder | null>(null);
+  const [isPrintPoModalOpen, setIsPrintPoModalOpen] = useState(false);
+  const [selectedPoForPrint, setSelectedPoForPrint] = useState<PharmacyPurchaseOrder | null>(null);
+  const [isPrintGrnModalOpen, setIsPrintGrnModalOpen] = useState(false);
+  const [selectedGrnForPrint, setSelectedGrnForPrint] = useState<GrnReceipt | null>(null);
+
+  // Clean Production Mode sync
+  useEffect(() => {
+    const syncMode = () => {
+      const isClean = isCleanProductionMode();
+      if (isClean) {
+        setOrders([]);
+        setIndents([]);
+        setPurchaseOrders([]);
+        setGrnReceipts([]);
+      } else {
+        setOrders(MOCK_PHARMACY_ORDERS);
+        setMedicines(MOCK_MEDICINES);
+        setIndents(MOCK_WARD_INDENTS);
+        setPurchaseOrders(MOCK_PURCHASE_ORDERS);
+        setGrnReceipts(MOCK_GRN_RECEIPTS);
+      }
+    };
+    syncMode();
+    window.addEventListener(EVENT_NAME_DATABASE_RESET, syncMode);
+    return () => window.removeEventListener(EVENT_NAME_DATABASE_RESET, syncMode);
+  }, []);
 
   // Notification Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -233,19 +278,58 @@ export default function PharmacyPage() {
     setPrintIndentModalOpen(true);
   };
 
-  // 7. Purchase Order GRN Receipt
-  const handleReceiveGoods = (poId: string) => {
+  // 7. Purchase Order Creation & 3-Way GRN Handlers
+  const handleCreatePo = (newPo: PharmacyPurchaseOrder) => {
+    setPurchaseOrders((prev) => [newPo, ...prev]);
+    showToast(`Purchase Order ${newPo.poNumber} generated for ${newPo.supplierName}!`);
+  };
+
+  const handleConfirmGrn = (
+    newGrn: GrnReceipt,
+    shouldAutoIncrementStock: boolean
+  ) => {
+    setGrnReceipts((prev) => [newGrn, ...prev]);
+
+    // Update PO status
     setPurchaseOrders((prev) =>
       prev.map((po) =>
-        po.id === poId
+        po.id === newGrn.poId
           ? {
               ...po,
               status: "Goods Received (GRN)",
+              grnId: newGrn.id,
+              grnNumber: newGrn.grnNumber,
             }
           : po
       )
     );
-    showToast(`Goods Received Note (GRN) generated! Stock levels updated.`);
+
+    // Auto-increment medicine stock
+    if (shouldAutoIncrementStock) {
+      setMedicines((prevMeds) =>
+        prevMeds.map((med) => {
+          const matched = newGrn.items.find((gi) => gi.medicineId === med.id);
+          if (matched) {
+            const addedUnits = matched.acceptedQty + (matched.freeBonusQty || 0);
+            const updatedStock = med.stockQuantity + addedUnits;
+            return {
+              ...med,
+              stockQuantity: updatedStock,
+              batchNo: matched.manufacturerBatchNo || med.batchNo,
+              expiryDate: matched.expiryDate || med.expiryDate,
+              unitCost: matched.purchaseRate || med.unitCost,
+              mrp: matched.mrp || med.mrp,
+              status: updatedStock > med.minReorderLevel ? "In Stock" : med.status,
+            };
+          }
+          return med;
+        })
+      );
+    }
+
+    showToast(
+      `Goods Received Note ${newGrn.grnNumber} finalized! Pharmacy inventory auto-incremented.`
+    );
   };
 
   // Quick Action Handler for Cmd+K menu
@@ -456,8 +540,21 @@ export default function PharmacyPage() {
           {activeTab === "Purchases & PO" && (
             <PharmacyPurchasesTab
               purchaseOrders={purchaseOrders}
-              onCreatePo={() => showToast("PO generation template ready")}
-              onReceiveGoods={handleReceiveGoods}
+              grnReceipts={grnReceipts}
+              vendors={vendors}
+              onCreatePo={() => setIsNewPoModalOpen(true)}
+              onOpenGrnModal={(po) => {
+                setSelectedPoForGrn(po);
+                setIsGrnModalOpen(true);
+              }}
+              onPrintPo={(po) => {
+                setSelectedPoForPrint(po);
+                setIsPrintPoModalOpen(true);
+              }}
+              onPrintGrn={(grn) => {
+                setSelectedGrnForPrint(grn);
+                setIsPrintGrnModalOpen(true);
+              }}
             />
           )}
         </div>
@@ -529,6 +626,46 @@ export default function PharmacyPage() {
           setPrintIndentModalOpen(false);
           setIndentToPrint(null);
         }}
+      />
+
+      {/* New Purchase Order Modal */}
+      <NewPurchaseOrderModal
+        isOpen={isNewPoModalOpen}
+        onClose={() => setIsNewPoModalOpen(false)}
+        availableMedicines={medicines}
+        availableVendors={vendors}
+        onSubmitPo={handleCreatePo}
+      />
+
+      {/* Record 3-Way Match GRN Modal */}
+      <RecordGrnModal
+        isOpen={isGrnModalOpen}
+        onClose={() => {
+          setIsGrnModalOpen(false);
+          setSelectedPoForGrn(null);
+        }}
+        purchaseOrder={selectedPoForGrn}
+        onConfirmGrn={handleConfirmGrn}
+      />
+
+      {/* Print Official Purchase Order Modal */}
+      <PrintPurchaseOrderModal
+        isOpen={isPrintPoModalOpen}
+        onClose={() => {
+          setIsPrintPoModalOpen(false);
+          setSelectedPoForPrint(null);
+        }}
+        order={selectedPoForPrint}
+      />
+
+      {/* Print Official GRN Inspection Slip Modal */}
+      <PrintGrnModal
+        isOpen={isPrintGrnModalOpen}
+        onClose={() => {
+          setIsPrintGrnModalOpen(false);
+          setSelectedGrnForPrint(null);
+        }}
+        grn={selectedGrnForPrint}
       />
     </div>
   );
