@@ -63,15 +63,15 @@ export default function LoginPage() {
         setTerminalStation("Nursing Station - ICU & Ward 3");
         break;
       case "pharmacist":
-        setStaffId("CP-PHARM-505");
+        setStaffId("ananya.deshmukh@apexcarehospital.com");
         setTerminalStation("Central Formulary & Dispensing POS");
         break;
       case "lab_tech":
-        setStaffId("CP-LAB-602");
+        setStaffId("karan.verma@apexcarehospital.com");
         setTerminalStation("Central Diagnostic & Pathology Station");
         break;
       case "cashier":
-        setStaffId("CP-CASH-701");
+        setStaffId("ramesh.sharma@apexcarehospital.com");
         setTerminalStation("Main Cash Desk & Accounts Counter");
         break;
     }

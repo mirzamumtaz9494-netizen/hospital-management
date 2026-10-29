@@ -228,7 +228,7 @@ export const ROLES_REGISTRY: Record<RoleKey, RoleConfig> = {
       name: "Ramesh Sharma",
       roleLabel: "Hospital Accountant & Cashier",
       department: "Finance, Billing & Accounts Desk",
-      email: "ramesh.sharma@VitalSync.hms",
+      email: "ramesh.sharma@apexcarehospital.com",
       avatar:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=256&auto=format&fit=crop",
       badge: "Hospital Accountant",
