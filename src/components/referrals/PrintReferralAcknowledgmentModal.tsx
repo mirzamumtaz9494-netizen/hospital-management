@@ -36,10 +36,10 @@ export const PrintReferralAcknowledgmentModal: React.FC<PrintReferralAcknowledgm
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto print:p-0 print:bg-white">
-      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-auto print:shadow-none print:border-none print:max-w-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto print:static print:p-0 print:m-0 print:overflow-visible print:bg-white">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-auto print:static print:w-full print:max-w-none print:shadow-none print:border-none print:m-0 print:overflow-visible">
         {/* Controls */}
-        <div className="flex items-center justify-between px-5 py-4 bg-slate-900 text-white print:hidden">
+        <div className="no-print flex items-center justify-between px-5 py-4 bg-slate-900 text-white">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
               <ShieldCheck className="w-4 h-4" />
@@ -67,7 +67,7 @@ export const PrintReferralAcknowledgmentModal: React.FC<PrintReferralAcknowledgm
         </div>
 
         {/* Printable Letter */}
-        <div ref={printRef} className="p-8 sm:p-10 text-slate-800 space-y-6 print:p-6 print:space-y-4 font-sans">
+        <div ref={printRef} className="print-container p-8 sm:p-10 text-slate-800 space-y-6 print:p-6 print:space-y-4 font-sans bg-white">
           {/* Header */}
           <div className="border-b-2 border-slate-900 pb-4 flex items-start justify-between">
             <div>
